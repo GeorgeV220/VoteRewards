@@ -56,6 +56,11 @@ compileJava {
     options.forkOptions.executable = 'javac'
 }
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 archivesBaseName = project.property("pluginName")
 
 repositories {
