@@ -1,3 +1,13 @@
+# [7.0.0](https://github.com/GeorgeV220/VoteRewards6/compare/v6.0.0...v7.0.0) (2022-03-13)
+
+
+* chore!: JavaDocs and Sources ([54a0a30](https://github.com/GeorgeV220/VoteRewards6/commit/54a0a30fa15884e74e30e0fc5747b8888417daef))
+
+
+### BREAKING CHANGES
+
+* Now gradle will Generate JavaDocs and Sources
+
 # 1.0.0 (2022-03-13)
 
 
