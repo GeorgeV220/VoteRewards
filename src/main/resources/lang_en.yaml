@@ -1,5 +1,23 @@
 # See https://github.com/aikar/commands/wiki/Locales
 commands:
   descriptions:
-    info: 'Prints out the players name and play time.'
-  info: 'Your name is: {player}. Playtime: {play_time}.'
+    fakevote: 'Sends a fake vote for the target player.'
+    hologram: 'Creates, remove or update a hologram.'
+    vote: 'Shows the player''s total votes.'
+    votes: 'Shows the player'' or target player''s total votes.'
+    rewards: 'Shows the vote rewards.'
+    votetop: 'Displays the top voters.'
+    voteparty:
+      basic: 'The basic voteparty command'
+      start: 'Start the voteparty.'
+      give: 'Give a vote party crate.'
+      claim: 'Claim a vote party crate.'
+    votereward:
+      basic: 'The basic voterewards command'
+      help: 'Shows the help page.'
+      reload: 'Reload all the configuration files.'
+      backup: 'Backup all user data.'
+      clear: 'Clear user data.'
+      restore: 'Restore all user data.'
+      set: 'Set values to a target player.'
+      region: 'Add a region to force not give vote party crates.'

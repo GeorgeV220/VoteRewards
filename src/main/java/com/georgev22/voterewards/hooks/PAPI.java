@@ -1,6 +1,6 @@
 package com.georgev22.voterewards.hooks;
 
-import com.georgev22.api.maps.ObjectMap;
+import com.georgev22.api.maps.HashObjectMap;
 import com.georgev22.api.minecraft.MinecraftUtils;
 import com.georgev22.api.utilities.Utils;
 import com.georgev22.voterewards.VoteRewardPlugin;
@@ -22,7 +22,7 @@ public class PAPI extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getIdentifier() {
-        return "com/georgev22/voterewards";
+        return "voterewards";
     }
 
     @Override
@@ -82,11 +82,11 @@ public class PAPI extends PlaceholderExpansion {
         if (identifier.equalsIgnoreCase("voteparty_votes_full")) {
             return OptionsUtil.VOTEPARTY_PLAYERS.getBooleanValue() & VotePartyUtils.isWaitingForPlayers() ? MinecraftUtils.colorize(Utils.placeHolder(
                     MessagesUtil.VOTEPARTY_WAITING_FOR_MORE_PLAYERS_PLACEHOLDER.getMessages()[0],
-                    ObjectMap.newHashObjectMap()
-                            .append("%online%", Bukkit.getOnlinePlayers().size())
-                            .append("%need%", OptionsUtil.VOTEPARTY_PLAYERS_NEED.getIntValue()), true)) : MinecraftUtils.colorize(Utils.placeHolder(
+                    new HashObjectMap<String, String>()
+                            .append("%online%", String.valueOf(Bukkit.getOnlinePlayers().size()))
+                            .append("%need%", String.valueOf(OptionsUtil.VOTEPARTY_PLAYERS_NEED.getIntValue())), true)) : MinecraftUtils.colorize(Utils.placeHolder(
                     MessagesUtil.VOTEPARTY_PLAYERS_FULL_PLACEHOLDER.getMessages()[0],
-                    ObjectMap.newHashObjectMap()
+                    new HashObjectMap<String, String>()
                             .append("%until%", String.valueOf(OptionsUtil.VOTEPARTY_VOTES.getIntValue()
                                     - fm.getData().getFileConfiguration().getInt("VoteParty-Votes", 0)))
                             .append("%total%", String.valueOf(fm.getData().getFileConfiguration().getInt("VoteParty-Votes")))

@@ -1,46 +1,36 @@
 package com.georgev22.voterewards.commands;
 
-import com.georgev22.api.maps.ObjectMap;
-import com.georgev22.api.minecraft.MinecraftUtils;
+import co.aikar.commands.annotation.CommandAlias;
+import co.aikar.commands.annotation.CommandPermission;
+import co.aikar.commands.annotation.Default;
+import co.aikar.commands.annotation.Description;
 import com.georgev22.voterewards.utilities.MessagesUtil;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.georgev22.voterewards.utilities.inventories.VoteTopInventory;
 import com.georgev22.voterewards.utilities.player.VoteUtils;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
+@CommandAlias("votetop|vtop|vrtop|vvtop")
+public class VoteTopCommand extends Command {
 
-public class VoteTopCommand extends BukkitCommand {
-
-
-    public VoteTopCommand() {
-        super("votetop");
-        this.description = "Votes command";
-        this.usageMessage = "/votes";
-        this.setPermission("voterewards.votetop");
-        this.setPermissionMessage(MinecraftUtils.colorize(MessagesUtil.NO_PERMISSION.getMessages()[0]));
-        this.setAliases(Arrays.asList("vtop", "vrtop", "vvtop"));
-    }
-
-    public boolean execute(@NotNull final CommandSender sender, @NotNull final String label, final String[] args) {
-        if (!testPermission(sender)) return true;
-        if (!(sender instanceof Player)) {
+    @Default
+    @Description("{@@commands.descriptions.votetop}")
+    @CommandPermission("voterewards.votetop")
+    public void execute(@NotNull final CommandSender sender, final String[] args) {
+        if (!(sender instanceof Player player)) {
             sendMsg(sender);
         } else {
             if (OptionsUtil.EXPERIMENTAL_FEATURES.getBooleanValue() && OptionsUtil.VOTETOP_GUI.getBooleanValue()) {
-                new VoteTopInventory().openTopPlayersInventory(((Player) sender).getPlayer(), !OptionsUtil.VOTETOP_GUI_TYPE.getStringValue().equalsIgnoreCase("monthly"));
+                new VoteTopInventory().openTopPlayersInventory(player, !OptionsUtil.VOTETOP_GUI_TYPE.getStringValue().equalsIgnoreCase("monthly"));
             } else {
-                sendMsg(sender);
+                sendMsg(player);
             }
         }
-        return true;
     }
 
-    public void sendMsg(CommandSender sender) {
-        ObjectMap<String, String> placeholders = ObjectMap.newHashObjectMap();
+    private void sendMsg(CommandSender sender) {
 
         if (OptionsUtil.VOTETOP_HEADER.getBooleanValue())
             MessagesUtil.VOTE_TOP_HEADER.msg(sender);

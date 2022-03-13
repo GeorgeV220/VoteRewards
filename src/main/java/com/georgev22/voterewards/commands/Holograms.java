@@ -1,69 +1,58 @@
 package com.georgev22.voterewards.commands;
 
+import co.aikar.commands.annotation.*;
 import com.georgev22.api.minecraft.MinecraftUtils;
-import com.georgev22.voterewards.VoteRewardPlugin;
 import com.georgev22.voterewards.hooks.HolographicDisplays;
-import com.georgev22.voterewards.utilities.MessagesUtil;
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Arrays;
 
 /**
  * @author GeorgeV22
  */
-public class Holograms extends BukkitCommand {
+@CommandAlias("hologram|vrhologram|vrh")
+public class Holograms extends Command {
 
-    private final VoteRewardPlugin m = VoteRewardPlugin.getInstance();
-
-    public Holograms() {
-        super("hologram");
-        this.description = "hologram command";
-        this.usageMessage = "/hologram";
-        this.setPermission("voterewards.hologram");
-        this.setPermissionMessage(MinecraftUtils.colorize(MessagesUtil.NO_PERMISSION.getMessages()[0]));
-        this.setAliases(Arrays.asList("vrhologram", "vrh"));
-    }
-
-    @Override
-    public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, String[] args) {
-        if (!testPermission(sender)) return true;
+    @Default
+    @Description("{@@commands.descriptions.hologram}")
+    @CommandCompletion("@players")
+    @Syntax("<create|remove|update> <hologram>")
+    @CommandPermission("voterewards.hologram")
+    public void execute(@NotNull CommandSender sender, String[] args) {
         if (!Bukkit.getServer().getPluginManager().isPluginEnabled("HolographicDisplays")) {
             MinecraftUtils.msg(sender, "&c&l(!) &cHolographicDisplays is not enabled!");
-            return true;
+            return;
         }
 
         if (args.length == 0) {
             MinecraftUtils.msg(sender, "&c&l(!) &cNot enough arguments!");
-            return true;
+            return;
         }
 
         Player player = (Player) sender;
         if (args[0].equalsIgnoreCase("create")) {
             if (args.length < 3) {
                 MinecraftUtils.msg(player, "&c&l(!) &cUsage: /hologram create <hologramName> <type>");
-                return true;
+                return;
             }
 
             if (HolographicDisplays.hologramExists(args[1])) {
                 MinecraftUtils.msg(sender, "&c&l(!) &cHologram already exists!");
-                return true;
+                return;
             }
 
-            if (m.getConfig().get("Holograms." + args[2]) == null) {
+            if (voteRewardPlugin.getConfig().get("Holograms." + args[2]) == null) {
                 MinecraftUtils.msg(sender, "&c&l(!) &cHologram type doesn't exists!");
-                return true;
+                return;
             }
 
             HolographicDisplays.show(HolographicDisplays.updateHologram(HolographicDisplays.create(
                                     args[1],
                                     player.getLocation(),
                                     args[2], true),
-                            m.getConfig().getStringList("Holograms." + args[2]).toArray(new String[0]), HolographicDisplays.getPlaceholderMap()),
+                            voteRewardPlugin.getConfig().getStringList("Holograms." + args[2]).toArray(new String[0]), HolographicDisplays.getPlaceholderMap()),
                     player);
 
             HolographicDisplays.getPlaceholderMap().clear();
@@ -73,12 +62,12 @@ public class Holograms extends BukkitCommand {
         } else if (args[0].equalsIgnoreCase("remove")) {
             if (args.length == 1) {
                 MinecraftUtils.msg(player, "&c&l(!) &cUsage: /hologram remove <hologramName>");
-                return true;
+                return;
             }
 
             if (!HolographicDisplays.hologramExists(args[1])) {
                 MinecraftUtils.msg(sender, "&c&l(!) &cHologram doesn't exists!");
-                return true;
+                return;
             }
 
             HolographicDisplays.remove(args[1], true);
@@ -87,16 +76,15 @@ public class Holograms extends BukkitCommand {
         } else if (args[0].equalsIgnoreCase("update")) {
             if (HolographicDisplays.hologramExists(args[1])) {
                 Hologram hologram = HolographicDisplays.getHologramMap().get(args[1]);
-                HolographicDisplays.updateHologram(hologram, m.getConfig().getStringList("Holograms." + args[2]).toArray(new String[0]), HolographicDisplays.getPlaceholderMap());
+                HolographicDisplays.updateHologram(hologram, voteRewardPlugin.getConfig().getStringList("Holograms." + args[2]).toArray(new String[0]), HolographicDisplays.getPlaceholderMap());
                 HolographicDisplays.getPlaceholderMap().clear();
                 HolographicDisplays.hide(hologram, player);
-                Bukkit.getScheduler().runTaskLaterAsynchronously(m, () -> HolographicDisplays.show(hologram, player), 20);
+                Bukkit.getScheduler().runTaskLaterAsynchronously(voteRewardPlugin, () -> HolographicDisplays.show(hologram, player), 20);
                 MinecraftUtils.msg(player, args[1] + " " + args[2]);
                 MinecraftUtils.msg(sender, "&a&l(!) &aHologram " + args[1] + " successfully updated!");
             } else {
                 MinecraftUtils.msg(player, "&c&l(!) &cHologram doesn't exists!");
             }
         }
-        return true;
     }
 }

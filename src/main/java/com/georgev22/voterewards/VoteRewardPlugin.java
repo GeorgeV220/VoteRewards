@@ -1,5 +1,6 @@
 package com.georgev22.voterewards;
 
+import co.aikar.commands.PaperCommandManager;
 import com.georgev22.api.database.Database;
 import com.georgev22.api.database.mongo.MongoDB;
 import com.georgev22.api.database.sql.mysql.MySQL;
@@ -27,18 +28,21 @@ import lombok.Getter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.Objects;
 
 import static com.georgev22.api.utilities.Utils.*;
@@ -94,6 +98,9 @@ public class VoteRewardPlugin extends JavaPlugin {
 
     private PAPI placeholdersAPI = null;
 
+    @Getter
+    private PaperCommandManager commandManager;
+
     /**
      * Return the VoteRewardPlugin instance
      *
@@ -130,6 +137,7 @@ public class VoteRewardPlugin extends JavaPlugin {
         CFG dataCFG = fm.getData();
         FileConfiguration data = dataCFG.getFileConfiguration();
         pagedInventoryAPI = new PagedInventoryAPI(this);
+        commandManager = new PaperCommandManager(this);
         if (OptionsUtil.DEBUG_USELESS.getBooleanValue())
             MinecraftUtils.debug(this, "onEnable Thread ID: " + Thread.currentThread().getId());
         MinecraftUtils.registerListeners(this, new VotifierListener(), new PlayerListeners(), new DeveloperInformListener());
@@ -139,25 +147,7 @@ public class VoteRewardPlugin extends JavaPlugin {
             dataCFG.saveFile();
         }
 
-        if (OptionsUtil.COMMAND_VOTEREWARDS.getBooleanValue())
-            MinecraftUtils.registerCommand("com/georgev22/voterewards", new VoteRewardsCommand());
-        if (OptionsUtil.COMMAND_FAKEVOTE.getBooleanValue())
-            MinecraftUtils.registerCommand("fakevote", new FakeVoteCommand());
-        if (OptionsUtil.COMMAND_VOTE.getBooleanValue())
-            MinecraftUtils.registerCommand("vote", new VoteCommand());
-        if (OptionsUtil.COMMAND_VOTES.getBooleanValue())
-            MinecraftUtils.registerCommand("votes", new VotesCommand());
-        if (OptionsUtil.COMMAND_VOTEPARTY.getBooleanValue())
-            MinecraftUtils.registerCommand("voteparty", new VotePartyCommand());
-        if (OptionsUtil.COMMAND_REWARDS.getBooleanValue())
-            MinecraftUtils.registerCommand("rewards", new RewardsCommand());
-        if (OptionsUtil.COMMAND_VOTETOP.getBooleanValue())
-            MinecraftUtils.registerCommand("votetop", new VoteTopCommand());
-        if (OptionsUtil.COMMAND_HOLOGRAM.getBooleanValue())
-            MinecraftUtils.registerCommand("hologram", new Holograms());
-        if (OptionsUtil.COMMAND_NPC.getBooleanValue() & Bukkit.getPluginManager().isPluginEnabled("ProtocolLib"))
-            MinecraftUtils.registerCommand("vnpc", new NPCCommand());
-
+        setupCommands();
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
             try {
                 setupDatabase();
@@ -235,24 +225,24 @@ public class VoteRewardPlugin extends JavaPlugin {
         Bukkit.getScheduler().cancelTasks(this);
         if (HolographicDisplays.isHooked())
             HolographicDisplays.getHologramMap().forEach((name, hologram) -> HolographicDisplays.remove(name, false));
-        if (OptionsUtil.COMMAND_VOTEREWARDS.getBooleanValue())
-            MinecraftUtils.unRegisterCommand("com/georgev22/voterewards");
         if (OptionsUtil.COMMAND_FAKEVOTE.getBooleanValue())
-            MinecraftUtils.unRegisterCommand("fakevote");
+            commandManager.unregisterCommand(new FakeVoteCommand());
+        if (OptionsUtil.COMMAND_HOLOGRAM.getBooleanValue() & Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays"))
+            commandManager.unregisterCommand(new Holograms());
         if (OptionsUtil.COMMAND_VOTE.getBooleanValue())
-            MinecraftUtils.unRegisterCommand("vote");
+            commandManager.unregisterCommand(new VoteCommand());
+        if (OptionsUtil.COMMAND_VOTEREWARDS.getBooleanValue())
+            commandManager.unregisterCommand(new VoteRewardsCommand());
         if (OptionsUtil.COMMAND_VOTES.getBooleanValue())
-            MinecraftUtils.unRegisterCommand("votes");
+            commandManager.unregisterCommand(new VotesCommand());
         if (OptionsUtil.COMMAND_VOTEPARTY.getBooleanValue())
-            MinecraftUtils.unRegisterCommand("voteparty");
+            commandManager.unregisterCommand(new VotePartyCommand());
         if (OptionsUtil.COMMAND_REWARDS.getBooleanValue())
-            MinecraftUtils.unRegisterCommand("rewards");
+            commandManager.unregisterCommand(new RewardsCommand());
         if (OptionsUtil.COMMAND_VOTETOP.getBooleanValue())
-            MinecraftUtils.unRegisterCommand("votetop");
-        if (OptionsUtil.COMMAND_HOLOGRAM.getBooleanValue())
-            MinecraftUtils.unRegisterCommand("hologram");
-        if (OptionsUtil.COMMAND_NPC.getBooleanValue())
-            MinecraftUtils.unRegisterCommand("vnpc");
+            commandManager.unregisterCommand(new VoteTopCommand());
+        if (OptionsUtil.COMMAND_NPC.getBooleanValue() & Bukkit.getPluginManager().isPluginEnabled("ProtocolLib"))
+            commandManager.unregisterCommand(new NPCCommand());
         if (connection != null) {
             try {
                 connection.close();
@@ -386,6 +376,43 @@ public class VoteRewardPlugin extends JavaPlugin {
 
         if (OptionsUtil.DAILY.getBooleanValue()) {
             VoteUtils.dailyReset();
+        }
+    }
+
+    private void setupCommands() {
+        commandManager.enableUnstableAPI("help");
+
+        loadCommandLocales(commandManager);
+
+        if (OptionsUtil.COMMAND_FAKEVOTE.getBooleanValue())
+            commandManager.registerCommand(new FakeVoteCommand());
+        if (OptionsUtil.COMMAND_HOLOGRAM.getBooleanValue() & Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays"))
+            commandManager.registerCommand(new Holograms());
+        if (OptionsUtil.COMMAND_VOTE.getBooleanValue())
+            commandManager.registerCommand(new VoteCommand());
+        if (OptionsUtil.COMMAND_VOTEREWARDS.getBooleanValue())
+            commandManager.registerCommand(new VoteRewardsCommand());
+        if (OptionsUtil.COMMAND_VOTES.getBooleanValue())
+            commandManager.registerCommand(new VotesCommand());
+        if (OptionsUtil.COMMAND_VOTEPARTY.getBooleanValue())
+            commandManager.registerCommand(new VotePartyCommand());
+        if (OptionsUtil.COMMAND_REWARDS.getBooleanValue())
+            commandManager.registerCommand(new RewardsCommand());
+        if (OptionsUtil.COMMAND_VOTETOP.getBooleanValue())
+            commandManager.registerCommand(new VoteTopCommand());
+        if (OptionsUtil.COMMAND_NPC.getBooleanValue() & Bukkit.getPluginManager().isPluginEnabled("ProtocolLib"))
+            commandManager.registerCommand(new NPCCommand());
+    }
+
+    private void loadCommandLocales(@NotNull PaperCommandManager commandManager) {
+        try {
+            saveResource("lang_en.yaml", true);
+            commandManager.getLocales().setDefaultLocale(Locale.ENGLISH);
+            commandManager.getLocales().loadYamlLanguageFile("lang_en.yaml", Locale.ENGLISH);
+            commandManager.usePerIssuerLocale(true);
+        } catch (IOException | InvalidConfigurationException e) {
+            getLogger().severe("Failed to load language config 'lang_en.yaml': " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
