@@ -6,7 +6,7 @@ buildscript {
 
 plugins {
     id 'com.github.johnrengelman.shadow' version '7.1.2'
-    id 'kr.entree.spigradle' version '2.2.4'
+    id 'kr.entree.spigradle' version '2.3.4'
     id 'io.freefair.lombok' version '6.4.1'
     id 'java'
     id 'jacoco'
@@ -31,11 +31,22 @@ group project.property("group")
 
 spigot {
     name = project.property("pluginName")
-    authors = [project.property("author")]
+    authors = [project.property("author")] as List<String>
     apiVersion = project.property("apiVersion")
-    load = STARTUP
-    // depends = ['']
-    softDepends = ['Vault']
+    load = POSTWORLD
+    libraries = ["org.mongodb:mongo-java-driver:3.12.10",
+                 "mysql:mysql-connector-java:8.0.22",
+                 "org.xerial:sqlite-jdbc:3.34.0",
+                 "com.google.guava:guava:31.0.1-jre",
+                 "org.postgresql:postgresql:42.2.18",
+                 "commons-io:commons-io:2.11.0",
+                 "commons-codec:commons-codec:1.15"]
+    depends = ['Votifier']
+    softDepends = ['PlaceholderAPI',
+                   'ProtocolLib',
+                   'WorldEdit',
+                   'AuthMeReloaded',
+                   'HolographicDisplays']
 }
 
 compileJava {
@@ -50,42 +61,48 @@ archivesBaseName = project.property("pluginName")
 repositories {
     mavenLocal()
     mavenCentral()
-    spigot()
-    maven { url = 'https://jitpack.io' }
+    papermc()
+    jitpack()
+    bungeecord()
+    codemc()
     maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
     maven { url = 'https://repo.dmulloy2.net/repository/public/' }
-    maven { url 'https://hub.spigotmc.org/nexus/content/repositories/public/' }
-    maven { url = 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
 }
 
 dependencies {
-    // using spigot-api
-    implementation spigot(mcVersion)
-    // or using paper-api
-    // implementation "io.papermc.paper:paper-api:${mcVersion}-R0.1-SNAPSHOT"
+    compileOnly "io.papermc.paper:paper-api:${mcVersion}-R0.1-SNAPSHOT"
 
-    // Add your dependencies here
-    // Here are some opinionated dependencies that might help you with your plugin development:
+    implementation(bStats())
+    implementation 'co.aikar:acf-paper:0.5.1-SNAPSHOT'
+    implementation 'com.github.GeorgeV220:API:2.3.1'
+    implementation 'com.github.juliarn:npc-lib:2.6-RELEASE'
 
-    // Annotation Command Framework: https://github.com/aikar/commands
-    implementation "co.aikar:acf-paper:0.5.1-SNAPSHOT"
-    // Vault (https://github.com/MilkBowl/VaultAPI) for economy, permissions and chat API
-    implementation "com.github.MilkBowl:VaultAPI:1.7.1"
+    compileOnly 'me.clip:placeholderapi:2.11.1'
+    compileOnly 'fr.xephi:authme:5.6.0-SNAPSHOT'
+    compileOnly 'com.github.NuVotifier.NuVotifier:nuvotifier-api:2.7.2'
+    compileOnly 'com.github.NuVotifier.NuVotifier:nuvotifier-bukkit:2.7.2'
+    compileOnly 'com.gmail.filoghost.holographicdisplays:holographicdisplays-api:2.4.4'
+    compileOnly 'org.apache.commons:commons-lang3:3.12.0'
+    compileOnly 'com.google.guava:guava:31.1-jre'
+    compileOnly 'org.mongodb:mongo-java-driver:3.12.10'
 
-    // Test dependencies
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
     testImplementation 'org.mockito:mockito-core:4.4.0'
-    testImplementation 'com.github.seeseemelk:MockBukkit-v1.17:1.7.0'
-    testImplementation 'org.assertj:assertj-core:3.21.0'
+    testImplementation 'com.github.seeseemelk:MockBukkit-v1.18:1.18.1'
+    testImplementation 'org.assertj:assertj-core:3.22.0'
 }
 
 shadowJar {
-    classifier = ''
-    dependencies {
-        include(dependency('co.aikar:acf-paper:0.5.0-SNAPSHOT'))
-    }
+    exclude 'com/cryptomorin/**'
     relocate 'co.aikar.commands', "${packageName}.acf"
     relocate 'co.aikar.locales', "${packageName}.locales"
+    relocate 'org.bstats', 'com.georgev22.voterewards.bstats'
+    relocate 'com.georgev22.api', 'com.georgev22.voterewards.api'
+    relocate 'de.tr7zw.changeme.nbtapi', 'com.georgev22.voterewards.api.nbtapi'
+    relocate 'de.tr7zw.annotations', 'com.georgev22.voterewards.api.annotations'
+    relocate 'com.github.juliarn.npc', 'com.georgev22.voterewards.api.npc'
+    relocate 'com.github.juliarn.relocation', 'com.georgev22.voterewards.api.npc'
 }
 
 tasks.build.dependsOn(shadowJar)

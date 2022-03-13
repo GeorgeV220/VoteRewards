@@ -6,11 +6,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import net.milkbowl.vault.chat.Chat;
-import net.milkbowl.vault.economy.Economy;
 import net.silthus.template.commands.TemplateCommands;
-import net.silthus.template.integrations.vault.VaultProvider;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,7 +18,6 @@ import org.bukkit.plugin.java.JavaPluginLoader;
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
-import java.util.Objects;
 
 @PluginMain
 public class TemplatePlugin extends JavaPlugin implements Listener {
@@ -30,10 +25,6 @@ public class TemplatePlugin extends JavaPlugin implements Listener {
     @Getter
     @Accessors(fluent = true)
     private static TemplatePlugin instance;
-    @Getter
-    @Setter(AccessLevel.PACKAGE)
-    private VaultProvider vault;
-    private PaperCommandManager commandManager;
 
     public TemplatePlugin() {
         instance = this;
@@ -49,7 +40,6 @@ public class TemplatePlugin extends JavaPlugin implements Listener {
     public void onEnable() {
         saveDefaultConfig();
 
-        setupVaultIntegration();
         setupCommands();
 
         getServer().getPluginManager().registerEvents(this, this);
@@ -60,16 +50,8 @@ public class TemplatePlugin extends JavaPlugin implements Listener {
         getLogger().info("Player joined.");
     }
 
-    private void setupVaultIntegration() {
-        if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
-            vault = new VaultProvider(Objects.requireNonNull(getServer().getServicesManager().getRegistration(Economy.class)).getProvider());
-        } else {
-            vault = new VaultProvider();
-        }
-    }
-
     private void setupCommands() {
-        commandManager = new PaperCommandManager(this);
+        PaperCommandManager commandManager = new PaperCommandManager(this);
         commandManager.enableUnstableAPI("help");
 
         loadCommandLocales(commandManager);
