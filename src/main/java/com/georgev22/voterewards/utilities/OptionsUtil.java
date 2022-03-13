@@ -137,7 +137,7 @@ public enum OptionsUtil {
 
     DATABASE_TABLE_NAME("database.SQL.table name", "voterewards_users", Optional.empty()),
 
-    DATABASE_SQLITE("database.SQLite.file name", "com/georgev22/voterewards", Optional.empty()),
+    DATABASE_SQLITE("database.SQLite.file name", "voterewards", Optional.empty()),
 
     DATABASE_MONGO_HOST("database.MongoDB.host", "localhost", Optional.empty()),
 
