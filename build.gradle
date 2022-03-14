@@ -35,7 +35,7 @@ spigot {
     apiVersion = project.property("apiVersion")
     load = POSTWORLD
     libraries = ["org.mongodb:mongo-java-driver:3.12.10",
-                 "mysql:mysql-connector-java:8.0.22",
+                 "mysql:mysql-connector-java:8.0.28",
                  "org.xerial:sqlite-jdbc:3.34.0",
                  "com.google.guava:guava:31.0.1-jre",
                  "org.postgresql:postgresql:42.2.18",
