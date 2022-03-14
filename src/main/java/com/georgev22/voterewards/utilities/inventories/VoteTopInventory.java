@@ -91,12 +91,14 @@ public class VoteTopInventory {
                 }
             }
             inventory.setItem(i, ItemBuilder.buildItemFromConfig(
-                    fileManager.getVoteTopInventory().getFileConfiguration(),
-                    allTimeVotes ? "gui.player all" : "gui.player",
-                    new HashObjectMap<String, String>()
-                            .append("%votes%", String.valueOf(entry.getValue())),
-                    new HashObjectMap<String, String>()
-                            .append("%displayName%", entry.getKey())).skull(entry.getKey()).build());
+                            fileManager.getVoteTopInventory().getFileConfiguration(),
+                            allTimeVotes ? "gui.player all" : "gui.player",
+                            new HashObjectMap<String, String>()
+                                    .append("%votes%", String.valueOf(entry.getValue())),
+                            new HashObjectMap<String, String>()
+                                    .append("%displayName%", entry.getKey()))
+                    .skull(entry.getKey())
+                    .build());
 
             i++;
         }
