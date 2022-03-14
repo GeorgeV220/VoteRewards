@@ -1,3 +1,10 @@
+# [7.2.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.1.0...v7.2.0) (2022-03-14)
+
+
+### Features
+
+* **gradle.yml:** shadowJar ([7d8b8e2](https://github.com/GeorgeV220/VoteRewards/commit/7d8b8e217fbb82d5e896ce381b04289e36a797d6))
+
 # [7.1.0](https://github.com/GeorgeV220/VoteRewards6/compare/v7.0.0...v7.1.0) (2022-03-13)
 
 
