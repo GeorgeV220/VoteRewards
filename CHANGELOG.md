@@ -1,3 +1,10 @@
+## [7.2.1](https://github.com/GeorgeV220/VoteRewards/compare/v7.2.0...v7.2.1) (2022-03-14)
+
+
+### Bug Fixes
+
+* **Server.xml:** working directory path fixed ([8394a7e](https://github.com/GeorgeV220/VoteRewards/commit/8394a7e88d9b1d7bf635e48da62130cc0614baec))
+
 # [7.2.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.1.0...v7.2.0) (2022-03-14)
 
 
