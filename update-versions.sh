@@ -1,1 +1,2 @@
 find ./Readme.md -type f -exec sed -E -i "s/(<)?(version|small)([:' >]+)?([0-9]\.[0-9]\.[0-9](-[a-z0-9]+\.?[0-9]*)?)(['<]?)/\1\2\3$1\6/g" {} \;
+find ./version.md -type f -exec sed -E -i "s/(<)?(version|small|v)([:' >]+)?([0-9]\.[0-9]\.[0-9](-[a-z0-9]+\.?[0-9]*)?)(['<]?)/\1\2\3$1\6/g" {} \;
