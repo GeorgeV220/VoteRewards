@@ -1,3 +1,10 @@
+# [7.3.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.2.1...v7.3.0) (2022-03-20)
+
+
+### Features
+
+* Holograms changes and build fix ([942afe7](https://github.com/GeorgeV220/VoteRewards/commit/942afe714703fbd3ae1b9acdc10c85e561b363b6))
+
 ## [7.2.1](https://github.com/GeorgeV220/VoteRewards/compare/v7.2.0...v7.2.1) (2022-03-14)
 
 
