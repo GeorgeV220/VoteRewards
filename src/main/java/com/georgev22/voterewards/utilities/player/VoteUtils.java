@@ -8,7 +8,7 @@ import com.georgev22.api.maps.ObjectMap;
 import com.georgev22.api.minecraft.MinecraftUtils;
 import com.georgev22.api.minecraft.configmanager.CFG;
 import com.georgev22.voterewards.VoteRewardPlugin;
-import com.georgev22.voterewards.hooks.HolographicDisplays;
+import com.georgev22.voterewards.hooks.HologramAPI;
 import com.georgev22.voterewards.utilities.MessagesUtil;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.georgev22.voterewards.utilities.configmanager.FileManager;
@@ -164,8 +164,8 @@ public class VoteUtils {
             new VotePartyUtils(user.getOfflinePlayer()).run(false);
 
         // HOLOGRAM UPDATE
-        if (Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays"))
-            HolographicDisplays.updateAll();
+        if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib"))
+            HologramAPI.updateAll();
 
         // DISCORD WEBHOOK
         if (OptionsUtil.DISCORD.getBooleanValue() & OptionsUtil.EXPERIMENTAL_FEATURES.getBooleanValue()) {

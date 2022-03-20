@@ -1,5 +1,6 @@
 package com.georgev22.voterewards.hooks;
 
+import com.georgev22.api.maps.HashObjectMap;
 import com.georgev22.api.maps.ObjectMap;
 import com.georgev22.api.minecraft.MinecraftUtils;
 import com.georgev22.api.minecraft.configmanager.CFG;
@@ -10,13 +11,14 @@ import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.georgev22.voterewards.utilities.configmanager.FileManager;
 import com.georgev22.voterewards.utilities.player.VotePartyUtils;
 import com.georgev22.voterewards.utilities.player.VoteUtils;
-import com.gmail.filoghost.holographicdisplays.api.Hologram;
-import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
-import com.gmail.filoghost.holographicdisplays.api.line.TextLine;
+import com.github.unldenis.hologram.Hologram;
+import com.github.unldenis.hologram.HologramPool;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Map;
@@ -24,13 +26,14 @@ import java.util.Map;
 /**
  * @author GeorgeV22
  */
-public class HolographicDisplays {
+public class HologramAPI {
 
     private final static FileManager fileManager = FileManager.getInstance();
     private final static CFG dataCFG = fileManager.getData();
     private final static FileConfiguration data = dataCFG.getFileConfiguration();
     private final static VoteRewardPlugin m = VoteRewardPlugin.getInstance();
-    private static final ObjectMap<String, Hologram> hologramMap = ObjectMap.newConcurrentObjectMap();
+    private static final ObjectMap<String, Hologram> hologramMap = new HashObjectMap<>();
+    private static final HologramPool hologramPool = new HologramPool(m, 70);
 
     /**
      * Create a hologram
@@ -41,15 +44,16 @@ public class HolographicDisplays {
      * @param save     Save the hologram in the file.
      * @return {@link Hologram} instance.
      */
+    @NotNull
     public static Hologram create(String name, Location location, String type, boolean save) {
-        Hologram hologram = getHologramMap().get(name);
+        Hologram hologram = getHologramMap().get(name) != null ? getHologramMap().get(name) : null;
         if (hologram == null) {
-            hologram = HologramsAPI.createHologram(VoteRewardPlugin.getInstance(), location);
-            getHologramMap().append(name, hologram);
-        }
+            Hologram.Builder builder = Hologram.builder().location(location);
 
-        for (String line : fileManager.getConfig().getFileConfiguration().getStringList("Holograms." + type)) {
-            hologram.appendTextLine(MinecraftUtils.colorize(line));
+            for (String line : fileManager.getConfig().getFileConfiguration().getStringList("Holograms." + type)) {
+                builder.addLine(MinecraftUtils.colorize(line));
+            }
+            hologram = builder.build(hologramPool);
         }
 
         if (save) {
@@ -57,6 +61,7 @@ public class HolographicDisplays {
             data.set("Holograms." + name + ".type", type);
             dataCFG.saveFile();
         }
+        getHologramMap().append(name, hologram);
         return hologram;
     }
 
@@ -69,7 +74,7 @@ public class HolographicDisplays {
     public static void remove(String name, boolean save) {
         Hologram hologram = getHologramMap().remove(name);
 
-        hologram.delete();
+        hologramPool.remove(hologram);
 
         if (save) {
             data.set("Holograms." + name, null);
@@ -90,7 +95,7 @@ public class HolographicDisplays {
             MinecraftUtils.msg(player, "Hologram " + name + " doesn't exist");
             return;
         }
-        hologram.getVisibilityManager().showTo(player);
+        hologram.show(player);
     }
 
     /**
@@ -107,7 +112,7 @@ public class HolographicDisplays {
             return;
         }
 
-        hologram.getVisibilityManager().hideTo(player);
+        hologram.hide(player);
     }
 
     /**
@@ -116,8 +121,8 @@ public class HolographicDisplays {
      * @param hologram Hologram instance.
      * @param player   Player to hide the hologram.
      */
-    public static void show(Hologram hologram, Player player) {
-        hologram.getVisibilityManager().showTo(player);
+    public static void show(@NotNull Hologram hologram, Player player) {
+        hologram.show(player);
     }
 
     /**
@@ -126,8 +131,8 @@ public class HolographicDisplays {
      * @param hologram Hologram instance.
      * @param player   Player to hide the hologram.
      */
-    public static void hide(Hologram hologram, Player player) {
-        hologram.getVisibilityManager().hideTo(player);
+    public static void hide(@NotNull Hologram hologram, Player player) {
+        hologram.hide(player);
     }
 
     /**
@@ -135,6 +140,7 @@ public class HolographicDisplays {
      *
      * @return all holograms in a collection.
      */
+    @NotNull
     public static Collection<Hologram> getHolograms() {
         return getHologramMap().values();
     }
@@ -167,13 +173,13 @@ public class HolographicDisplays {
      * @param placeholders The placeholders.
      * @return the updated {@link Hologram} instance.
      */
-    public static Hologram updateHologram(Hologram hologram, String[] lines, ObjectMap<String, String> placeholders) {
+    @Contract("_, _, _ -> param1")
+    public static @NotNull Hologram updateHologram(@NotNull Hologram hologram, @NotNull String @NotNull [] lines, ObjectMap<String, String> placeholders) {
         int i = 0;
         for (final String key : lines) {
             for (String placeholder : placeholders.keySet()) {
                 if (key.contains(placeholder)) {
-                    TextLine line = (TextLine) hologram.getLine(i);
-                    line.setText(Utils.placeHolder(MinecraftUtils.colorize(key), placeholders, true));
+                    hologram.setLine(i, Utils.placeHolder(MinecraftUtils.colorize(key), placeholders, true));
                     break;
                 }
             }
@@ -190,7 +196,10 @@ public class HolographicDisplays {
             return;
         for (String hologramName : data.getConfigurationSection("Holograms").getKeys(false)) {
             Hologram hologram = getHologram(hologramName);
-            HolographicDisplays.updateHologram(hologram, m.getConfig().getStringList("Holograms." + data.getString("Holograms." + hologramName + ".type")).toArray(new String[0]), getPlaceholderMap());
+            int i = 0;
+            for (String line : m.getConfig().getStringList("Holograms." + data.getString("Holograms." + hologramName + ".type"))) {
+                hologram.setLine(i, MinecraftUtils.colorize(Utils.placeHolder(line, getPlaceholderMap(), true)));
+            }
             getPlaceholderMap().clear();
         }
     }
@@ -208,7 +217,7 @@ public class HolographicDisplays {
      * @return a map with all hologram placeholders
      */
     public static ObjectMap<String, String> getPlaceholderMap() {
-        final ObjectMap<String, String> map = ObjectMap.newHashObjectMap();
+        final ObjectMap<String, String> map = new HashObjectMap<>();
         int top = 1;
         for (Map.Entry<String, Integer> b : VoteUtils.getTopPlayers(OptionsUtil.VOTETOP_VOTERS.getIntValue()).entrySet()) {
             String[] args = String.valueOf(b).split("=");
@@ -235,13 +244,13 @@ public class HolographicDisplays {
                 .appendIfTrue("%voteparty_votes_full%",
                         MinecraftUtils.colorize(Utils.placeHolder(
                                 MessagesUtil.VOTEPARTY_WAITING_FOR_MORE_PLAYERS_PLACEHOLDER.getMessages()[0],
-                                ObjectMap.newHashObjectMap()
-                                        .append("%online%", Bukkit.getOnlinePlayers().size())
-                                        .append("%need%", OptionsUtil.VOTEPARTY_PLAYERS_NEED.getIntValue()),
+                                new HashObjectMap<String, String>()
+                                        .append("%online%", String.valueOf(Bukkit.getOnlinePlayers().size()))
+                                        .append("%need%", String.valueOf(OptionsUtil.VOTEPARTY_PLAYERS_NEED.getIntValue())),
                                 true)),
                         MinecraftUtils.colorize(Utils.placeHolder(
                                 MessagesUtil.VOTEPARTY_PLAYERS_FULL_PLACEHOLDER.getMessages()[0],
-                                ObjectMap.newHashObjectMap()
+                                new HashObjectMap<String, String>()
                                         .append("%until%", String.valueOf(OptionsUtil.VOTEPARTY_VOTES.getIntValue()
                                                 - fileManager.getData().getFileConfiguration().getInt("VoteParty-Votes", 0)))
                                         .append("%total%", String.valueOf(fileManager.getData().getFileConfiguration().getInt("VoteParty-Votes")))

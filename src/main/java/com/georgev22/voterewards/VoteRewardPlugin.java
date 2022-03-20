@@ -162,14 +162,14 @@ public class VoteRewardPlugin extends JavaPlugin {
                 Bukkit.getLogger().info("[VoteRewards] Hooked into PlaceholderAPI!");
         }
 
-        if (Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays")) {
+        if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
             if (data.get("Holograms") != null) {
                 Objects.requireNonNull(data.getConfigurationSection("Holograms")).getKeys(false)
-                        .forEach(s -> HolographicDisplays.create(s, (Location) data.get("Holograms." + s + ".location"),
+                        .forEach(s -> HologramAPI.create(s, (Location) data.get("Holograms." + s + ".location"),
                                 data.getString("Holograms." + s + ".type"), false));
             }
-            HolographicDisplays.setHook(true);
-            Bukkit.getLogger().info("[VoteRewards] Hooked into HolographicDisplays!");
+            HologramAPI.setHook(true);
+            Bukkit.getLogger().info("[VoteRewards] ProtocolLib installed - Holograms enabled!");
         }
 
         if (Bukkit.getPluginManager().isPluginEnabled("AuthMeReloaded")) {
@@ -223,12 +223,12 @@ public class VoteRewardPlugin extends JavaPlugin {
             });
         });
         Bukkit.getScheduler().cancelTasks(this);
-        if (HolographicDisplays.isHooked())
-            HolographicDisplays.getHologramMap().forEach((name, hologram) -> HolographicDisplays.remove(name, false));
+        if (HologramAPI.isHooked())
+            HologramAPI.getHologramMap().forEach((name, hologram) -> HologramAPI.remove(name, false));
         if (OptionsUtil.COMMAND_FAKEVOTE.getBooleanValue())
             commandManager.unregisterCommand(new FakeVoteCommand());
-        if (OptionsUtil.COMMAND_HOLOGRAM.getBooleanValue() & Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays"))
-            commandManager.unregisterCommand(new Holograms());
+        if (OptionsUtil.COMMAND_HOLOGRAM.getBooleanValue() & Bukkit.getPluginManager().isPluginEnabled("ProtocolLib"))
+            commandManager.unregisterCommand(new HologramCommand());
         if (OptionsUtil.COMMAND_VOTE.getBooleanValue())
             commandManager.unregisterCommand(new VoteCommand());
         if (OptionsUtil.COMMAND_VOTEREWARDS.getBooleanValue())
@@ -362,7 +362,7 @@ public class VoteRewardPlugin extends JavaPlugin {
             }
         });
 
-        HolographicDisplays.updateAll();
+        HologramAPI.updateAll();
 
         if (OptionsUtil.PURGE_ENABLED.getBooleanValue())
             VoteUtils.purgeData();
@@ -386,8 +386,8 @@ public class VoteRewardPlugin extends JavaPlugin {
 
         if (OptionsUtil.COMMAND_FAKEVOTE.getBooleanValue())
             commandManager.registerCommand(new FakeVoteCommand());
-        if (OptionsUtil.COMMAND_HOLOGRAM.getBooleanValue() & Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays"))
-            commandManager.registerCommand(new Holograms());
+        if (OptionsUtil.COMMAND_HOLOGRAM.getBooleanValue() & Bukkit.getPluginManager().isPluginEnabled("ProtocolLib"))
+            commandManager.registerCommand(new HologramCommand());
         if (OptionsUtil.COMMAND_VOTE.getBooleanValue())
             commandManager.registerCommand(new VoteCommand());
         if (OptionsUtil.COMMAND_VOTEREWARDS.getBooleanValue())

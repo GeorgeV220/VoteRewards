@@ -4,13 +4,13 @@ import com.georgev22.api.externals.xseries.XMaterial;
 import com.georgev22.api.externals.xseries.XSound;
 import com.georgev22.api.minecraft.MinecraftUtils;
 import com.georgev22.voterewards.VoteRewardPlugin;
-import com.georgev22.voterewards.hooks.HolographicDisplays;
+import com.georgev22.voterewards.hooks.HologramAPI;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.georgev22.voterewards.utilities.Updater;
 import com.georgev22.voterewards.utilities.player.UserVoteData;
 import com.georgev22.voterewards.utilities.player.VotePartyUtils;
 import com.georgev22.voterewards.utilities.player.VoteUtils;
-import com.gmail.filoghost.holographicdisplays.api.Hologram;
+import com.github.unldenis.hologram.Hologram;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
@@ -66,13 +66,13 @@ public class PlayerListeners implements Listener {
 
                     UserVoteData.getAllUsersMap().append(userVoteData.user().getUniqueId(), userVoteData.user());
                     //HOLOGRAMS
-                    if (Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays")) {
-                        if (!HolographicDisplays.getHolograms().isEmpty()) {
-                            for (Hologram hologram : HolographicDisplays.getHolograms()) {
-                                HolographicDisplays.show(hologram, event.getPlayer());
+                    if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
+                        if (!HologramAPI.getHolograms().isEmpty()) {
+                            for (Hologram hologram : HologramAPI.getHolograms()) {
+                                HologramAPI.show(hologram, event.getPlayer());
                             }
 
-                            HolographicDisplays.updateAll();
+                            HologramAPI.updateAll();
                         }
                     }
                 }
