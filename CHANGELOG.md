@@ -1,3 +1,11 @@
+## [7.3.1](https://github.com/GeorgeV220/VoteRewards/compare/v7.3.0...v7.3.1) (2022-03-20)
+
+
+### Bug Fixes
+
+* Fixed unknown version on 1.18.2 ([f750b96](https://github.com/GeorgeV220/VoteRewards/commit/f750b9691496226ea7250c5026590095aaaebd4e))
+* Holograms ([1c76fd1](https://github.com/GeorgeV220/VoteRewards/commit/1c76fd1c72e172d794305c33b2cf0e06b18f0b63))
+
 # [7.3.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.2.1...v7.3.0) (2022-03-20)
 
 
