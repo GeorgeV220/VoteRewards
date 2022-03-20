@@ -195,11 +195,13 @@ public class HologramAPI {
         if (data.get("Holograms") == null)
             return;
         for (String hologramName : data.getConfigurationSection("Holograms").getKeys(false)) {
-            Hologram hologram = getHologram(hologramName);
+            hologramPool.remove(getHologram(hologramName));
+            Hologram.Builder builder = new Hologram.Builder().location(getHologram(hologramName).getLocation());
             int i = 0;
             for (String line : m.getConfig().getStringList("Holograms." + data.getString("Holograms." + hologramName + ".type"))) {
-                hologram.setLine(i, MinecraftUtils.colorize(Utils.placeHolder(line, getPlaceholderMap(), true)));
+                builder.addLine(MinecraftUtils.colorize(Utils.placeHolder(line, getPlaceholderMap(), true)));
             }
+            getHologramMap().append(hologramName, builder.build(hologramPool));
             getPlaceholderMap().clear();
         }
     }
