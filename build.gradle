@@ -80,7 +80,7 @@ dependencies {
     implementation 'co.aikar:acf-paper:0.5.1-SNAPSHOT'
     implementation 'com.github.GeorgeV220:API:2.3.2'
     implementation 'com.github.juliarn:npc-lib:2.6-RELEASE'
-    implementation 'com.github.GeorgeV220:Hologram-Lib:master-SNAPSHOT'
+    implementation 'com.github.GeorgeV220:Hologram-Lib:1.2.7'
 
     compileOnly 'me.clip:placeholderapi:2.11.1'
     compileOnly 'fr.xephi:authme:5.6.0-SNAPSHOT'
