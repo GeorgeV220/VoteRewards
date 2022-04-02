@@ -1,3 +1,10 @@
+## [7.3.2](https://github.com/GeorgeV220/VoteRewards/compare/v7.3.1...v7.3.2) (2022-04-02)
+
+
+### Bug Fixes
+
+* Null check to DeveloperInformListener ([a05ba19](https://github.com/GeorgeV220/VoteRewards/commit/a05ba198ecec05b323a253c98ab359f9abd31a24))
+
 ## [7.3.1](https://github.com/GeorgeV220/VoteRewards/compare/v7.3.0...v7.3.1) (2022-03-20)
 
 
