@@ -1,5 +1,6 @@
 package com.georgev22.voterewards.listeners;
 
+import com.georgev22.api.maps.HashObjectMap;
 import com.georgev22.api.maps.ObjectMap;
 import com.georgev22.api.minecraft.MinecraftUtils;
 import com.georgev22.voterewards.VoteRewardPlugin;
@@ -48,11 +49,11 @@ public class DeveloperInformListener implements Listener {
         }
 
         Bukkit.getScheduler().runTaskLater(VoteRewardPlugin.getInstance(), () -> {
-            if (!player.isOnline()) {
+            if (!player.isOnline() && player.getPlayer() == null) {
                 return;
             }
 
-            MinecraftUtils.msg(player.getPlayer(), joinMessage, ObjectMap.newHashObjectMap()
+            MinecraftUtils.msg(player.getPlayer(), joinMessage, new HashObjectMap<String, String>()
                     .append("%player%", e.getPlayer().getName())
                     .append("%version%", VoteRewardPlugin.getInstance().getDescription().getVersion())
                     .append("%package%", VoteRewardPlugin.getInstance().getClass().getPackage().getName())
