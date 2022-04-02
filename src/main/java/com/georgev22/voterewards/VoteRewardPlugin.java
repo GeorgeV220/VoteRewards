@@ -175,6 +175,7 @@ public class VoteRewardPlugin extends JavaPlugin {
                         .forEach(npcName -> NPCApi.create(npcName, data.getInt("NPCs." + npcName + ".position"), data.getLocation("Holograms." + npcName + ".location"), false));
             }
             new NPCApi.Tick().runTaskTimerAsynchronously(this, 20L, 20L);
+            NPCApi.setHook(true);
             Bukkit.getLogger().info("[VoteRewards] ProtocolLib installed - NPCs enabled!");
         }
 
@@ -231,6 +232,9 @@ public class VoteRewardPlugin extends JavaPlugin {
         Bukkit.getScheduler().cancelTasks(this);
         if (HologramAPI.isHooked())
             HologramAPI.getHologramMap().forEach((name, hologram) -> HologramAPI.remove(name, false));
+        if (NPCApi.isHooked()) {
+            NPCApi.getNPCMap().forEach((name, npcIntegerPair) -> NPCApi.remove(name, false));
+        }
         if (OptionsUtil.COMMAND_FAKEVOTE.getBooleanValue())
             commandManager.unregisterCommand(new FakeVoteCommand());
         if (OptionsUtil.COMMAND_HOLOGRAM.getBooleanValue() & Bukkit.getPluginManager().isPluginEnabled("ProtocolLib"))

@@ -101,4 +101,17 @@ public class NPCApi {
     public static ObjectMap<String, ObjectMap.Pair<NPC, Integer>> getNPCMap() {
         return npcMap;
     }
+
+    //IGNORE
+    private static boolean a = false;
+
+
+    public static void setHook(boolean b) {
+        a = b;
+    }
+
+    public static boolean isHooked() {
+        return a;
+    }
+    //
 }
