@@ -2,6 +2,7 @@ package com.georgev22.voterewards.utilities.player;
 
 import com.georgev22.api.externals.xseries.XMaterial;
 import com.georgev22.api.externals.xseries.XSound;
+import com.georgev22.api.maps.HashObjectMap;
 import com.georgev22.api.maps.ObjectMap;
 import com.georgev22.api.minecraft.MinecraftUtils;
 import com.georgev22.api.minecraft.configmanager.CFG;
@@ -37,7 +38,7 @@ public class VotePartyUtils {
 
     private static final List<OfflinePlayer> players = Lists.newArrayList();
 
-    private static final ObjectMap<String, String> placeholders = ObjectMap.newHashObjectMap();
+    private static final ObjectMap<String, String> placeholders = new HashObjectMap<>();
 
     private static final FileManager fm = FileManager.getInstance();
 
@@ -138,17 +139,17 @@ public class VotePartyUtils {
                                     MinecraftUtils.debug(voteRewardPlugin, "SoundCategory doesn't exists in versions below 1.12");
                                     MinecraftUtils.debug(voteRewardPlugin, "========================================================");
                                 }
-                                player.getPlayer().playSound(player.getPlayer().getLocation(), XSound
-                                                .matchXSound(OptionsUtil.SOUND_VOTEPARTY_START.getStringValue()).get().parseSound(),
+                                Objects.requireNonNull(player.getPlayer()).playSound(player.getPlayer().getLocation(), Objects.requireNonNull(XSound
+                                                .matchXSound(OptionsUtil.SOUND_VOTEPARTY_START.getStringValue()).get().parseSound()),
                                         1000, 1);
                             } else {
-                                player.getPlayer().playSound(player.getPlayer().getLocation(), XSound
-                                                .matchXSound(OptionsUtil.SOUND_VOTEPARTY_START.getStringValue()).get().parseSound(),
+                                Objects.requireNonNull(player.getPlayer()).playSound(player.getPlayer().getLocation(), Objects.requireNonNull(XSound
+                                                .matchXSound(OptionsUtil.SOUND_VOTEPARTY_START.getStringValue()).get().parseSound()),
                                         org.bukkit.SoundCategory.valueOf(OptionsUtil.SOUND_VOTEPARTY_START_CHANNEL.getStringValue()),
                                         1000, 1);
                             }
                         }
-                        if (isInLocation(player.getPlayer().getLocation())) {
+                        if (isInLocation(Objects.requireNonNull(player.getPlayer()).getLocation())) {
                             userVoteData.setVoteParties(userVoteData.getVoteParty() + 1);
                             MessagesUtil.VOTEPARTY_UNCLAIMED.msg(player.getPlayer());
                         } else {
@@ -177,10 +178,10 @@ public class VotePartyUtils {
         if (enable) {
             Random random = new Random();
             int selector = random.nextInt(list.size());
-            MinecraftUtils.runCommand(voteRewardPlugin, list.get(selector).replace("%player%", offlinePlayer.getName()));
+            MinecraftUtils.runCommand(voteRewardPlugin, list.get(selector).replace("%player%", Objects.requireNonNull(Objects.requireNonNull(offlinePlayer).getName())));
         } else {
             for (String s : list) {
-                MinecraftUtils.runCommand(voteRewardPlugin, s.replace("%player%", offlinePlayer.getName()));
+                MinecraftUtils.runCommand(voteRewardPlugin, s.replace("%player%", Objects.requireNonNull(Objects.requireNonNull(offlinePlayer).getName())));
             }
         }
     }
@@ -197,13 +198,13 @@ public class VotePartyUtils {
         if (!OptionsUtil.VOTEPARTY_REGIONS.getBooleanValue()) {
             return false;
         }
-        if (data.getConfigurationSection("Regions") == null || data.getConfigurationSection("Regions").getKeys(false).isEmpty()) {
+        if (data.getConfigurationSection("Regions") == null || Objects.requireNonNull(data.getConfigurationSection("Regions")).getKeys(false).isEmpty()) {
             return false;
         }
-        for (String s : data.getConfigurationSection("Regions").getKeys(false)) {
+        for (String s : Objects.requireNonNull(data.getConfigurationSection("Regions")).getKeys(false)) {
             Location a = (Location) data.get("Regions." + s + ".minimumPos");
             Location b = (Location) data.get("Regions." + s + ".maximumPos");
-            Regions regions = new Regions(a, b);
+            Regions regions = new Regions(Objects.requireNonNull(a), Objects.requireNonNull(b));
             return regions.locationIsInRegion(location);
         }
         return false;

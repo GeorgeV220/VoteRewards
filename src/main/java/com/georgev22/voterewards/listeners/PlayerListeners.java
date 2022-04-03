@@ -19,10 +19,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerPreLoginEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -39,9 +36,9 @@ public class PlayerListeners implements Listener {
     private final VoteRewardPlugin voteRewardPlugin = VoteRewardPlugin.getInstance();
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onPreLogin(PlayerPreLoginEvent event) {
+    public void onPreLogin(AsyncPlayerPreLoginEvent event) {
         if (MinecraftUtils.isLoginDisallowed())
-            event.disallow(PlayerPreLoginEvent.Result.KICK_OTHER, MinecraftUtils.colorize(MinecraftUtils.getDisallowLoginMessage()));
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, MinecraftUtils.colorize(MinecraftUtils.getDisallowLoginMessage()));
     }
 
     @EventHandler
@@ -170,8 +167,8 @@ public class PlayerListeners implements Listener {
 
         if (OptionsUtil.VOTEPARTY_SOUND_CRATE.getBooleanValue()) {
             if (MinecraftUtils.MinecraftVersion.getCurrentVersion().isBelow(MinecraftUtils.MinecraftVersion.V1_12_R1)) {
-                player.getPlayer().playSound(player.getPlayer().getLocation(), XSound
-                                .matchXSound(OptionsUtil.SOUND_CRATE_OPEN.getStringValue()).get().parseSound(),
+                Objects.requireNonNull(player.getPlayer()).playSound(player.getPlayer().getLocation(), Objects.requireNonNull(XSound
+                                .matchXSound(OptionsUtil.SOUND_CRATE_OPEN.getStringValue()).get().parseSound()),
                         1000, 1);
                 if (OptionsUtil.DEBUG_USELESS.getBooleanValue()) {
                     MinecraftUtils.debug(voteRewardPlugin, "========================================================");
@@ -180,8 +177,8 @@ public class PlayerListeners implements Listener {
                     MinecraftUtils.debug(voteRewardPlugin, "========================================================");
                 }
             } else {
-                player.getPlayer().playSound(player.getPlayer().getLocation(), XSound
-                                .matchXSound(OptionsUtil.SOUND_CRATE_OPEN.getStringValue()).get().parseSound(),
+                Objects.requireNonNull(player.getPlayer()).playSound(player.getPlayer().getLocation(), Objects.requireNonNull(XSound
+                                .matchXSound(OptionsUtil.SOUND_CRATE_OPEN.getStringValue()).get().parseSound()),
                         org.bukkit.SoundCategory.valueOf(OptionsUtil.SOUND_CRATE_OPEN_CHANNEL.getStringValue()),
                         1000, 1);
             }

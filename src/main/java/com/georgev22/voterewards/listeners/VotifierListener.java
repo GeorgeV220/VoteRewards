@@ -1,5 +1,6 @@
 package com.georgev22.voterewards.listeners;
 
+import com.georgev22.api.maps.HashObjectMap;
 import com.georgev22.api.maps.ObjectMap;
 import com.georgev22.api.minecraft.MinecraftUtils;
 import com.georgev22.voterewards.VoteRewardPlugin;
@@ -50,7 +51,7 @@ public class VotifierListener implements Listener {
         }
 
         new VoteUtils(userVoteData.user()).processVote(vote.getServiceName());
-        ObjectMap<String, String> placeholders = ObjectMap.newHashObjectMap();
+        ObjectMap<String, String> placeholders = new HashObjectMap<>();
         placeholders.append("%player%", vote.getUsername()).append("%servicename%", vote.getServiceName());
         if (OptionsUtil.MESSAGE_VOTE.getBooleanValue())
             MessagesUtil.VOTE.msgAll(placeholders, true);

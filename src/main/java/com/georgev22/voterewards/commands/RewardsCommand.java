@@ -16,6 +16,5 @@ public class RewardsCommand extends Command {
     @CommandPermission("voterewards.rewards")
     public void execute(@NotNull final CommandSender sender, final String[] args) {
         MessagesUtil.REWARDS.msg(sender);
-        return;
     }
 }

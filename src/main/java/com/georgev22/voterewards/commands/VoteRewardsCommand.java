@@ -189,7 +189,6 @@ public class VoteRewardsCommand extends Command {
                 MinecraftUtils.disallowLogin(false, "");
             }
         });
-        return;
     }
 
     @Subcommand("reload")

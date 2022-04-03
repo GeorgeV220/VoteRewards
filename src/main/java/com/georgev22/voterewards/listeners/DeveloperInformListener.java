@@ -13,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 
@@ -53,7 +54,7 @@ public class DeveloperInformListener implements Listener {
                 return;
             }
 
-            MinecraftUtils.msg(player.getPlayer(), joinMessage, new HashObjectMap<String, String>()
+            MinecraftUtils.msg(Objects.requireNonNull(player.getPlayer()), joinMessage, new HashObjectMap<String, String>()
                     .append("%player%", e.getPlayer().getName())
                     .append("%version%", VoteRewardPlugin.getInstance().getDescription().getVersion())
                     .append("%package%", VoteRewardPlugin.getInstance().getClass().getPackage().getName())

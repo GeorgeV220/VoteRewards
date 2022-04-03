@@ -1,5 +1,6 @@
 package com.georgev22.voterewards.utilities.player;
 
+import com.georgev22.api.maps.ConcurrentObjectMap;
 import com.georgev22.api.maps.HashObjectMap;
 import com.georgev22.api.maps.ObjectMap;
 import com.georgev22.api.minecraft.MinecraftUtils;
@@ -39,7 +40,7 @@ import static com.georgev22.api.utilities.Utils.*;
 public class UserVoteData {
     private static final VoteRewardPlugin voteRewardPlugin = VoteRewardPlugin.getInstance();
 
-    private static final ObjectMap<UUID, User> allUsersMap = ObjectMap.newConcurrentObjectMap();
+    private static final ObjectMap<UUID, User> allUsersMap = new ConcurrentObjectMap<>();
 
     private final User user;
 

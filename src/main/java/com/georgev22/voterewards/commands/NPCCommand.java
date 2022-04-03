@@ -4,7 +4,6 @@ import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.*;
 import com.georgev22.api.maps.ObjectMap;
 import com.georgev22.api.minecraft.MinecraftUtils;
-import com.georgev22.voterewards.VoteRewardPlugin;
 import com.georgev22.voterewards.hooks.NPCAPI;
 import com.georgev22.voterewards.utilities.MessagesUtil;
 import org.bukkit.command.CommandSender;
@@ -13,8 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 @CommandAlias("vnpc")
 public class NPCCommand extends Command {
-
-    private final VoteRewardPlugin voteRewardPlugin = VoteRewardPlugin.getInstance();
 
     @HelpCommand
     @Subcommand("help")

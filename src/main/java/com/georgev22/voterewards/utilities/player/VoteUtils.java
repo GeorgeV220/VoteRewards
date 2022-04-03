@@ -3,6 +3,7 @@ package com.georgev22.voterewards.utilities.player;
 import com.georgev22.api.externals.xseries.XSound;
 import com.georgev22.api.externals.xseries.messages.Titles;
 import com.georgev22.api.maps.ConcurrentObjectMap;
+import com.georgev22.api.maps.HashObjectMap;
 import com.georgev22.api.maps.LinkedObjectMap;
 import com.georgev22.api.maps.ObjectMap;
 import com.georgev22.api.minecraft.MinecraftUtils;
@@ -327,7 +328,7 @@ public class VoteUtils {
      * @return a {@link LinkedObjectMap} with limit top players.
      */
     public static LinkedObjectMap<String, Integer> getTopPlayers(int limit) {
-        ObjectMap<String, Integer> objectMap = ObjectMap.newLinkedObjectMap();
+        ObjectMap<String, Integer> objectMap = new LinkedObjectMap<>();
 
         for (Map.Entry<UUID, User> entry : UserVoteData.getAllUsersMap().entrySet()) {
             objectMap.append(entry.getValue().getString("name"), entry.getValue().getInteger("votes"));
@@ -343,7 +344,7 @@ public class VoteUtils {
      * @since v5.0
      */
     public static LinkedObjectMap<String, Integer> getPlayersByVotes() {
-        ObjectMap<String, Integer> objectMap = ObjectMap.newLinkedObjectMap();
+        ObjectMap<String, Integer> objectMap = new LinkedObjectMap<>();
 
         for (Map.Entry<UUID, User> entry : UserVoteData.getAllUsersMap().entrySet()) {
             objectMap.append(entry.getValue().getString("name"), entry.getValue().getInteger("votes"));
@@ -359,7 +360,7 @@ public class VoteUtils {
      * @return a {@link LinkedObjectMap} with limit top players.
      */
     public static LinkedObjectMap<String, Integer> getAllTimeTopPlayers(int limit) {
-        ObjectMap<String, Integer> objectMap = ObjectMap.newLinkedObjectMap();
+        ObjectMap<String, Integer> objectMap = new LinkedObjectMap<>();
 
         for (Map.Entry<UUID, User> entry : UserVoteData.getAllUsersMap().entrySet()) {
             objectMap.append(entry.getValue().getString("name"), entry.getValue().getInteger("totalvotes"));
@@ -375,7 +376,7 @@ public class VoteUtils {
      * @since v5.0
      */
     public static LinkedObjectMap<String, Integer> getPlayersByAllTimeVotes() {
-        ObjectMap<String, Integer> objectMap = ObjectMap.newLinkedObjectMap();
+        ObjectMap<String, Integer> objectMap = new LinkedObjectMap<>();
 
         for (Map.Entry<UUID, User> entry : UserVoteData.getAllUsersMap().entrySet()) {
             objectMap.append(entry.getValue().getString("name"), entry.getValue().getInteger("totalvotes"));
@@ -405,7 +406,7 @@ public class VoteUtils {
             if (value <= System.currentTimeMillis()) {
                 UserVoteData userVoteData = UserVoteData.getUser(key.getUniqueId());
                 if (System.currentTimeMillis() >= userVoteData.getLastVote() + (24 * 60 * 60 * 1000)) {
-                    ObjectMap<String, String> placeholders = ObjectMap.newHashObjectMap();
+                    ObjectMap<String, String> placeholders = new HashObjectMap<>();
                     placeholders.append("%player%", key.getName());
                     MessagesUtil.REMINDER.msg(key, placeholders, true);
                 }
@@ -419,6 +420,6 @@ public class VoteUtils {
      * <p>
      * creates a new, empty {@link ConcurrentObjectMap#ConcurrentObjectMap()}
      */
-    public static final ObjectMap<Player, Long> reminderMap = ObjectMap.newConcurrentObjectMap();
+    public static final ObjectMap<Player, Long> reminderMap = new ConcurrentObjectMap<>();
 
 }
