@@ -1,3 +1,15 @@
+# [7.4.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.3.2...v7.4.0) (2022-04-03)
+
+
+### Bug Fixes
+
+* Optimize NPCAPI.java ([b9c2aff](https://github.com/GeorgeV220/VoteRewards/commit/b9c2afff67a259d2a70b72cae7149cae324a1d5c))
+
+
+### Features
+
+* **NPCCommand:** Fully working NPC command ([9f944e2](https://github.com/GeorgeV220/VoteRewards/commit/9f944e268d2306187db1e3cec27e5da7c96f2d7a))
+
 ## [7.3.2](https://github.com/GeorgeV220/VoteRewards/compare/v7.3.1...v7.3.2) (2022-04-02)
 
 
