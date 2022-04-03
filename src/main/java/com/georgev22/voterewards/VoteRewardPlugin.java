@@ -170,12 +170,7 @@ public class VoteRewardPlugin extends JavaPlugin {
             }
             HologramAPI.setHook(true);
             Bukkit.getLogger().info("[VoteRewards] ProtocolLib installed - Holograms enabled!");
-            if (data.get("NPCs") != null) {
-                Objects.requireNonNull(data.getConfigurationSection("NPCs")).getKeys(false)
-                        .forEach(npcName -> NPCApi.create(npcName, data.getInt("NPCs." + npcName + ".position"), data.getLocation("Holograms." + npcName + ".location"), false));
-            }
-            new NPCApi.Tick().runTaskTimerAsynchronously(this, 20L, 20L);
-            NPCApi.setHook(true);
+            NPCAPI.setHook(true);
             Bukkit.getLogger().info("[VoteRewards] ProtocolLib installed - NPCs enabled!");
         }
 
@@ -230,11 +225,10 @@ public class VoteRewardPlugin extends JavaPlugin {
             });
         });
         Bukkit.getScheduler().cancelTasks(this);
-        if (HologramAPI.isHooked())
+        if (HologramAPI.isHooked() && !HologramAPI.getHologramMap().isEmpty())
             HologramAPI.getHologramMap().forEach((name, hologram) -> HologramAPI.remove(name, false));
-        if (NPCApi.isHooked()) {
-            NPCApi.getNPCMap().forEach((name, npcIntegerPair) -> NPCApi.remove(name, false));
-        }
+        if (NPCAPI.isHooked() && !NPCAPI.getNPCMap().isEmpty())
+            NPCAPI.getNPCMap().forEach((name, npcIntegerPair) -> NPCAPI.remove(name, false));
         if (OptionsUtil.COMMAND_FAKEVOTE.getBooleanValue())
             commandManager.unregisterCommand(new FakeVoteCommand());
         if (OptionsUtil.COMMAND_HOLOGRAM.getBooleanValue() & Bukkit.getPluginManager().isPluginEnabled("ProtocolLib"))
@@ -373,6 +367,8 @@ public class VoteRewardPlugin extends JavaPlugin {
         });
 
         HologramAPI.updateAll();
+        if (NPCAPI.isHooked())
+            NPCAPI.updateAll();
 
         if (OptionsUtil.PURGE_ENABLED.getBooleanValue())
             VoteUtils.purgeData();
