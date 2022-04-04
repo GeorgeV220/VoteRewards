@@ -1,3 +1,10 @@
+## [7.4.2](https://github.com/GeorgeV220/VoteRewards/compare/v7.4.1...v7.4.2) (2022-04-04)
+
+
+### Bug Fixes
+
+* Skins on offline mode ([ae64ce0](https://github.com/GeorgeV220/VoteRewards/commit/ae64ce062819428352bf1d4d68c4fd5c353b9005))
+
 ## [7.4.1](https://github.com/GeorgeV220/VoteRewards/compare/v7.4.0...v7.4.1) (2022-04-04)
 
 
