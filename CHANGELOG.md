@@ -1,3 +1,10 @@
+## [7.4.1](https://github.com/GeorgeV220/VoteRewards/compare/v7.4.0...v7.4.1) (2022-04-04)
+
+
+### Bug Fixes
+
+* Add check if the hologram is hooked ([a00d71d](https://github.com/GeorgeV220/VoteRewards/commit/a00d71d04d980028479216e409e92dc99ef08700))
+
 # [7.4.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.3.2...v7.4.0) (2022-04-03)
 
 
