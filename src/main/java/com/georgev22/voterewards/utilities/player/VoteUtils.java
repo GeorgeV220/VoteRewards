@@ -166,8 +166,10 @@ public class VoteUtils {
 
         // NPC/HOLOGRAM UPDATE
         if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
-            HologramAPI.updateAll();
-            NPCAPI.updateAll();
+            if (HologramAPI.isHooked())
+                HologramAPI.updateAll();
+            if (NPCAPI.isHooked())
+                NPCAPI.updateAll();
         }
 
         // DISCORD WEBHOOK

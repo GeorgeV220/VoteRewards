@@ -366,7 +366,8 @@ public class VoteRewardPlugin extends JavaPlugin {
             }
         });
 
-        HologramAPI.updateAll();
+        if (HologramAPI.isHooked())
+            HologramAPI.updateAll();
         if (NPCAPI.isHooked())
             NPCAPI.updateAll();
 
