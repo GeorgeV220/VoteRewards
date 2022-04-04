@@ -9,13 +9,23 @@ import com.georgev22.voterewards.utilities.player.VoteUtils;
 import com.github.juliarn.npc.NPC;
 import com.github.juliarn.npc.NPCPool;
 import com.github.juliarn.npc.profile.Profile;
+import com.google.common.collect.Lists;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Random;
+import java.util.UUID;
 
 public class NPCAPI {
 
@@ -30,6 +40,7 @@ public class NPCAPI {
             .actionDistance(20)
             .tabListRemoveTicks(30)
             .build();
+    private static final ObjectMap<String, JsonObject> cachedSkins = new HashObjectMap<>();
 
     /**
      * Creates a profile for NPCs.
@@ -42,9 +53,41 @@ public class NPCAPI {
 
         profile.setName(VoteUtils.getTopPlayer(position));
 
+        if (!Bukkit.getOnlineMode()) {
+            Collection<Profile.Property> properties = Lists.newArrayList();
+
+            properties.add(getSkin(VoteUtils.getTopPlayer(position)));
+
+            profile.setProperties(properties);
+        }
+
         profile.setUniqueId(new UUID(random.nextLong(), 0));
 
         return profile;
+    }
+
+    public static Profile.@Nullable Property getSkin(String skinName) {
+        if (cachedSkins.containsKey(skinName)) {
+            return new Profile.Property("textures", cachedSkins.get(skinName).get("value").getAsString(), cachedSkins.get(skinName).get("signature").getAsString());
+        } else {
+            InputStreamReader reader_1;
+            try {
+                URL url_0 = new URL("https://api.mojang.com/users/profiles/minecraft/" + skinName);
+                InputStreamReader reader_0 = new InputStreamReader(url_0.openStream());
+                String uuid = new JsonParser().parse(reader_0).getAsJsonObject().get("id").getAsString();
+
+                URL url_1 = new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid + "?unsigned=false");
+                reader_1 = new InputStreamReader(url_1.openStream());
+                JsonObject textureProperty = new JsonParser().parse(reader_1).getAsJsonObject().get("properties").getAsJsonArray().get(0).getAsJsonObject();
+                String texture = textureProperty.get("value").getAsString();
+                String signature = textureProperty.get("signature").getAsString();
+                cachedSkins.put(skinName, textureProperty);
+                return new Profile.Property("textures", texture, signature);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 
     /**
