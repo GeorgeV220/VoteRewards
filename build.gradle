@@ -54,11 +54,6 @@ compileJava {
     options.forkOptions.executable = 'javac'
 }
 
-java {
-    withSourcesJar()
-    withJavadocJar()
-}
-
 archivesBaseName = project.property("pluginName")
 
 repositories {
@@ -125,6 +120,13 @@ test {
 processResources {
     project.properties.put("version", this.version)
     expand project.properties
+}
+
+tasks.withType(Javadoc) {
+    failOnError false
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+    options.addStringOption('charSet', 'UTF-8')
 }
 
 defaultTasks 'build'
