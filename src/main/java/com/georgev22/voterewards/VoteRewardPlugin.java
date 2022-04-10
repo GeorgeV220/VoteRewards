@@ -6,6 +6,8 @@ import com.georgev22.api.database.mongo.MongoDB;
 import com.georgev22.api.database.sql.mysql.MySQL;
 import com.georgev22.api.database.sql.postgresql.PostgreSQL;
 import com.georgev22.api.database.sql.sqlite.SQLite;
+import com.georgev22.api.extensions.ExtensionLoader;
+import com.georgev22.api.extensions.JavaExtensionLoader;
 import com.georgev22.api.maps.HashObjectMap;
 import com.georgev22.api.maps.ObjectMap;
 import com.georgev22.api.maven.LibraryLoader;
@@ -101,6 +103,8 @@ public class VoteRewardPlugin extends JavaPlugin {
     @Getter
     private PaperCommandManager commandManager;
 
+    private ExtensionLoader extensionLoader;
+
     /**
      * Return the VoteRewardPlugin instance
      *
@@ -191,10 +195,27 @@ public class VoteRewardPlugin extends JavaPlugin {
         if (MinecraftUtils.MinecraftVersion.getCurrentVersion().isBelow(MinecraftUtils.MinecraftVersion.V1_12_R1)) {
             MinecraftUtils.debug(this, "This version of Minecraft is extremely outdated and support for it has reached its end of life. You will still be able to run VoteRewards on this Minecraft version(" + MinecraftUtils.MinecraftVersion.getCurrentVersion().name().toLowerCase() + "). Please consider updating to give your players a better experience and to avoid issues that have long been fixed.");
         }
+        try {
+            extensionLoader = new JavaExtensionLoader(Bukkit.getLogger());
+            File extensionsFolder = new File(getDataFolder(), "extensions");
+            if (!extensionsFolder.exists())
+                extensionsFolder.mkdirs();
+
+            File[] files = new File(getDataFolder(), "extensions").listFiles((dir, name) -> name.endsWith(".jar"));
+            if (files != null) {
+                for (File jarFile : files) {
+                    extensionLoader.loadExtension(jarFile);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onDisable() {
+        //TODO UNLOAD EXTENSION
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             if (placeholdersAPI.isRegistered()) {
                 if (placeholdersAPI.unregister()) {
@@ -324,8 +345,7 @@ public class VoteRewardPlugin extends JavaPlugin {
                         OptionsUtil.DATABASE_MONGO_PORT.getIntValue(),
                         OptionsUtil.DATABASE_MONGO_USER.getStringValue(),
                         OptionsUtil.DATABASE_MONGO_PASSWORD.getStringValue(),
-                        OptionsUtil.DATABASE_MONGO_DATABASE.getStringValue(),
-                        OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue());
+                        OptionsUtil.DATABASE_MONGO_DATABASE.getStringValue());
                 database = null;
                 iDatabaseType = new UserVoteData.MongoDBUtils();
                 MinecraftUtils.debug(this, "Database: MongoDB");
