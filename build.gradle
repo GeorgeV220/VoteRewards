@@ -60,9 +60,9 @@ repositories {
     mavenLocal()
     mavenCentral()
     papermc()
-    jitpack()
     bungeecord()
     codemc()
+    maven { url = 'https://jitpack.io' }
     maven { url = 'https://repo.aikar.co/content/groups/aikar/' }
     maven { url = 'https://repo.dmulloy2.net/repository/public/' }
     maven { url = 'https://repo.extendedclip.com/content/repositories/placeholderapi/' }
@@ -73,7 +73,7 @@ dependencies {
 
     implementation(bStats())
     implementation 'co.aikar:acf-paper:0.5.1-SNAPSHOT'
-    implementation 'com.github.GeorgeV220:API:2.3.6'
+    implementation 'com.github.GeorgeV220:API:v3.2.0'
     implementation 'com.github.juliarn:npc-lib:2.6-RELEASE'
     implementation 'com.github.GeorgeV220:Hologram-Lib:1.2.7'
 
@@ -93,12 +93,14 @@ dependencies {
 }
 
 shadowJar {
+    archiveClassifier = ''
     exclude 'com/cryptomorin/**'
     relocate 'co.aikar.commands', "${packageName}.acf"
     relocate 'co.aikar.locales', "${packageName}.locales"
     relocate 'org.bstats', 'com.georgev22.voterewards.bstats'
     relocate 'com.georgev22.api', 'com.georgev22.voterewards.api'
     relocate 'de.tr7zw.changeme.nbtapi', 'com.georgev22.voterewards.api.nbtapi'
+    relocate 'de.tr7zw.nbtapi', 'com.georgev22.voterewards.api.nbtapi'
     relocate 'de.tr7zw.annotations', 'com.georgev22.voterewards.api.annotations'
     relocate 'com.github.juliarn.npc', 'com.georgev22.voterewards.api.npc'
     relocate 'com.github.juliarn.relocation', 'com.georgev22.voterewards.api.npc'
@@ -120,13 +122,6 @@ test {
 processResources {
     project.properties.put("version", this.version)
     expand project.properties
-}
-
-tasks.withType(Javadoc) {
-    failOnError false
-    options.addStringOption('Xdoclint:none', '-quiet')
-    options.addStringOption('encoding', 'UTF-8')
-    options.addStringOption('charSet', 'UTF-8')
 }
 
 defaultTasks 'build'
