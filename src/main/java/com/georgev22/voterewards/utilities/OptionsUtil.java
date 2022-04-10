@@ -1,6 +1,6 @@
 package com.georgev22.voterewards.utilities;
 
-import com.georgev22.api.externals.xseries.XMaterial;
+import com.georgev22.api.minecraft.xseries.XMaterial;
 import com.georgev22.api.minecraft.colors.Color;
 import com.georgev22.api.minecraft.inventory.ItemBuilder;
 import com.georgev22.voterewards.VoteRewardPlugin;

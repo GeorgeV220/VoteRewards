@@ -1,11 +1,11 @@
 package com.georgev22.voterewards.utilities.player;
 
-import com.georgev22.api.externals.xseries.XMaterial;
-import com.georgev22.api.externals.xseries.XSound;
 import com.georgev22.api.maps.HashObjectMap;
 import com.georgev22.api.maps.ObjectMap;
 import com.georgev22.api.minecraft.MinecraftUtils;
 import com.georgev22.api.minecraft.configmanager.CFG;
+import com.georgev22.api.minecraft.xseries.XMaterial;
+import com.georgev22.api.minecraft.xseries.XSound;
 import com.georgev22.api.utilities.Utils;
 import com.georgev22.voterewards.VoteRewardPlugin;
 import com.georgev22.voterewards.utilities.*;
@@ -25,14 +25,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-public class VotePartyUtils {
-
-    private final OfflinePlayer offlinePlayer;
-
-    public VotePartyUtils(@Nullable OfflinePlayer offlinePlayer) {
-        this.offlinePlayer = offlinePlayer;
-
-    }
+public record VotePartyUtils(@Nullable OfflinePlayer offlinePlayer) {
 
     private static final VoteRewardPlugin voteRewardPlugin = VoteRewardPlugin.getInstance();
 
@@ -216,7 +209,8 @@ public class VotePartyUtils {
      * @param amount item amount
      * @return a custom item crate
      */
-    public static @NotNull ItemStack crate(int amount) {
+    public static @NotNull
+    ItemStack crate(int amount) {
         ItemStack itemStack = new ItemStack(
                 Objects.requireNonNull(
                         XMaterial.matchXMaterial(
