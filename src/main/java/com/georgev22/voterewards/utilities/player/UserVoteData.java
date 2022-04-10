@@ -538,7 +538,7 @@ public class UserVoteData {
                     .append("servicesLastVote", user.getServicesLastVote())
                     .append("totalvotes", user.getAllTimeVotes()));
 
-            voteRewardPlugin.getMongoDB().getCollection().updateOne(query, updateObject);
+            voteRewardPlugin.getMongoDB().getCollection(OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue()).updateOne(query, updateObject);
             if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
                 MinecraftUtils.debug(voteRewardPlugin,
                         "User " + user.getName() + " successfully saved!",
@@ -564,7 +564,7 @@ public class UserVoteData {
                 public void onSuccess() {
                     BasicDBObject searchQuery = new BasicDBObject();
                     searchQuery.append("uuid", user.getUniqueId().toString());
-                    FindIterable<Document> findIterable = voteRewardPlugin.getMongoDB().getCollection().find(searchQuery);
+                    FindIterable<Document> findIterable = voteRewardPlugin.getMongoDB().getCollection(OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue()).find(searchQuery);
                     Document document = findIterable.first();
                     user.append("votes", document.getInteger("votes"))
                             .append("name", document.getString("name"))
@@ -603,7 +603,7 @@ public class UserVoteData {
          */
         public void setupUser(User user, Callback callback) {
             if (!playerExists(user)) {
-                voteRewardPlugin.getMongoDB().getCollection().insertOne(new Document()
+                voteRewardPlugin.getMongoDB().getCollection(OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue()).insertOne(new Document()
                         .append("uuid", user.getUniqueId().toString())
                         .append("name", user.getOfflinePlayer().getName())
                         .append("votes", 0)
@@ -623,7 +623,7 @@ public class UserVoteData {
          * @return true if user exists or false when is not
          */
         public boolean playerExists(@NotNull User user) {
-            long count = voteRewardPlugin.getMongoDB().getCollection().count(new BsonDocument("uuid", new BsonString(user.getUniqueId().toString())));
+            long count = voteRewardPlugin.getMongoDB().getCollection(OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue()).count(new BsonDocument("uuid", new BsonString(user.getUniqueId().toString())));
             return count > 0;
         }
 
@@ -633,7 +633,7 @@ public class UserVoteData {
         public void delete(@NotNull User user) {
             BasicDBObject theQuery = new BasicDBObject();
             theQuery.put("uuid", user.getUniqueId().toString());
-            DeleteResult result = voteRewardPlugin.getMongoDB().getCollection().deleteMany(theQuery);
+            DeleteResult result = voteRewardPlugin.getMongoDB().getCollection(OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue()).deleteMany(theQuery);
             if (result.getDeletedCount() > 0) {
                 if (OptionsUtil.DEBUG_DELETE.getBooleanValue()) {
                     MinecraftUtils.debug(voteRewardPlugin, "User " + user.getName() + " deleted from the database!");
@@ -650,7 +650,7 @@ public class UserVoteData {
          */
         public ObjectMap<UUID, User> getAllUsers() {
             ObjectMap<UUID, User> map = ObjectMap.newConcurrentObjectMap();
-            FindIterable<Document> iterable = voteRewardPlugin.getMongoDB().getCollection().find();
+            FindIterable<Document> iterable = voteRewardPlugin.getMongoDB().getCollection(OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue()).find();
             iterable.forEach((Block<Document>) document -> {
                 UserVoteData userVoteData = UserVoteData.getUser(UUID.fromString(document.getString("uuid")));
                 try {
