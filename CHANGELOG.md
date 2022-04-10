@@ -1,3 +1,15 @@
+# [7.5.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.4.2...v7.5.0) (2022-04-10)
+
+
+### Bug Fixes
+
+* XSeries imports ([23bd440](https://github.com/GeorgeV220/VoteRewards/commit/23bd44071072d9931ee84cf31ac89e2a043b4754))
+
+
+### Features
+
+* Extensions ([021c66b](https://github.com/GeorgeV220/VoteRewards/commit/021c66b8bf0dbba5af1a6b34a0240344d2af5131))
+
 ## [7.4.2](https://github.com/GeorgeV220/VoteRewards/compare/v7.4.1...v7.4.2) (2022-04-04)
 
 
