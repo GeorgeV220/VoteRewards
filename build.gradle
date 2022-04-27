@@ -73,7 +73,7 @@ dependencies {
 
     implementation(bStats())
     implementation 'co.aikar:acf-paper:0.5.1-SNAPSHOT'
-    implementation 'com.github.GeorgeV220:API:v3.2.0'
+    implementation 'com.github.GeorgeV220:API:3.3.0'
     implementation 'com.github.juliarn:npc-lib:2.6-RELEASE'
     implementation 'com.github.GeorgeV220:Hologram-Lib:1.2.7'
 
