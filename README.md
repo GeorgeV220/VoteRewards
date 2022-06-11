@@ -1,7 +1,7 @@
 # VoteRewards
-[![](https://img.shields.io/github/v/release/GeorgeV220/VoteRewards?label=LATEST%20VERSION&style=for-the-badge)](https://github.com/GeorgeV220/VoteRewards/releases/latest)
-[![](https://img.shields.io/github/downloads/GeorgeV220/VoteRewards/total?style=for-the-badge)](https://github.com/GeorgeV220/VoteRewards/releases)
-[![](https://img.shields.io/github/workflow/status/GeorgeV220/VoteRewards/Build?style=for-the-badge&color=65C0A3)](https://github.com/GeorgeV220/VoteRewards/actions)
+[![](https://img.shields.io/github/v/release/Project-Alterra/VoteRewards?label=LATEST%20VERSION&style=for-the-badge)](https://github.com/Project-Alterra/VoteRewards/releases/latest)
+[![](https://img.shields.io/github/downloads/Project-Alterra/VoteRewards/total?style=for-the-badge)](https://github.com/Project-Alterra/VoteRewards/releases)
+[![](https://img.shields.io/github/workflow/status/Project-Alterra/VoteRewards/Build?style=for-the-badge&color=65C0A3)](https://github.com/Project-Alterra/VoteRewards/actions)
 
 Vote Rewards is a simple plugin to reward your players when they vote for your server. Vote Rewards contains many
 features like daily vote rewards and voteparty. I promise that the Vote Rewards will not cause problems to your server
@@ -30,7 +30,7 @@ You can have your project depend on VoteRewards as a dependency through the foll
 
     <dependencies>
         <dependency>
-            <groupId>com.github.GeorgeV220</groupId>
+            <groupId>com.github.Project-Alterra</groupId>
             <artifactId>voterewards</artifactId>
             <version>7.2.0</version>
             <scope>provided</scope>
@@ -51,7 +51,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly "com.github.GeorgeV220:voterewards:7.2.0"
+    compileOnly "com.github.Project-Alterra:voterewards:7.2.0"
 }
 ```
 
