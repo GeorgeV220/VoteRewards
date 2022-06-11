@@ -1,3 +1,15 @@
+# [7.6.0](https://github.com/Project-Alterra/VoteRewards/compare/v7.5.0...v7.6.0) (2022-06-11)
+
+
+### Bug Fixes
+
+* **build:** Fixed build errors and some refactoring ([2a190ac](https://github.com/Project-Alterra/VoteRewards/commit/2a190ac3efe5acce8ba42648989dad09bea04c43))
+
+
+### Features
+
+* **DatabaseWrapper:** Added usage of API DatabaseWrapper ([6668813](https://github.com/Project-Alterra/VoteRewards/commit/666881392ddd45e06f52664faabffda94ab96043))
+
 # [7.5.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.4.2...v7.5.0) (2022-04-10)
 
 
