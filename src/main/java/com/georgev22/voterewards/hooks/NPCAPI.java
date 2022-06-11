@@ -100,7 +100,7 @@ public class NPCAPI {
      * @return a new created NPC
      */
     public static @NotNull NPC create(String name, int position, Location location, boolean save) {
-        NPC npc = getNPCMap().get(name) != null ? getNPCMap().get(name).getKey() : null;
+        NPC npc = getNPCMap().get(name) != null ? getNPCMap().get(name).key() : null;
         if (npc == null) {
             NPC.Builder builder = NPC.builder().location(location).lookAtPlayer(true).imitatePlayer(false).profile(save ? createProfile(position) : new Profile("Notch"));
             npc = builder.build(npcPool);
@@ -116,12 +116,12 @@ public class NPCAPI {
     }
 
     public static void remove(String name, boolean save) {
-        NPC npc = getNPCMap().get(name) != null ? getNPCMap().get(name).getKey() : null;
+        NPC npc = getNPCMap().get(name) != null ? getNPCMap().get(name).key() : null;
         if (npc == null) {
             return;
         }
 
-        npcPool.removeNPC(getNPCMap().get(name).getKey().getEntityId());
+        npcPool.removeNPC(getNPCMap().get(name).key().getEntityId());
 
         if (save) {
             data.set("NPCs." + name, null);
@@ -157,7 +157,7 @@ public class NPCAPI {
      * @return a {@link NPC} from npc name.
      */
     public static NPC getNPC(String name) {
-        return getNPCMap().get(name).getKey();
+        return getNPCMap().get(name).key();
     }
 
     /**

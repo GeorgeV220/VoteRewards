@@ -126,14 +126,21 @@ public class VoteRewardsCommand extends Command {
             MinecraftUtils.msg(sender, "&c&l(!)&c Data: vote voteparty time dailyvotes");
         }
         UserVoteData.getAllUsersMap().replace(target.getUniqueId(), userVoteData.user());
-        userVoteData.save(true, new Callback() {
+        userVoteData.save(true, new Callback<>() {
             @Override
-            public void onSuccess() {
+            public Boolean onSuccess() {
+                return true;
             }
 
             @Override
-            public void onFailure(Throwable throwable) {
+            public Boolean onFailure() {
+                return false;
+            }
+
+            @Override
+            public Boolean onFailure(Throwable throwable) {
                 throwable.printStackTrace();
+                return onFailure();
             }
         });
     }
@@ -152,14 +159,21 @@ public class VoteRewardsCommand extends Command {
             ZonedDateTime zonedDateTime = Instant.ofEpochMilli(System.currentTimeMillis()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now()));
             new Backup("backup" + zonedDateTime.format(DateTimeFormatter.ofPattern("MM-dd-yyyy--h-mm-a"))).backup(new Callback() {
                 @Override
-                public void onSuccess() {
+                public Boolean onSuccess() {
                     MinecraftUtils.disallowLogin(false, "");
+                    return true;
                 }
 
                 @Override
-                public void onFailure(Throwable throwable) {
+                public Boolean onFailure() {
+                    return false;
+                }
+
+                @Override
+                public Boolean onFailure(Throwable throwable) {
                     throwable.printStackTrace();
                     MinecraftUtils.disallowLogin(false, "");
+                    return onFailure();
                 }
             });
         });
@@ -179,14 +193,21 @@ public class VoteRewardsCommand extends Command {
         MinecraftUtils.disallowLogin(true, "Restore ongoing!");
         new Backup(fileName + ".yml").restore(new Callback() {
             @Override
-            public void onSuccess() {
+            public Boolean onSuccess() {
                 MinecraftUtils.disallowLogin(false, "");
+                return true;
             }
 
             @Override
-            public void onFailure(Throwable throwable) {
+            public Boolean onFailure() {
+                return false;
+            }
+
+            @Override
+            public Boolean onFailure(Throwable throwable) {
                 throwable.printStackTrace();
                 MinecraftUtils.disallowLogin(false, "");
+                return onFailure();
             }
         });
     }

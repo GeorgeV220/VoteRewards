@@ -332,4 +332,8 @@ public enum OptionsUtil {
     public Object getDefaultValue() {
         return value;
     }
+
+    public Optional<String> getOptionalStringValue() {
+        return Optional.ofNullable(getStringValue());
+    }
 }

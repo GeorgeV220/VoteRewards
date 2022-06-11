@@ -35,11 +35,11 @@ public class DeveloperInformListener implements Listener {
         boolean found = false;
 
         for (ObjectMap.Pair<String, UUID> loop : this.inform) {
-            if (loop.getKey().equals(pair.getKey())) {
+            if (loop.key().equals(pair.key())) {
                 found = true;
                 break;
             }
-            if (loop.getValue().equals(pair.getValue())) {
+            if (loop.value().equals(pair.value())) {
                 found = true;
                 break;
             }

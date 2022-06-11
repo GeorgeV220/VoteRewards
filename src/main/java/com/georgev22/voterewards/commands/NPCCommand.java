@@ -101,7 +101,7 @@ public class NPCCommand extends Command {
         }
 
         if (NPCAPI.npcExists(args[0])) {
-            NPCAPI.updateNPC(args[0], NPCAPI.getNPC(args[0]).getLocation(), args.length > 1 ? args[1].matches("-?(0|[1-9]\\d*)") ? Integer.parseInt(args[1]) : NPCAPI.getNPCMap().get(args[0], ObjectMap.Pair.create(NPCAPI.getNPC(args[0]), 1)).getValue() : NPCAPI.getNPCMap().get(args[0], ObjectMap.Pair.create(NPCAPI.getNPC(args[0]), 1)).getValue(), args.length > 1);
+            NPCAPI.updateNPC(args[0], NPCAPI.getNPC(args[0]).getLocation(), args.length > 1 ? args[1].matches("-?(0|[1-9]\\d*)") ? Integer.parseInt(args[1]) : NPCAPI.getNPCMap().get(args[0], ObjectMap.Pair.create(NPCAPI.getNPC(args[0]), 1)).value() : NPCAPI.getNPCMap().get(args[0], ObjectMap.Pair.create(NPCAPI.getNPC(args[0]), 1)).value(), args.length > 1);
             MinecraftUtils.msg(sender, "&a&l(!)&a Successfully updated " + args[0] + " npc!");
         } else {
             MinecraftUtils.msg(sender, "&c&l(!)&c NPC " + args[0] + " does not exists!");

@@ -1,12 +1,8 @@
 package com.georgev22.voterewards.commands;
 
-import co.aikar.commands.BaseCommand;
-import co.aikar.commands.CommandHelp;
-import co.aikar.commands.MessageType;
 import co.aikar.commands.annotation.*;
 import co.aikar.locales.MessageKey;
 import com.georgev22.api.minecraft.MinecraftUtils;
-import com.georgev22.voterewards.utilities.MessagesUtil;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.model.VotifierEvent;
 import org.bukkit.Bukkit;
@@ -38,7 +34,6 @@ public class FakeVoteCommand extends Command {
         } else {
             process(args[0], args[1]);
         }
-        return;
     }
 
     private void process(String userName, String serviceName) {

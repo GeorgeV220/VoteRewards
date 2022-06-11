@@ -15,7 +15,7 @@ public class Updater {
 
     private final VoteRewardPlugin voteRewardPlugin = VoteRewardPlugin.getInstance();
     private final String localVersion = voteRewardPlugin.getDescription().getVersion();
-    private final String BASE_URL = "https://raw.githubusercontent.com/GeorgeV220/VoteRewards/master/version.md";
+    private final String BASE_URL = "https://raw.githubusercontent.com/Project-Alterra/VoteRewards/master/version.md";
     private String onlineVersion;
 
     public Updater() {
