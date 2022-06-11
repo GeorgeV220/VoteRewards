@@ -46,9 +46,9 @@ public class PlayerListeners implements Listener {
         UserVoteData userVoteData = UserVoteData.getUser(event.getPlayer().getUniqueId());
         final Stopwatch sw = Stopwatch.createStarted();
         try {
-            userVoteData.load(new Callback() {
+            userVoteData.load(new Callback<>() {
                 @Override
-                public void onSuccess() {
+                public Boolean onSuccess() {
                     //OFFLINE VOTING
                     if (OptionsUtil.OFFLINE.getBooleanValue() && !Bukkit.getPluginManager().isPluginEnabled("AuthMeReloaded")) {
                         for (String serviceName : userVoteData.getOfflineServices()) {
@@ -72,11 +72,18 @@ public class PlayerListeners implements Listener {
                             HologramAPI.updateAll();
                         }
                     }
+                    return true;
                 }
 
                 @Override
-                public void onFailure(Throwable throwable) {
+                public Boolean onFailure() {
+                    return false;
+                }
+
+                @Override
+                public Boolean onFailure(Throwable throwable) {
                     throwable.printStackTrace();
+                    return onFailure();
                 }
             });
         } catch (Exception e) {
@@ -101,9 +108,9 @@ public class PlayerListeners implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         UserVoteData userVoteData = UserVoteData.getUser(event.getPlayer().getUniqueId());
-        userVoteData.save(true, new Callback() {
+        userVoteData.save(true, new Callback<>() {
             @Override
-            public void onSuccess() {
+            public Boolean onSuccess() {
                 UserVoteData.getAllUsersMap().append(userVoteData.user().getUniqueId(), userVoteData.user());
                 if (OptionsUtil.REMINDER.getBooleanValue())
                     VoteUtils.reminderMap.remove(event.getPlayer());
@@ -111,11 +118,18 @@ public class PlayerListeners implements Listener {
                     MinecraftUtils.debug(voteRewardPlugin, "User " + event.getPlayer().getName() + " saved!",
                             userVoteData.user().toString());
                 }
+                return true;
             }
 
             @Override
-            public void onFailure(Throwable throwable) {
+            public Boolean onFailure() {
+                return false;
+            }
+
+            @Override
+            public Boolean onFailure(Throwable throwable) {
                 throwable.printStackTrace();
+                return onFailure();
             }
         });
 

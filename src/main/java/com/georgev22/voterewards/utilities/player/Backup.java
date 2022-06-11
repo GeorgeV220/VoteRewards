@@ -41,7 +41,7 @@ public class Backup {
      * @since v4.7.0
      */
     @Beta
-    public void backup(Callback callback) {
+    public void backup(Callback<Boolean> callback) {
         File file = new File(getBackupFolder(), fileName + ".yml");
         YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(file);
         int total = UserVoteData.getAllUsersMap().size();
@@ -74,7 +74,7 @@ public class Backup {
      * @since v4.7.1.0
      */
     @Beta
-    public void restore(Callback callback) {
+    public void restore(Callback<Boolean> callback) {
         File file = new File(getBackupFolder(), fileName);
         YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(file);
         int total = Objects.requireNonNull(yamlConfiguration.getConfigurationSection("")).getKeys(false).size();
@@ -82,9 +82,9 @@ public class Backup {
         for (String b : Objects.requireNonNull(yamlConfiguration.getConfigurationSection("")).getKeys(false)) {
             UserVoteData userVoteData = UserVoteData.getUser(UUID.fromString(Objects.requireNonNull(yamlConfiguration.getString(b + ".uuid"))));
             try {
-                userVoteData.load(new Callback() {
+                userVoteData.load(new Callback<>() {
                     @Override
-                    public void onSuccess() {
+                    public Boolean onSuccess() {
                         userVoteData
                                 .setName(b + ".last-name")
                                 .setVotes(yamlConfiguration.getInt(b + ".votes"))
@@ -93,9 +93,9 @@ public class Backup {
                                 .setVoteParties(yamlConfiguration.getInt(b + ".voteparty"))
                                 .setLastVoted(yamlConfiguration.getLong(b + ".last-vote"))
                                 .setOfflineServices(yamlConfiguration.getStringList(b + ".services"));
-                        userVoteData.save(true, new Callback() {
+                        userVoteData.save(true, new Callback<>() {
                             @Override
-                            public void onSuccess() {
+                            public Boolean onSuccess() {
                                 if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
                                     MinecraftUtils.debug(VoteRewardPlugin.getInstance(),
                                             "User " + userVoteData.user().getName() + " successfully saved!",
@@ -105,11 +105,18 @@ public class Backup {
                                             "Vote Parties: " + userVoteData.user().getVoteParties(),
                                             "All time votes: " + userVoteData.user().getAllTimeVotes());
                                 }
+                                return true;
                             }
 
                             @Override
-                            public void onFailure(Throwable throwable) {
+                            public Boolean onFailure() {
+                                return false;
+                            }
+
+                            @Override
+                            public Boolean onFailure(Throwable throwable) {
                                 throwable.printStackTrace();
+                                return onFailure();
                             }
                         });
                         yamlConfiguration.set(b + ".restored", true);
@@ -117,14 +124,22 @@ public class Backup {
                         System.out.println(progress[0] * 100 / total);
                         try {
                             yamlConfiguration.save(file);
+                            return true;
                         } catch (Exception exception) {
                             exception.printStackTrace();
+                            return false;
                         }
                     }
 
                     @Override
-                    public void onFailure(Throwable throwable) {
+                    public Boolean onFailure() {
+                        return false;
+                    }
+
+                    @Override
+                    public Boolean onFailure(Throwable throwable) {
                         throwable.printStackTrace();
+                        return true;
                     }
                 });
             } catch (Exception exception) {

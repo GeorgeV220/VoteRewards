@@ -17,6 +17,8 @@ import com.georgev22.voterewards.utilities.configmanager.FileManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -28,13 +30,7 @@ import java.util.stream.Collectors;
 
 import static com.georgev22.api.utilities.Utils.*;
 
-public class VoteUtils {
-
-    private final User user;
-
-    public VoteUtils(User user) {
-        this.user = user;
-    }
+public record VoteUtils(User user) {
 
     private static final VoteRewardPlugin voteRewardPlugin = VoteRewardPlugin.getInstance();
     private static final FileManager fileManager = FileManager.getInstance();
@@ -198,15 +194,15 @@ public class VoteUtils {
      */
     public void processOfflineVote(final String serviceName) throws Exception {
         UserVoteData userVoteData = UserVoteData.getUser(user.getUniqueId());
-        userVoteData.load(new Callback() {
+        userVoteData.load(new Callback<>() {
             @Override
-            public void onSuccess() {
+            public Boolean onSuccess() {
                 List<String> services = userVoteData.getOfflineServices();
                 services.add(serviceName);
                 userVoteData.setOfflineServices(services);
-                userVoteData.save(true, new Callback() {
+                userVoteData.save(true, new Callback<>() {
                     @Override
-                    public void onSuccess() {
+                    public Boolean onSuccess() {
                         if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
                             MinecraftUtils.debug(voteRewardPlugin,
                                     "User " + user.getName() + " successfully saved!",
@@ -216,19 +212,35 @@ public class VoteUtils {
                                     "Vote Parties: " + user.getVoteParties(),
                                     "All time votes: " + user.getAllTimeVotes());
                         }
+                        return true;
+                    }
+
+                    @Contract(pure = true)
+                    @Override
+                    public @NotNull Boolean onFailure() {
+                        return false;
                     }
 
                     @Override
-                    public void onFailure(Throwable throwable) {
+                    public @NotNull Boolean onFailure(@NotNull Throwable throwable) {
                         throwable.printStackTrace();
+                        return onFailure();
                     }
                 });
                 new VotePartyUtils(user.getOfflinePlayer()).run(false);
+                return true;
+            }
+
+            @Contract(pure = true)
+            @Override
+            public @NotNull Boolean onFailure() {
+                return true;
             }
 
             @Override
-            public void onFailure(Throwable throwable) {
+            public @NotNull Boolean onFailure(@NotNull Throwable throwable) {
                 throwable.printStackTrace();
+                return onFailure();
             }
         });
     }
@@ -303,17 +315,24 @@ public class VoteUtils {
                         if (user.getOfflinePlayer().isOnline()) {
                             objectMap.append(uuid, userVoteData.user());
                         } else {
-                            userVoteData.save(true, new Callback() {
+                            userVoteData.save(true, new Callback<>() {
                                 @Override
-                                public void onSuccess() {
+                                public Boolean onSuccess() {
                                     if (OptionsUtil.DEBUG_VOTES_DAILY.getBooleanValue()) {
                                         MinecraftUtils.debug(voteRewardPlugin, "Daily vote reset!");
                                     }
+                                    return true;
                                 }
 
                                 @Override
-                                public void onFailure(Throwable throwable) {
+                                public Boolean onFailure() {
+                                    return true;
+                                }
+
+                                @Override
+                                public Boolean onFailure(Throwable throwable) {
                                     throwable.printStackTrace();
+                                    return onFailure();
                                 }
                             });
                         }
@@ -393,11 +412,11 @@ public class VoteUtils {
      * @param number the number of the place
      * @return X place player name
      */
-    public static String getTopPlayer(int number) {
+    public static @NotNull String getTopPlayer(int number) {
         try {
             return String.valueOf(getTopPlayers(number + 1).keySet().toArray()[number]).replace("[", "").replace("]", "");
         } catch (ArrayIndexOutOfBoundsException ignored) {
-            return getTopPlayer(0);
+            return "GeorgeV22";
         }
     }
 
