@@ -1,3 +1,15 @@
+# [7.7.0](https://github.com/Project-Alterra/VoteRewards/compare/v7.6.0...v7.7.0) (2022-07-01)
+
+
+### Bug Fixes
+
+* **Server.xml:** change WORKING_DIRECTORY back to $PROJECT_DIR$ ([24a4ec7](https://github.com/Project-Alterra/VoteRewards/commit/24a4ec7cad7fb79a905184dcc14e79f18baca91f))
+
+
+### Features
+
+* **1.19:** Added 1.19 support ([6f0c237](https://github.com/Project-Alterra/VoteRewards/commit/6f0c2370bc5640a9d6cbe21d7b4c1b365e115009))
+
 # [7.6.0](https://github.com/Project-Alterra/VoteRewards/compare/v7.5.0...v7.6.0) (2022-06-11)
 
 
