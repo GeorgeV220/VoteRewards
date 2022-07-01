@@ -33,7 +33,7 @@ public class HologramAPI {
     private final static FileConfiguration data = dataCFG.getFileConfiguration();
     private final static VoteRewardPlugin m = VoteRewardPlugin.getInstance();
     private static final ObjectMap<String, Hologram> hologramMap = new HashObjectMap<>();
-    private static final HologramPool hologramPool = new HologramPool(m, 70);
+    private static final HologramPool hologramPool = new HologramPool(m, 70, 0, 0);
 
     /**
      * Create a hologram
@@ -51,7 +51,7 @@ public class HologramAPI {
             Hologram.Builder builder = Hologram.builder().location(location);
 
             for (String line : fileManager.getConfig().getFileConfiguration().getStringList("Holograms." + type)) {
-                builder.addLine(MinecraftUtils.colorize(line));
+                builder.addLine(MinecraftUtils.colorize(line), false);
             }
             hologram = builder.build(hologramPool);
         }
@@ -199,7 +199,7 @@ public class HologramAPI {
             Hologram.Builder builder = new Hologram.Builder().location(getHologram(hologramName).getLocation());
             int i = 0;
             for (String line : m.getConfig().getStringList("Holograms." + data.getString("Holograms." + hologramName + ".type"))) {
-                builder.addLine(MinecraftUtils.colorize(Utils.placeHolder(line, getPlaceholderMap(), true)));
+                builder.addLine(MinecraftUtils.colorize(Utils.placeHolder(line, getPlaceholderMap(), true)), false);
             }
             getHologramMap().append(hologramName, builder.build(hologramPool));
             getPlaceholderMap().clear();
