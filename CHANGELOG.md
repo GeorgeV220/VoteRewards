@@ -1,3 +1,10 @@
+## [7.7.1](https://github.com/Project-Alterra/VoteRewards/compare/v7.7.0...v7.7.1) (2022-07-02)
+
+
+### Bug Fixes
+
+* **VoteRewardPlugin:** Fixed MySQL and PostgreSQL instances ([5958037](https://github.com/Project-Alterra/VoteRewards/commit/5958037931d7ca392fdd79d129ac7edbc23502f1))
+
 # [7.7.0](https://github.com/Project-Alterra/VoteRewards/compare/v7.6.0...v7.7.0) (2022-07-01)
 
 
