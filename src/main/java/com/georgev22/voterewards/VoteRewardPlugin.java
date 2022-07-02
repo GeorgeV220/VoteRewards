@@ -320,8 +320,8 @@ public class VoteRewardPlugin extends JavaPlugin {
                     databaseWrapper = new DatabaseWrapper(DatabaseType.MYSQL,
                             OptionsUtil.DATABASE_HOST.getStringValue(),
                             OptionsUtil.DATABASE_PORT.getStringValue(),
-                            OptionsUtil.DATABASE_PASSWORD.getStringValue(),
                             OptionsUtil.DATABASE_USER.getStringValue(),
+                            OptionsUtil.DATABASE_PASSWORD.getStringValue(),
                             OptionsUtil.DATABASE_DATABASE.getStringValue());
                     connection = databaseWrapper.connect().getSQLConnection();
                     databaseWrapper.getSQLDatabase().createTable(OptionsUtil.DATABASE_TABLE_NAME.getStringValue(), map);
@@ -334,8 +334,8 @@ public class VoteRewardPlugin extends JavaPlugin {
                     databaseWrapper = new DatabaseWrapper(DatabaseType.POSTGRESQL,
                             OptionsUtil.DATABASE_HOST.getStringValue(),
                             OptionsUtil.DATABASE_PORT.getStringValue(),
-                            OptionsUtil.DATABASE_PASSWORD.getStringValue(),
                             OptionsUtil.DATABASE_USER.getStringValue(),
+                            OptionsUtil.DATABASE_PASSWORD.getStringValue(),
                             OptionsUtil.DATABASE_DATABASE.getStringValue());
                     connection = databaseWrapper.connect().getSQLConnection();
                     databaseWrapper.getSQLDatabase().createTable(OptionsUtil.DATABASE_TABLE_NAME.getStringValue(), map);
