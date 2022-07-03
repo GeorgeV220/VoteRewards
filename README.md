@@ -30,9 +30,9 @@ You can have your project depend on VoteRewards as a dependency through the foll
 
     <dependencies>
         <dependency>
-            <groupId>com.github.Project-Alterra</groupId>
+            <groupId>com.github.GeorgeV220</groupId>
             <artifactId>voterewards</artifactId>
-            <version>7.2.0</version>
+            <version>7.7.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -51,7 +51,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly "com.github.Project-Alterra:voterewards:7.2.0"
+    compileOnly "com.github.GeorgeV220:voterewards:7.7.1"
 }
 ```
 
