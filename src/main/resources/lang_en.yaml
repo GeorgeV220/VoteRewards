@@ -21,3 +21,10 @@ commands:
       restore: 'Restore all user data.'
       set: 'Set values to a target player.'
       region: 'Add a region to force not give vote party crates.'
+    npc:
+      default: 'The basic npc command'
+      help: 'Shows the help page'
+      create: 'Create a new VoteRewards NPC'
+      remove: 'Remove an existing VoteRewards NPC'
+      update: 'Force update a specific NPC'
+      updateall: 'Force update all NPCs'

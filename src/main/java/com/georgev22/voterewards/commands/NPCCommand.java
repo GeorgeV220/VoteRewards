@@ -28,7 +28,7 @@ public class NPCCommand extends Command {
     }
 
     @Default
-    @Description("{@@commands.descriptions.npc}")
+    @Description("{@@commands.descriptions.npc.default}")
     @CommandPermission("voterewards.npc")
     public void execute(@NotNull final CommandSender sender, final String[] args) {
         MinecraftUtils.msg(sender, "&c&l(!)&c Commands&c &l(!)");
@@ -41,7 +41,7 @@ public class NPCCommand extends Command {
 
     @Subcommand("create")
     @CommandAlias("vnpccreate")
-    @CommandCompletion("<npcname> @range:1-999")
+    @CommandCompletion("<npcname> @range:0-999")
     @Description("{@@commands.descriptions.npc.create}")
     @Syntax("create <npcname> <position>")
     public void create(CommandSender sender, String @NotNull [] args) {
@@ -93,7 +93,7 @@ public class NPCCommand extends Command {
     @CommandAlias("vnpcupdate")
     @CommandCompletion("<npcname>")
     @Description("{@@commands.descriptions.npc.update}")
-    @Syntax("update <npcname> @range:1-999")
+    @Syntax("update <npcname> @range:0-999")
     public void update(CommandSender sender, String @NotNull [] args) {
         if (args.length == 0) {
             MinecraftUtils.msg(sender, "&c&l(!)&c Not enough arguments");
@@ -110,9 +110,8 @@ public class NPCCommand extends Command {
 
     @Subcommand("updateall")
     @CommandAlias("vnpcupdateall")
-    @CommandCompletion("<npcname>")
     @Description("{@@commands.descriptions.npc.updateall}")
-    @Syntax("update <npcname> @range:1-999")
+    @Syntax("updateall")
     public void updateAll(CommandSender sender, String @NotNull [] args) {
         NPCAPI.updateAll();
         MinecraftUtils.msg(sender, "&a&l(!)&a All NPCs have been updated!");
