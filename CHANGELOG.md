@@ -1,3 +1,15 @@
+# [7.8.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.7.1...v7.8.0) (2022-07-10)
+
+
+### Bug Fixes
+
+* **NPCAPI:** Fixed an error with NCPAPI when the plugin disables. ([dbd4fba](https://github.com/GeorgeV220/VoteRewards/commit/dbd4fbafb293463e350f230d7ad9121047b95b6a))
+
+
+### Features
+
+* **WorldGuardWrapper:** Added WorldEdit/WorldGuard support agaian ([8651b57](https://github.com/GeorgeV220/VoteRewards/commit/8651b575b61aa69c923a5127b4616d03dd289b82))
+
 ## [7.7.1](https://github.com/Project-Alterra/VoteRewards/compare/v7.7.0...v7.7.1) (2022-07-02)
 
 
