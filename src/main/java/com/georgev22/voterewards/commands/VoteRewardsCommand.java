@@ -3,19 +3,27 @@ package com.georgev22.voterewards.commands;
 import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.*;
 import com.georgev22.api.minecraft.MinecraftUtils;
+import com.georgev22.api.minecraft.configmanager.CFG;
 import com.georgev22.voterewards.utilities.MessagesUtil;
 import com.georgev22.voterewards.utilities.configmanager.FileManager;
 import com.georgev22.voterewards.utilities.player.Backup;
 import com.georgev22.voterewards.utilities.player.UserVoteData;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
+import org.codemc.worldguardwrapper.WorldGuardWrapper;
+import org.codemc.worldguardwrapper.selection.ICuboidSelection;
+import org.codemc.worldguardwrapper.selection.ISelection;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 import static com.georgev22.api.utilities.Utils.*;
 
@@ -157,7 +165,7 @@ public class VoteRewardsCommand extends Command {
         Bukkit.getScheduler().runTaskAsynchronously(voteRewardPlugin, () -> {
             MinecraftUtils.disallowLogin(true, "Backup ongoing!");
             ZonedDateTime zonedDateTime = Instant.ofEpochMilli(System.currentTimeMillis()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now()));
-            new Backup("backup" + zonedDateTime.format(DateTimeFormatter.ofPattern("MM-dd-yyyy--h-mm-a"))).backup(new Callback() {
+            new Backup("backup" + zonedDateTime.format(DateTimeFormatter.ofPattern("MM-dd-yyyy--h-mm-a"))).backup(new Callback<>() {
                 @Override
                 public Boolean onSuccess() {
                     MinecraftUtils.disallowLogin(false, "");
@@ -191,7 +199,7 @@ public class VoteRewardsCommand extends Command {
         }
         MinecraftUtils.kickAll(voteRewardPlugin, "Restore started!");
         MinecraftUtils.disallowLogin(true, "Restore ongoing!");
-        new Backup(fileName + ".yml").restore(new Callback() {
+        new Backup(fileName + ".yml").restore(new Callback<>() {
             @Override
             public Boolean onSuccess() {
                 MinecraftUtils.disallowLogin(false, "");
@@ -224,6 +232,66 @@ public class VoteRewardsCommand extends Command {
         fm.getDiscord().reloadFile();
         MessagesUtil.repairPaths(fm.getMessages());
         MinecraftUtils.msg(sender, "&a&l(!) &aPlugin reloaded!");
+    }
+
+    @Subcommand("region")
+    @CommandAlias("vregion")
+    @Description("{@@commands.descriptions.votereward.region}")
+    @CommandCompletion("add|remove <regionName>")
+    @Syntax("region add|remove <regionName>")
+    public void region(final CommandSender sender, final String @NotNull [] args) {
+        if (args.length == 0) {
+            MinecraftUtils.msg(sender, "&c&l(!)&c /vr region <add/remove> <name>");
+            return;
+        }
+
+        if (args[0].equalsIgnoreCase("add")) {
+            if (args.length == 1) {
+                MinecraftUtils.msg(sender, "&c&l(!)&c /vr region add <name>");
+                return;
+            }
+
+            if (!(sender instanceof Player player)) {
+                MessagesUtil.ONLY_PLAYER_COMMAND.msg(sender);
+                return;
+            }
+            WorldGuardWrapper worldGuardWrapper = WorldGuardWrapper.getInstance();
+            Optional<ISelection> iSelection = worldGuardWrapper.getPlayerSelection(player);
+            if (iSelection.isEmpty()) {
+                MinecraftUtils.msg(player, "&c&l(!)&c Selection is empty");
+                return;
+            }
+            ICuboidSelection selection = (ICuboidSelection) iSelection.get();
+            Location a = selection.getMinimumPoint();
+            Location b = selection.getMaximumPoint();
+            String regionName = args[1];
+            if (a == null || b == null) {
+                MinecraftUtils.msg(sender, "&c&l(!)&c Please make a selection first!");
+                return;
+            }
+            CFG cfg = FileManager.getInstance().getData();
+            FileConfiguration data = cfg.getFileConfiguration();
+            data.set("Regions." + regionName + ".minimumPos", a);
+            data.set("Regions." + regionName + ".maximumPos", b);
+            cfg.saveFile();
+            MinecraftUtils.msg(sender, "&a&l(!) &aAdded Location \na: " + a.getX() + "," + a.getY() + "," + a.getZ()
+                    + "\nb: " + b.getX() + "," + b.getY() + "," + b.getZ());
+        }
+        if (args[0].equalsIgnoreCase("remove")) {
+            if (args.length == 1) {
+                MinecraftUtils.msg(sender, "&c&l(!)&c /vr region remove <name>");
+                return;
+            }
+
+            String regionName = args[1];
+            CFG cfg = FileManager.getInstance().getData();
+            FileConfiguration data = cfg.getFileConfiguration();
+
+            data.set("Regions." + regionName, null);
+            cfg.saveFile();
+
+            MinecraftUtils.msg(sender, "&c&l(!)&c Location " + regionName + " removed!");
+        }
     }
 
 }
