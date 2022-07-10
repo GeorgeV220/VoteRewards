@@ -1,5 +1,6 @@
 package com.georgev22.voterewards.hooks;
 
+import com.georgev22.api.maps.ConcurrentObjectMap;
 import com.georgev22.api.maps.HashObjectMap;
 import com.georgev22.api.maps.ObjectMap;
 import com.georgev22.api.minecraft.configmanager.CFG;
@@ -33,7 +34,7 @@ public class NPCAPI {
     private final static CFG dataCFG = fileManager.getData();
     private final static FileConfiguration data = dataCFG.getFileConfiguration();
     private final static VoteRewardPlugin mainPlugin = VoteRewardPlugin.getInstance();
-    private static final ObjectMap<String, ObjectMap.Pair<NPC, Integer>> npcMap = new HashObjectMap<>();
+    private static final ObjectMap<String, ObjectMap.Pair<NPC, Integer>> npcMap = new ConcurrentObjectMap<>();
     private static final Random random = new Random();
     private static final NPCPool npcPool = NPCPool.builder(mainPlugin)
             .spawnDistance(50)
