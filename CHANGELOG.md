@@ -1,3 +1,15 @@
+# [7.9.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.8.0...v7.9.0) (2022-07-10)
+
+
+### Bug Fixes
+
+* **Lang:** Fix lang for the NPC command. ([9fc70f9](https://github.com/GeorgeV220/VoteRewards/commit/9fc70f93619c710e62fd0f963a3dfb272d1dcf28))
+
+
+### Features
+
+* **Updater:** Updater is does no longer need the version.md file ([9e5ae7f](https://github.com/GeorgeV220/VoteRewards/commit/9e5ae7f233c680656727650ea1586692efce7ac1))
+
 # [7.8.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.7.1...v7.8.0) (2022-07-10)
 
 
