@@ -1,5 +1,6 @@
 package com.georgev22.voterewards.utilities;
 
+import com.georgev22.api.maps.HashObjectMap;
 import com.georgev22.api.minecraft.MinecraftUtils;
 import com.georgev22.api.minecraft.configmanager.CFG;
 import org.bukkit.Bukkit;
@@ -190,7 +191,7 @@ public enum MessagesUtil {
      * @see #msg(CommandSender, Map, boolean)
      */
     public void msg(final CommandSender target) {
-        msg(target, null, false);
+        msg(target, new HashObjectMap<>(), false);
     }
 
     /**

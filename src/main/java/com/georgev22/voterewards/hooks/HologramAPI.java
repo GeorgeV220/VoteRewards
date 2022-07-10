@@ -1,5 +1,6 @@
 package com.georgev22.voterewards.hooks;
 
+import com.georgev22.api.maps.ConcurrentObjectMap;
 import com.georgev22.api.maps.HashObjectMap;
 import com.georgev22.api.maps.ObjectMap;
 import com.georgev22.api.minecraft.MinecraftUtils;
@@ -31,9 +32,9 @@ public class HologramAPI {
     private final static FileManager fileManager = FileManager.getInstance();
     private final static CFG dataCFG = fileManager.getData();
     private final static FileConfiguration data = dataCFG.getFileConfiguration();
-    private final static VoteRewardPlugin m = VoteRewardPlugin.getInstance();
-    private static final ObjectMap<String, Hologram> hologramMap = new HashObjectMap<>();
-    private static final HologramPool hologramPool = new HologramPool(m, 70, 0, 0);
+    private final static VoteRewardPlugin voteRewardPlugin = VoteRewardPlugin.getInstance();
+    private static final ObjectMap<String, Hologram> hologramMap = new ConcurrentObjectMap<>();
+    private static final HologramPool hologramPool = new HologramPool(voteRewardPlugin, 70, 0, 0);
 
     /**
      * Create a hologram
@@ -198,7 +199,7 @@ public class HologramAPI {
             hologramPool.remove(getHologram(hologramName));
             Hologram.Builder builder = new Hologram.Builder().location(getHologram(hologramName).getLocation());
             int i = 0;
-            for (String line : m.getConfig().getStringList("Holograms." + data.getString("Holograms." + hologramName + ".type"))) {
+            for (String line : voteRewardPlugin.getConfig().getStringList("Holograms." + data.getString("Holograms." + hologramName + ".type"))) {
                 builder.addLine(MinecraftUtils.colorize(Utils.placeHolder(line, getPlaceholderMap(), true)), false);
             }
             getHologramMap().append(hologramName, builder.build(hologramPool));
