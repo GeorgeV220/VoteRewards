@@ -137,7 +137,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             groupId = group
-            artifactId = project.property("artifact")
+            artifactId = this.project.property("artifact")
             version = project.version
 
             from components.java
