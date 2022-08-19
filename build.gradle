@@ -151,8 +151,8 @@ publishing {
 
             url = project.version.endsWith("beta") | project.version.endsWith("alpha") ? snapshotUrl : releaseUrl
 
-            def mavenUsername = System.getenv("georgev_username") ? System.getenv("georgev_username") : null
-            def mavenPassword = System.getenv("georgev_password") ? System.getenv("georgev_password") : null
+            def mavenUsername = System.getenv("ORG_GRADLE_PROJECT_username") ? System.getenv("ORG_GRADLE_PROJECT_username") : null
+            def mavenPassword = System.getenv("ORG_GRADLE_PROJECT_password") ? System.getenv("ORG_GRADLE_PROJECT_password") : null
 
             if (mavenUsername != null && mavenPassword != null) {
                 credentials {
