@@ -11,6 +11,7 @@ plugins {
     id 'java'
     id 'jacoco'
     id 'idea'
+    id 'maven-publish'
 }
 
 apply from: "$rootDir/gradle/jacoco.gradle"
@@ -93,8 +94,8 @@ dependencies {
     compileOnly 'org.mongodb:mongo-java-driver:3.12.11'
     compileOnly 'org.jetbrains:annotations:23.0.0'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
-    testImplementation 'org.mockito:mockito-core:4.6.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.0'
+    testImplementation 'org.mockito:mockito-core:4.7.0'
     //testImplementation 'com.github.seeseemelk:MockBukkit-v1.18:1.24.1'
     testImplementation 'org.assertj:assertj-core:3.23.1'
 }
@@ -132,4 +133,35 @@ processResources {
     expand project.properties
 }
 
-defaultTasks 'build'
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = group
+            artifactId = project.property("pluginName")
+            version = project.version
+
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            def snapshotUrl = "https://repo.codemc.io/repository/maven-snapshots/"
+            def releaseUrl = "https://repo.codemc.io/repository/maven-releases/"
+
+            url = project.version.endsWith("beta") | project.version.endsWith("alpha")  ? snapshotUrl : releaseUrl
+
+            def mavenUsername = System.getenv("ORG_GRADLE_PROJECT_mavenUsername") ? System.getenv("ORG_GRADLE_PROJECT_mavenUsername") : null
+            def mavenPassword = System.getenv("ORG_GRADLE_PROJECT_mavenPassword") ? System.getenv("ORG_GRADLE_PROJECT_mavenPassword") : null
+
+            if(mavenUsername != null && mavenPassword != null) {
+                credentials {
+                    username = mavenUsername
+                    password = mavenPassword
+                }
+            }
+        }
+    }
+}
+
+defaultTasks 'clean build'
