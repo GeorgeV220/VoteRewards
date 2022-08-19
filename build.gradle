@@ -113,7 +113,7 @@ shadowJar {
     relocate 'com.github.juliarn.npc', "${packageName}.api.npc"
     relocate 'com.github.juliarn.relocation', "${packageName}.api.npc"
     relocate 'com.github.unldenis.hologram', "${packageName}.api.hologram"
-    relocate 'org.codemc.worldguardwrapper',  "${packageName}.api.worldguardwrapper"
+    relocate 'org.codemc.worldguardwrapper', "${packageName}.api.worldguardwrapper"
 }
 
 tasks.build.dependsOn(shadowJar)
@@ -137,7 +137,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             groupId = group
-            artifactId = project.property("pluginName")
+            artifactId = project.property("artifact")
             version = project.version
 
             from components.java
@@ -149,12 +149,12 @@ publishing {
             def snapshotUrl = "https://repo.codemc.io/repository/maven-snapshots/"
             def releaseUrl = "https://repo.codemc.io/repository/maven-releases/"
 
-            url = project.version.endsWith("beta") | project.version.endsWith("alpha")  ? snapshotUrl : releaseUrl
+            url = project.version.endsWith("beta") | project.version.endsWith("alpha") ? snapshotUrl : releaseUrl
 
-            def mavenUsername = System.getenv("ORG_GRADLE_PROJECT_mavenUsername") ? System.getenv("ORG_GRADLE_PROJECT_mavenUsername") : null
-            def mavenPassword = System.getenv("ORG_GRADLE_PROJECT_mavenPassword") ? System.getenv("ORG_GRADLE_PROJECT_mavenPassword") : null
+            def mavenUsername = System.getenv("georgev_username") ? System.getenv("georgev_username") : null
+            def mavenPassword = System.getenv("georgev_password") ? System.getenv("georgev_password") : null
 
-            if(mavenUsername != null && mavenPassword != null) {
+            if (mavenUsername != null && mavenPassword != null) {
                 credentials {
                     username = mavenUsername
                     password = mavenPassword
