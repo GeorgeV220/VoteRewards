@@ -37,33 +37,35 @@ publishing {
         }
     }
     repositories {
-        maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/${project.findProperty("GITHUB_REPOSITORY") ?: System.getenv("GITHUB_REPOSITORY")}")
-            credentials {
-                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
-                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
-            }
-        }
-        maven {
-            name = "CodeMC"
-            def snapshotUrl = "https://repo.codemc.io/repository/maven-snapshots/"
-            def releaseUrl = "https://repo.codemc.io/repository/maven-releases/"
-
-            url = project.version.endsWith("beta") | project.version.endsWith("alpha") ? snapshotUrl : releaseUrl
-
-            def mavenUsername = System.getenv("ORG_GRADLE_PROJECT_mavenUsername") ? System.getenv("ORG_GRADLE_PROJECT_mavenUsername") :
-                    System.getProperty("ORG_GRADLE_PROJECT_mavenUsername") ? System.getProperty("ORG_GRADLE_PROJECT_mavenUsername") : null
-            def mavenPassword = System.getenv("ORG_GRADLE_PROJECT_mavenPassword") ? System.getenv("ORG_GRADLE_PROJECT_mavenPassword") :
-                    System.getProperty("ORG_GRADLE_PROJECT_mavenPassword") ? System.getProperty("ORG_GRADLE_PROJECT_mavenPassword") : null
-
-            if (mavenUsername != null && mavenPassword != null) {
+        if (System.getenv("GITHUB_REPOSITORY") != null)
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/${project.findProperty("GITHUB_REPOSITORY") ?: System.getenv("GITHUB_REPOSITORY")}")
                 credentials {
-                    username = mavenUsername
-                    password = mavenPassword
+                    username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+                    password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
                 }
             }
-        }
+        if (System.getenv("GITHUB_REPOSITORY") == null)
+            maven {
+                name = "CodeMC"
+                def snapshotUrl = "https://repo.codemc.io/repository/maven-snapshots/"
+                def releaseUrl = "https://repo.codemc.io/repository/maven-releases/"
+
+                url = project.version.endsWith("beta") | project.version.endsWith("alpha") ? snapshotUrl : releaseUrl
+
+                def mavenUsername = System.getenv("ORG_GRADLE_PROJECT_mavenUsername") ? System.getenv("ORG_GRADLE_PROJECT_mavenUsername") :
+                        System.getProperty("ORG_GRADLE_PROJECT_mavenUsername") ? System.getProperty("ORG_GRADLE_PROJECT_mavenUsername") : null
+                def mavenPassword = System.getenv("ORG_GRADLE_PROJECT_mavenPassword") ? System.getenv("ORG_GRADLE_PROJECT_mavenPassword") :
+                        System.getProperty("ORG_GRADLE_PROJECT_mavenPassword") ? System.getProperty("ORG_GRADLE_PROJECT_mavenPassword") : null
+
+                if (mavenUsername != null && mavenPassword != null) {
+                    credentials {
+                        username = mavenUsername
+                        password = mavenPassword
+                    }
+                }
+            }
     }
 }
 
