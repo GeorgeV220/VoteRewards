@@ -37,7 +37,9 @@ publishing {
         }
     }
     repositories {
-        if (System.getenv("GITHUB_REPOSITORY") != null)
+        def isGitHub = System.getenv("GITHUB_REPOSITORY") ? true : false
+        print(isGitHub)
+        if (isGitHub)
             maven {
                 name = "GitHubPackages"
                 url = uri("https://maven.pkg.github.com/${project.findProperty("GITHUB_REPOSITORY") ?: System.getenv("GITHUB_REPOSITORY")}")
@@ -46,7 +48,7 @@ publishing {
                     password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
                 }
             }
-        if (System.getenv("GITHUB_REPOSITORY") == null)
+        if (!isGitHub)
             maven {
                 name = "CodeMC"
                 def snapshotUrl = "https://repo.codemc.io/repository/maven-snapshots/"
