@@ -38,6 +38,8 @@ Options:
   monthly: #Reset votes each month
     enabled: false
     minutes: 30 #Every how many minutes to check whether the month has changed
+    rewards: false #Give rewards to top montly players
+    rewards to top: 5
   votetop:
     header: true
     line: false

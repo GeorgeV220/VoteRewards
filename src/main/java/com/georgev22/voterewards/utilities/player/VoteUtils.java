@@ -256,6 +256,12 @@ public record VoteUtils(User user) {
                 MinecraftUtils.debug(voteRewardPlugin, "Monthly reset Thread ID: " + Thread.currentThread().getId());
             CFG cfg = fileManager.getData();
             FileConfiguration dataConfiguration = cfg.getFileConfiguration();
+            if (OptionsUtil.MONTHLY_REWARDS.getBooleanValue())
+                for (int i = 0; i < OptionsUtil.MONTHLY_REWARDS_TO_TOP.getIntValue(); i++) {
+                    String player = getTopPlayer(i);
+                    UserVoteData userVoteData = UserVoteData.getUser(UserVoteData.getAllUsersMapWithName().entrySet().stream().filter(stringUserEntry -> stringUserEntry.getKey().equals(player)).findFirst().get().getValue().getOfflinePlayer());
+                    userVoteData.runCommands(voteRewardPlugin.getConfig().getStringList("Rewards.montly." + i));
+                }
             if (dataConfiguration.getInt("month") != Calendar.getInstance().getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().getMonthValue()) {
                 ObjectMap<UUID, User> objectMap = UserVoteData.getAllUsersMap();
                 objectMap.forEach((uuid, user) -> {

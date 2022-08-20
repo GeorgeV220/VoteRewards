@@ -53,6 +53,10 @@ public enum OptionsUtil {
 
     MONTHLY_MINUTES("monthly.minutes", 30L, Optional.empty()),
 
+    MONTHLY_REWARDS("monthly.rewards", false, Optional.empty()),
+
+    MONTHLY_REWARDS_TO_TOP("monthly.rewards to top", 5, Optional.empty()),
+
     PURGE_ENABLED("purge.enabled", false, Optional.empty()),
 
     PURGE_DAYS("purge.days", 60L, Optional.empty()),
