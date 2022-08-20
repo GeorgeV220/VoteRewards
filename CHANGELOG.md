@@ -1,3 +1,10 @@
+# [7.10.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.9.0...v7.10.0) (2022-08-20)
+
+
+### Features
+
+* **Monthly Rewards:** Added monthly rewards ([18f5d85](https://github.com/GeorgeV220/VoteRewards/commit/18f5d85a9f8aca0a918e36e68b38179a77542e59))
+
 # [7.9.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.8.0...v7.9.0) (2022-07-10)
 
 
