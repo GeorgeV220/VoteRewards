@@ -19,7 +19,7 @@ java {
 
 jar {
     manifest {
-        attributes (
+        attributes(
                 'Build-Jdk': "${System.properties['java.vendor']} ${System.properties['java.vm.version']}",
                 'Created-By': "Gradle ${gradle.gradleVersion}",
                 'Git-Branch': getBranch(),
@@ -33,23 +33,42 @@ publishing {
         shadow(MavenPublication) { publication ->
             project.shadow.component(publication)
             artifactId = project.getName().toLowerCase()
-            groupId = ((String)project.getGroup()).toLowerCase()
+            groupId = ((String) project.getGroup()).toLowerCase()
         }
     }
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/${project.findProperty("GITHUB_REPOSITORY")?: System.getenv("GITHUB_REPOSITORY")}")
+            url = uri("https://maven.pkg.github.com/${project.findProperty("GITHUB_REPOSITORY") ?: System.getenv("GITHUB_REPOSITORY")}")
             credentials {
                 username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
                 password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+        maven {
+            name = "CodeMC"
+            def snapshotUrl = "https://repo.codemc.io/repository/maven-snapshots/"
+            def releaseUrl = "https://repo.codemc.io/repository/maven-releases/"
+
+            url = project.version.endsWith("beta") | project.version.endsWith("alpha") ? snapshotUrl : releaseUrl
+
+            def mavenUsername = System.getenv("ORG_GRADLE_PROJECT_mavenUsername") ? System.getenv("ORG_GRADLE_PROJECT_mavenUsername") :
+                    System.getProperty("ORG_GRADLE_PROJECT_mavenUsername") ? System.getProperty("ORG_GRADLE_PROJECT_mavenUsername") : null
+            def mavenPassword = System.getenv("ORG_GRADLE_PROJECT_mavenPassword") ? System.getenv("ORG_GRADLE_PROJECT_mavenPassword") :
+                    System.getProperty("ORG_GRADLE_PROJECT_mavenPassword") ? System.getProperty("ORG_GRADLE_PROJECT_mavenPassword") : null
+
+            if (mavenUsername != null && mavenPassword != null) {
+                credentials {
+                    username = mavenUsername
+                    password = mavenPassword
+                }
             }
         }
     }
 }
 
 javadoc {
-    if(JavaVersion.current().isJava9Compatible()) {
+    if (JavaVersion.current().isJava9Compatible()) {
         options.addBooleanOption('html5', true)
         options.addStringOption('Xdoclint:none', '-quiet')
     }

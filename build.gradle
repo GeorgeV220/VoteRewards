@@ -11,7 +11,6 @@ plugins {
     id 'java'
     id 'jacoco'
     id 'idea'
-    id 'maven-publish'
 }
 
 apply from: "$rootDir/gradle/jacoco.gradle"
@@ -131,39 +130,6 @@ test {
 processResources {
     project.properties.put("version", this.version)
     expand project.properties
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            groupId = group
-            artifactId = this.project.property("artifact")
-            version = project.version
-
-            from components.java
-        }
-    }
-
-    repositories {
-        maven {
-            def snapshotUrl = "https://repo.codemc.io/repository/maven-snapshots/"
-            def releaseUrl = "https://repo.codemc.io/repository/maven-releases/"
-
-            url = project.version.endsWith("beta") | project.version.endsWith("alpha") ? snapshotUrl : releaseUrl
-
-            def mavenUsername = System.getenv("ORG_GRADLE_PROJECT_mavenUsername") ? System.getenv("ORG_GRADLE_PROJECT_mavenUsername") :
-                    System.getProperty("ORG_GRADLE_PROJECT_mavenUsername") ? System.getProperty("ORG_GRADLE_PROJECT_mavenUsername") : null
-            def mavenPassword = System.getenv("ORG_GRADLE_PROJECT_mavenPassword") ? System.getenv("ORG_GRADLE_PROJECT_mavenPassword") :
-                    System.getProperty("ORG_GRADLE_PROJECT_mavenPassword") ? System.getProperty("ORG_GRADLE_PROJECT_mavenPassword") : null
-
-            if (mavenUsername != null && mavenPassword != null) {
-                credentials {
-                    username = mavenUsername
-                    password = mavenPassword
-                }
-            }
-        }
-    }
 }
 
 defaultTasks 'clean build'
