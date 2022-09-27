@@ -30,7 +30,10 @@ Options:
   title:
     vote: false #Shows a title message when the player votes
     voteparty: false #Shows a voteparty title message
-  updater: true
+  updater:
+    enabled: true
+    download: false
+    restart: false
   purge: #Purge old data
     enabled: false
     minutes: 30 #Every how many minutes to check whether the days have passed

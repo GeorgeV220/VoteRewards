@@ -47,7 +47,11 @@ public enum OptionsUtil {
 
     VOTEPARTY_TITLE("title.voteparty", false, Optional.empty()),
 
-    UPDATER("updater", true, Optional.empty()),
+    UPDATER("updater.enabled", true, Optional.of("updater")),
+
+    UPDATER_DOWNLOAD("updater.download", false, Optional.empty()),
+
+    UPDATER_RESTART("updater.restart", false, Optional.empty()),
 
     MONTHLY_ENABLED("monthly.enabled", false, Optional.empty()),
 
