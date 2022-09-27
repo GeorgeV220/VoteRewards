@@ -1,3 +1,10 @@
+# [7.11.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.10.0...v7.11.0) (2022-09-27)
+
+
+### Features
+
+* **Updater:** Auto updater ([65bacba](https://github.com/GeorgeV220/VoteRewards/commit/65bacba459c88fafad1501cb447ef47d9eced69c))
+
 # [7.10.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.9.0...v7.10.0) (2022-08-20)
 
 
