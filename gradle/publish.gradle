@@ -34,6 +34,8 @@ publishing {
             project.shadow.component(publication)
             artifactId = project.getName().toLowerCase()
             groupId = ((String) project.getGroup()).toLowerCase()
+            artifact sourcesJar
+            artifact javadocJar
         }
     }
     repositories {
