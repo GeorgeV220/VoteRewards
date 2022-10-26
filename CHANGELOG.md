@@ -1,3 +1,10 @@
+## [7.12.1](https://github.com/GeorgeV220/VoteRewards/compare/v7.12.0...v7.12.1) (2022-10-26)
+
+
+### Bug Fixes
+
+* **publish:** Publish source and javadocs ([61a44e2](https://github.com/GeorgeV220/VoteRewards/commit/61a44e2b6a477bd7f68b70b6dd0b6855fc9216ba))
+
 # [7.12.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.11.0...v7.12.0) (2022-10-26)
 
 
