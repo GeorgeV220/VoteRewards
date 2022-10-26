@@ -116,4 +116,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_URL: "https://api.github.com/"
+          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
         run: npx --legacy-peer-deps -p @semantic-release/changelog -p @semantic-release/git -p @semantic-release/exec -p gradle-semantic-release-plugin -p semantic-release semantic-release

@@ -1,12 +1,12 @@
 apply plugin: 'maven-publish'
 
-def getBranch() {
+static def getBranch() {
     def process = 'git branch --show-current'.execute()
     process.waitFor()
     return process.text.trim()
 }
 
-def getHash() {
+static def getHash() {
     def process = 'git rev-parse HEAD'.execute()
     process.waitFor()
     return process.text.trim()
@@ -38,8 +38,7 @@ publishing {
     }
     repositories {
         def isGitHub = System.getenv("GITHUB_REPOSITORY") ? true : false
-        print(isGitHub)
-        if (isGitHub)
+        if (isGitHub) {
             maven {
                 name = "GitHubPackages"
                 url = uri("https://maven.pkg.github.com/${project.findProperty("GITHUB_REPOSITORY") ?: System.getenv("GITHUB_REPOSITORY")}")
@@ -48,26 +47,49 @@ publishing {
                     password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
                 }
             }
-        if (!isGitHub)
             maven {
-                name = "CodeMC"
-                def snapshotUrl = "https://repo.codemc.io/repository/maven-snapshots/"
-                def releaseUrl = "https://repo.codemc.io/repository/maven-releases/"
+                name = "GeorgeV22"
 
-                url = project.version.endsWith("beta") | project.version.endsWith("alpha") ? snapshotUrl : releaseUrl
+                url = uri("https://repo.georgev22.com/releases")
 
-                def mavenUsername = System.getenv("ORG_GRADLE_PROJECT_mavenUsername") ? System.getenv("ORG_GRADLE_PROJECT_mavenUsername") :
-                        System.getProperty("ORG_GRADLE_PROJECT_mavenUsername") ? System.getProperty("ORG_GRADLE_PROJECT_mavenUsername") : null
-                def mavenPassword = System.getenv("ORG_GRADLE_PROJECT_mavenPassword") ? System.getenv("ORG_GRADLE_PROJECT_mavenPassword") :
-                        System.getProperty("ORG_GRADLE_PROJECT_mavenPassword") ? System.getProperty("ORG_GRADLE_PROJECT_mavenPassword") : null
+                def mavenUsername = System.getenv("MAVEN_USERNAME") ? System.getenv("MAVEN_USERNAME") :
+                        System.getProperty("MAVEN_USERNAME") ? System.getProperty("MAVEN_USERNAME") : null
+                def mavenPassword = System.getenv("MAVEN_PASSWORD") ? System.getenv("MAVEN_PASSWORD") :
+                        System.getProperty("MAVEN_PASSWORD") ? System.getProperty("MAVEN_PASSWORD") : null
 
                 if (mavenUsername != null && mavenPassword != null) {
                     credentials {
                         username = mavenUsername
                         password = mavenPassword
                     }
+                    authentication {
+                        basic(BasicAuthentication)
+                    }
                 }
             }
+        }
+        if (!isGitHub) {
+            maven {
+                name = "GeorgeV22"
+
+                url = uri("https://repo.georgev22.com/snapshots")
+
+                def mavenUsername = System.getenv("MAVEN_USERNAME") ? System.getenv("MAVEN_USERNAME") :
+                        System.getProperty("MAVEN_USERNAME") ? System.getProperty("MAVEN_USERNAME") : null
+                def mavenPassword = System.getenv("MAVEN_PASSWORD") ? System.getenv("MAVEN_PASSWORD") :
+                        System.getProperty("MAVEN_PASSWORD") ? System.getProperty("MAVEN_PASSWORD") : null
+
+                if (mavenUsername != null && mavenPassword != null) {
+                    credentials {
+                        username = mavenUsername
+                        password = mavenPassword
+                    }
+                    authentication {
+                        basic(BasicAuthentication)
+                    }
+                }
+            }
+        }
     }
 }
 
