@@ -1,3 +1,10 @@
+## [7.12.3](https://github.com/GeorgeV220/VoteRewards/compare/v7.12.2...v7.12.3) (2022-10-26)
+
+
+### Bug Fixes
+
+* **VoteRewardPlugin:** Removed deprecated annotation ([d999b84](https://github.com/GeorgeV220/VoteRewards/commit/d999b84b54f2ef465b21c53ce49599146d583a7a))
+
 ## [7.12.2](https://github.com/GeorgeV220/VoteRewards/compare/v7.12.1...v7.12.2) (2022-10-26)
 
 
