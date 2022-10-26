@@ -31,7 +31,6 @@ import com.georgev22.voterewards.utilities.player.UserVoteData;
 import com.georgev22.voterewards.utilities.player.VoteUtils;
 import com.google.common.collect.Lists;
 import com.mongodb.client.MongoClient;
-import kr.entree.spigradle.annotations.PluginMain;
 import lombok.Getter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
@@ -64,7 +63,6 @@ import static com.georgev22.api.utilities.Utils.Callback;
 @MavenLibrary(groupId = "org.postgresql", artifactId = "postgresql", version = "42.2.18")
 @MavenLibrary(groupId = "commons-io", artifactId = "commons-io", version = "2.11.0")
 @MavenLibrary(groupId = "commons-codec", artifactId = "commons-codec", version = "1.15")
-@PluginMain
 public class VoteRewardPlugin extends JavaPlugin {
 
     private static VoteRewardPlugin instance = null;
