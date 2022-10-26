@@ -1,3 +1,10 @@
+## [7.12.2](https://github.com/GeorgeV220/VoteRewards/compare/v7.12.1...v7.12.2) (2022-10-26)
+
+
+### Bug Fixes
+
+* **build.gradle:** Change to GeorgeV22 repo for API ([7174319](https://github.com/GeorgeV220/VoteRewards/commit/717431999721efea6f50156ef6a24be4d2e066b8))
+
 ## [7.12.1](https://github.com/GeorgeV220/VoteRewards/compare/v7.12.0...v7.12.1) (2022-10-26)
 
 
