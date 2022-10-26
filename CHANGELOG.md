@@ -1,3 +1,10 @@
+# [7.12.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.11.0...v7.12.0) (2022-10-26)
+
+
+### Features
+
+* **publish:** Publish to GeorgeV22 repository ([1d52e04](https://github.com/GeorgeV220/VoteRewards/commit/1d52e047dbf518c9d4de034894d81b5622bb288f))
+
 # [7.11.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.10.0...v7.11.0) (2022-09-27)
 
 
