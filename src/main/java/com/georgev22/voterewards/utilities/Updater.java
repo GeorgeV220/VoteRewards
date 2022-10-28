@@ -137,7 +137,7 @@ public class Updater {
             MinecraftUtils.msg(player, "&e&lUpdater &8» &6New stable version is downloading (&c" + onlineVersion + "&6)!");
         File tempFile = new File(voteRewardPlugin.getDataFolder().getParentFile().getAbsolutePath(), "VoteRewards-" + onlineVersion + ".jar.temp");
         try {
-            HttpsURLConnection httpsURLConnection = (HttpsURLConnection) new URL("https://github.com/GeorgeV220/VoteRewards/releases/download/v" + onlineVersion + "/VoteRewards-" + onlineVersion + ".jar").openConnection();
+            HttpsURLConnection httpsURLConnection = (HttpsURLConnection) new URL("https://github.com/GeorgeV220/VoteRewards/releases/download/" + onlineVersion + "/VoteRewards-" + onlineVersion + ".jar").openConnection();
             ReadableByteChannel rbc = Channels.newChannel(httpsURLConnection.getInputStream());
             FileOutputStream fileOutputStream = new FileOutputStream(tempFile);
             fileOutputStream.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
