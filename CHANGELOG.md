@@ -1,3 +1,10 @@
+## [7.13.2](https://github.com/GeorgeV220/VoteRewards/compare/v7.13.1...v7.13.2) (2022-10-28)
+
+
+### Bug Fixes
+
+* **HologramCommand:** Arguments ([abc9940](https://github.com/GeorgeV220/VoteRewards/commit/abc9940e1c97b5a09e4c6e7112ea289537e8cd39))
+
 ## [7.13.1](https://github.com/GeorgeV220/VoteRewards/compare/v7.13.0...v7.13.1) (2022-10-28)
 
 
