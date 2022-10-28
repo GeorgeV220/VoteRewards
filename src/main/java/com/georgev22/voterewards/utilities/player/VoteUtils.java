@@ -1,15 +1,15 @@
 package com.georgev22.voterewards.utilities.player;
 
-import com.georgev22.api.minecraft.xseries.XSound;
-import com.georgev22.api.minecraft.xseries.messages.Titles;
 import com.georgev22.api.maps.ConcurrentObjectMap;
 import com.georgev22.api.maps.HashObjectMap;
 import com.georgev22.api.maps.LinkedObjectMap;
 import com.georgev22.api.maps.ObjectMap;
 import com.georgev22.api.minecraft.MinecraftUtils;
 import com.georgev22.api.minecraft.configmanager.CFG;
+import com.georgev22.api.minecraft.xseries.XSound;
+import com.georgev22.api.minecraft.xseries.messages.Titles;
+import com.georgev22.api.utilities.Utils;
 import com.georgev22.voterewards.VoteRewardPlugin;
-import com.georgev22.voterewards.hooks.HologramAPI;
 import com.georgev22.voterewards.hooks.NPCAPI;
 import com.georgev22.voterewards.utilities.MessagesUtil;
 import com.georgev22.voterewards.utilities.OptionsUtil;
@@ -28,7 +28,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-import static com.georgev22.api.utilities.Utils.*;
+import static com.georgev22.api.utilities.Utils.Callback;
 
 public record VoteUtils(User user) {
 
@@ -163,8 +163,8 @@ public record VoteUtils(User user) {
 
         // NPC/HOLOGRAM UPDATE
         if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
-            if (HologramAPI.isHooked())
-                HologramAPI.updateAll();
+            if (voteRewardPlugin.getHolograms().isHooked())
+                voteRewardPlugin.getHolograms().updateAll();
             if (NPCAPI.isHooked())
                 NPCAPI.updateAll();
         }
@@ -446,5 +446,49 @@ public record VoteUtils(User user) {
      * creates a new, empty {@link ConcurrentObjectMap#ConcurrentObjectMap()}
      */
     public static final ObjectMap<Player, Long> reminderMap = new ConcurrentObjectMap<>();
+
+
+    public static ObjectMap<String, String> getPlaceholdersMap(FileConfiguration data, FileManager fileManager) {
+        final ObjectMap<String, String> map = new HashObjectMap<>();
+        int top = 1;
+        for (Map.Entry<String, Integer> b : VoteUtils.getTopPlayers(OptionsUtil.VOTETOP_VOTERS.getIntValue()).entrySet()) {
+            String[] args = String.valueOf(b).split("=");
+            map.append("%top-" + top + "%", args[0]).append("%vote-" + top + "%", args[1]);
+            top++;
+        }
+        int allTimeTop = 1;
+        for (Map.Entry<String, Integer> b : VoteUtils.getAllTimeTopPlayers(OptionsUtil.VOTETOP_ALL_TIME_VOTERS.getIntValue()).entrySet()) {
+            String[] args = String.valueOf(b).split("=");
+            map.append("%alltimetop-" + allTimeTop + "%", args[0]).append("%alltimevote-" + allTimeTop + "%", args[1]);
+            allTimeTop++;
+        }
+        return map.append("%bar%", MinecraftUtils.getProgressBar(
+                        data.getInt("VoteParty-Votes"),
+                        OptionsUtil.VOTEPARTY_VOTES.getIntValue(),
+                        OptionsUtil.VOTEPARTY_BARS.getIntValue(),
+                        OptionsUtil.VOTEPARTY_BAR_SYMBOL.getStringValue(),
+                        OptionsUtil.VOTEPARTY_COMPLETE_COLOR.getStringValue(),
+                        OptionsUtil.VOTEPARTY_NOT_COMPLETE_COLOR.getStringValue()))
+                .append("%voteparty_votes_until%", String.valueOf(OptionsUtil.VOTEPARTY_VOTES.getIntValue()
+                        - fileManager.getData().getFileConfiguration().getInt("VoteParty-Votes", 0)))
+                .append("%voteparty_votes_need%", OptionsUtil.VOTEPARTY_VOTES.getStringValue())
+                .append("%voteparty_total_votes%", String.valueOf(fileManager.getData().getFileConfiguration().getInt("VoteParty-Votes")))
+                .appendIfTrue("%voteparty_votes_full%",
+                        MinecraftUtils.colorize(Utils.placeHolder(
+                                MessagesUtil.VOTEPARTY_WAITING_FOR_MORE_PLAYERS_PLACEHOLDER.getMessages()[0],
+                                new HashObjectMap<String, String>()
+                                        .append("%online%", String.valueOf(Bukkit.getOnlinePlayers().size()))
+                                        .append("%need%", String.valueOf(OptionsUtil.VOTEPARTY_PLAYERS_NEED.getIntValue())),
+                                true)),
+                        MinecraftUtils.colorize(Utils.placeHolder(
+                                MessagesUtil.VOTEPARTY_PLAYERS_FULL_PLACEHOLDER.getMessages()[0],
+                                new HashObjectMap<String, String>()
+                                        .append("%until%", String.valueOf(OptionsUtil.VOTEPARTY_VOTES.getIntValue()
+                                                - fileManager.getData().getFileConfiguration().getInt("VoteParty-Votes", 0)))
+                                        .append("%total%", String.valueOf(fileManager.getData().getFileConfiguration().getInt("VoteParty-Votes")))
+                                        .append("%need%", String.valueOf(OptionsUtil.VOTEPARTY_VOTES.getIntValue())),
+                                true)),
+                        OptionsUtil.VOTEPARTY_PLAYERS.getBooleanValue() & VotePartyUtils.isWaitingForPlayers());
+    }
 
 }

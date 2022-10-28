@@ -148,6 +148,10 @@ Options:
         sound: NOTE_PIANO
         channel: AMBIENT
   discord: false
+  hologram:
+    enabled: false
+    type: ProtocolLib #ProtocolLib or HolographicDisplays
+
 Rewards:
   Worlds: #By world name and service name (you can disable 'Services' if you want "disable_services: true". Only for the 'Services' section)
     world:

@@ -9,8 +9,9 @@ import com.georgev22.voterewards.VoteRewardPlugin;
 import com.georgev22.voterewards.utilities.configmanager.FileManager;
 import com.georgev22.voterewards.utilities.interfaces.Holograms;
 import com.georgev22.voterewards.utilities.player.VoteUtils;
-import com.github.unldenis.hologram.Hologram;
-import com.github.unldenis.hologram.HologramPool;
+import com.gmail.filoghost.holographicdisplays.api.Hologram;
+import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
+import com.gmail.filoghost.holographicdisplays.api.line.TextLine;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -23,14 +24,13 @@ import java.util.Objects;
 /**
  * @author GeorgeV22
  */
-public class HologramAPI implements Holograms {
+public class HolographicDisplaysHook implements Holograms {
 
     private final FileManager fileManager = FileManager.getInstance();
     private final CFG dataCFG = fileManager.getData();
     private final FileConfiguration data = dataCFG.getFileConfiguration();
-    private final VoteRewardPlugin voteRewardPlugin = VoteRewardPlugin.getInstance();
+    private final VoteRewardPlugin mainPlugin = VoteRewardPlugin.getInstance();
     private final ObjectMap<String, Object> hologramMap = new ConcurrentObjectMap<>();
-    private final HologramPool hologramPool = new HologramPool(voteRewardPlugin, 70, 0, 0);
 
     /**
      * Create a hologram
@@ -41,16 +41,15 @@ public class HologramAPI implements Holograms {
      * @param save     Save the hologram in the file.
      * @return {@link Hologram} instance.
      */
-    @NotNull
     public Hologram create(String name, Location location, String type, boolean save) {
-        Hologram hologram = getHologramMap().get(name) != null ? (Hologram) getHologramMap().get(name) : null;
+        Hologram hologram = (Hologram) getHologramMap().get(name);
         if (hologram == null) {
-            Hologram.Builder builder = Hologram.builder().location(location);
+            hologram = HologramsAPI.createHologram(mainPlugin, location);
+            getHologramMap().append(name, hologram);
+        }
 
-            for (String line : fileManager.getConfig().getFileConfiguration().getStringList("Holograms." + type)) {
-                builder.addLine(MinecraftUtils.colorize(line), false);
-            }
-            hologram = builder.build(hologramPool);
+        for (String line : fileManager.getConfig().getFileConfiguration().getStringList("Holograms." + type)) {
+            hologram.appendTextLine(MinecraftUtils.colorize(line));
         }
 
         if (save) {
@@ -58,7 +57,6 @@ public class HologramAPI implements Holograms {
             data.set("Holograms." + name + ".type", type);
             dataCFG.saveFile();
         }
-        getHologramMap().append(name, hologram);
         return hologram;
     }
 
@@ -71,7 +69,7 @@ public class HologramAPI implements Holograms {
     public void remove(String name, boolean save) {
         Hologram hologram = (Hologram) getHologramMap().remove(name);
 
-        hologramPool.remove(hologram);
+        hologram.delete();
 
         if (save) {
             data.set("Holograms." + name, null);
@@ -92,7 +90,7 @@ public class HologramAPI implements Holograms {
             MinecraftUtils.msg(player, "Hologram " + name + " doesn't exist");
             return;
         }
-        hologram.show(player);
+        hologram.getVisibilityManager().showTo(player);
     }
 
     /**
@@ -109,7 +107,7 @@ public class HologramAPI implements Holograms {
             return;
         }
 
-        hologram.hide(player);
+        hologram.getVisibilityManager().hideTo(player);
     }
 
     /**
@@ -120,7 +118,7 @@ public class HologramAPI implements Holograms {
      */
     @Override
     public void show(@NotNull Object hologram, Player player) {
-        ((Hologram) hologram).show(player);
+        ((Hologram) hologram).getVisibilityManager().showTo(player);
     }
 
     /**
@@ -131,7 +129,7 @@ public class HologramAPI implements Holograms {
      */
     @Override
     public void hide(@NotNull Object hologram, Player player) {
-        ((Hologram) hologram).hide(player);
+        ((Hologram) hologram).getVisibilityManager().showTo(player);
     }
 
     /**
@@ -139,8 +137,7 @@ public class HologramAPI implements Holograms {
      *
      * @return all holograms in a collection.
      */
-    @NotNull
-    public Collection<Object> getHolograms() {
+    public @NotNull Collection<Object> getHolograms() {
         return getHologramMap().values();
     }
 
@@ -172,14 +169,13 @@ public class HologramAPI implements Holograms {
      * @param placeholders The placeholders.
      * @return the updated {@link Object} instance.
      */
-    @Override
     public Object updateHologram(Object hologram, @NotNull List<String> lines, ObjectMap<String, String> placeholders) {
         int i = 0;
         for (final String key : lines) {
             for (String placeholder : placeholders.keySet()) {
                 if (key.contains(placeholder)) {
-                    Hologram hologram1 = (Hologram) hologram;
-                    hologram1.setLine(i, Utils.placeHolder(MinecraftUtils.colorize(key), placeholders, true));
+                    TextLine line = (TextLine) ((Hologram) hologram).getLine(i);
+                    line.setText(Utils.placeHolder(MinecraftUtils.colorize(key), placeholders, true));
                     break;
                 }
             }
@@ -195,13 +191,8 @@ public class HologramAPI implements Holograms {
         if (data.get("Holograms") == null)
             return;
         for (String hologramName : Objects.requireNonNull(data.getConfigurationSection("Holograms")).getKeys(false)) {
-            hologramPool.remove(getHologram(hologramName));
-            Hologram.Builder builder = new Hologram.Builder().location(getHologram(hologramName).getLocation());
-            int i = 0;
-            for (String line : voteRewardPlugin.getConfig().getStringList("Holograms." + data.getString("Holograms." + hologramName + ".type"))) {
-                builder.addLine(MinecraftUtils.colorize(Utils.placeHolder(line, getPlaceholderMap(), true)), false);
-            }
-            getHologramMap().append(hologramName, builder.build(hologramPool));
+            Hologram hologram = getHologram(hologramName);
+            updateHologram(hologram, mainPlugin.getConfig().getStringList("Holograms." + data.getString("Holograms." + hologramName + ".type")), getPlaceholderMap());
             getPlaceholderMap().clear();
         }
     }
@@ -232,4 +223,5 @@ public class HologramAPI implements Holograms {
     public boolean isHooked() {
         return isHooked;
     }
+
 }

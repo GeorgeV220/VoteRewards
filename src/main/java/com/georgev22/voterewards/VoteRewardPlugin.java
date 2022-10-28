@@ -15,10 +15,7 @@ import com.georgev22.api.minecraft.MinecraftUtils;
 import com.georgev22.api.minecraft.configmanager.CFG;
 import com.georgev22.api.minecraft.inventory.PagedInventoryAPI;
 import com.georgev22.voterewards.commands.*;
-import com.georgev22.voterewards.hooks.AuthMe;
-import com.georgev22.voterewards.hooks.HologramAPI;
-import com.georgev22.voterewards.hooks.NPCAPI;
-import com.georgev22.voterewards.hooks.PAPI;
+import com.georgev22.voterewards.hooks.*;
 import com.georgev22.voterewards.listeners.DeveloperInformListener;
 import com.georgev22.voterewards.listeners.PlayerListeners;
 import com.georgev22.voterewards.listeners.VotifierListener;
@@ -26,6 +23,7 @@ import com.georgev22.voterewards.utilities.MessagesUtil;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.georgev22.voterewards.utilities.Updater;
 import com.georgev22.voterewards.utilities.configmanager.FileManager;
+import com.georgev22.voterewards.utilities.interfaces.Holograms;
 import com.georgev22.voterewards.utilities.interfaces.IDatabaseType;
 import com.georgev22.voterewards.utilities.player.UserVoteData;
 import com.georgev22.voterewards.utilities.player.VoteUtils;
@@ -97,6 +95,9 @@ public class VoteRewardPlugin extends JavaPlugin {
     private @Nullable MongoClient mongoClient = null;
 
     @Getter
+    private Holograms holograms = new Holograms.HologramsNoop();
+
+    @Getter
     private PagedInventoryAPI pagedInventoryAPI = null;
 
     private PAPI placeholdersAPI = null;
@@ -152,7 +153,6 @@ public class VoteRewardPlugin extends JavaPlugin {
             dataCFG.saveFile();
         }
 
-        setupCommands();
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
             try {
                 setupDatabase();
@@ -167,14 +167,33 @@ public class VoteRewardPlugin extends JavaPlugin {
                 Bukkit.getLogger().info("[VoteRewards] Hooked into PlaceholderAPI!");
         }
 
-        if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
-            if (data.get("Holograms") != null) {
-                Objects.requireNonNull(data.getConfigurationSection("Holograms")).getKeys(false)
-                        .forEach(s -> HologramAPI.create(s, (Location) data.get("Holograms." + s + ".location"),
-                                data.getString("Holograms." + s + ".type"), false));
+        if (OptionsUtil.HOLOGRAMS_ENABLED.getBooleanValue()) {
+            switch (OptionsUtil.HOLOGRAMS_TYPE.getStringValue()) {
+                case "ProtocolLib" -> {
+                    if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
+                        holograms = new HologramAPI();
+                    }
+                }
+                case "HolographicDisplays" -> {
+                    if (Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays")) {
+                        holograms = new HolographicDisplaysHook();
+                    }
+                }
             }
-            HologramAPI.setHook(true);
-            Bukkit.getLogger().info("[VoteRewards] ProtocolLib installed - Holograms enabled!");
+
+            holograms.setHook(true);
+
+            if (holograms.isHooked()) {
+                if (data.get("Holograms") != null) {
+                    Objects.requireNonNull(data.getConfigurationSection("Holograms")).getKeys(false)
+                            .forEach(s -> holograms.create(s, (Location) data.get("Holograms." + s + ".location"),
+                                    data.getString("Holograms." + s + ".type"), false));
+                }
+                Bukkit.getLogger().info("[VoteRewards] " + holograms.getClass().getName() + " hooked - Holograms enabled!");
+            }
+        }
+
+        if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
             NPCAPI.setHook(true);
             Bukkit.getLogger().info("[VoteRewards] ProtocolLib installed - NPCs enabled!");
         }
@@ -214,6 +233,7 @@ public class VoteRewardPlugin extends JavaPlugin {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        setupCommands();
     }
 
     @Override
@@ -258,14 +278,13 @@ public class VoteRewardPlugin extends JavaPlugin {
                 }
             });
         });
-        Bukkit.getScheduler().cancelTasks(this);
-        if (HologramAPI.isHooked() && !HologramAPI.getHologramMap().isEmpty())
-            HologramAPI.getHologramMap().forEach((name, hologram) -> HologramAPI.remove(name, false));
+        if (holograms.isHooked() && !holograms.getHologramMap().isEmpty())
+            holograms.getHologramMap().forEach((name, hologram) -> holograms.remove(name, false));
         if (NPCAPI.isHooked() && !NPCAPI.getNPCMap().isEmpty())
             NPCAPI.getNPCMap().forEach((name, npcIntegerPair) -> NPCAPI.remove(name, false));
         if (OptionsUtil.COMMAND_FAKEVOTE.getBooleanValue())
             commandManager.unregisterCommand(new FakeVoteCommand());
-        if (OptionsUtil.COMMAND_HOLOGRAM.getBooleanValue() & Bukkit.getPluginManager().isPluginEnabled("ProtocolLib"))
+        if (OptionsUtil.COMMAND_HOLOGRAM.getBooleanValue() & holograms.isHooked())
             commandManager.unregisterCommand(new HologramCommand());
         if (OptionsUtil.COMMAND_VOTE.getBooleanValue())
             commandManager.unregisterCommand(new VoteCommand());
@@ -291,6 +310,7 @@ public class VoteRewardPlugin extends JavaPlugin {
         if (mongoClient != null) {
             mongoClient.close();
         }
+        Bukkit.getScheduler().cancelTasks(this);
     }
 
     /**
@@ -402,8 +422,8 @@ public class VoteRewardPlugin extends JavaPlugin {
             }
         });
 
-        if (HologramAPI.isHooked())
-            HologramAPI.updateAll();
+        if (holograms.isHooked())
+            holograms.updateAll();
         if (NPCAPI.isHooked())
             NPCAPI.updateAll();
 
@@ -429,7 +449,7 @@ public class VoteRewardPlugin extends JavaPlugin {
 
         if (OptionsUtil.COMMAND_FAKEVOTE.getBooleanValue())
             commandManager.registerCommand(new FakeVoteCommand());
-        if (OptionsUtil.COMMAND_HOLOGRAM.getBooleanValue() & Bukkit.getPluginManager().isPluginEnabled("ProtocolLib"))
+        if (OptionsUtil.COMMAND_HOLOGRAM.getBooleanValue() & holograms.isHooked())
             commandManager.registerCommand(new HologramCommand());
         if (OptionsUtil.COMMAND_VOTE.getBooleanValue())
             commandManager.registerCommand(new VoteCommand());

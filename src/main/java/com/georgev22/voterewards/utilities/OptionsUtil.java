@@ -218,6 +218,10 @@ public enum OptionsUtil {
 
     DISCORD("discord", false, Optional.empty()),
 
+    HOLOGRAMS_ENABLED("hologram.enabled", false, Optional.empty()),
+
+    HOLOGRAMS_TYPE("hologram.type", "ProtocolLib", Optional.empty()),
+
     ;
     private final String pathName;
     private final Object value;

@@ -4,13 +4,11 @@ import com.georgev22.api.minecraft.MinecraftUtils;
 import com.georgev22.api.minecraft.xseries.XMaterial;
 import com.georgev22.api.minecraft.xseries.XSound;
 import com.georgev22.voterewards.VoteRewardPlugin;
-import com.georgev22.voterewards.hooks.HologramAPI;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.georgev22.voterewards.utilities.Updater;
 import com.georgev22.voterewards.utilities.player.UserVoteData;
 import com.georgev22.voterewards.utilities.player.VotePartyUtils;
 import com.georgev22.voterewards.utilities.player.VoteUtils;
-import com.github.unldenis.hologram.Hologram;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
@@ -19,7 +17,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -29,7 +30,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static com.georgev22.api.utilities.Utils.*;
+import static com.georgev22.api.utilities.Utils.Callback;
 
 public class PlayerListeners implements Listener {
 
@@ -63,13 +64,13 @@ public class PlayerListeners implements Listener {
 
                     UserVoteData.getAllUsersMap().append(userVoteData.user().getUniqueId(), userVoteData.user());
                     //HOLOGRAMS
-                    if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
-                        if (!HologramAPI.getHolograms().isEmpty()) {
-                            for (Hologram hologram : HologramAPI.getHolograms()) {
-                                HologramAPI.show(hologram, event.getPlayer());
+                    if (voteRewardPlugin.getHolograms().isHooked()) {
+                        if (!voteRewardPlugin.getHolograms().getHolograms().isEmpty()) {
+                            for (Object hologram : voteRewardPlugin.getHolograms().getHolograms()) {
+                                voteRewardPlugin.getHolograms().show(hologram, event.getPlayer());
                             }
 
-                            HologramAPI.updateAll();
+                            voteRewardPlugin.getHolograms().updateAll();
                         }
                     }
                     return true;
