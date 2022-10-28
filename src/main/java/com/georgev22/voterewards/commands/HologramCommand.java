@@ -80,7 +80,8 @@ public class HologramCommand extends Command {
 
             MinecraftUtils.msg(sender, "&a&l(!) &aHologram " + args[1] + " successfully removed!");
         } else if (args[0].equalsIgnoreCase("update")) {
-            if (args.length < 2) {
+            if (args.length < 3) {
+                MinecraftUtils.msg(sender, "&c&l(!) &c/vrh update <hologram> <config lines name>");
                 return;
             }
             if (voteRewardPlugin.getHolograms().hologramExists(args[1])) {
