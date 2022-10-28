@@ -1,3 +1,10 @@
+## [7.13.3](https://github.com/GeorgeV220/VoteRewards/compare/v7.13.2...v7.13.3) (2022-10-28)
+
+
+### Bug Fixes
+
+* **Updater:** Updater URL ([435ad37](https://github.com/GeorgeV220/VoteRewards/commit/435ad37db76d68dc671ce1ccf1c243ae8d87c268))
+
 ## [7.13.2](https://github.com/GeorgeV220/VoteRewards/compare/v7.13.1...v7.13.2) (2022-10-28)
 
 
