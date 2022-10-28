@@ -80,7 +80,7 @@ public class HologramCommand extends Command {
 
             MinecraftUtils.msg(sender, "&a&l(!) &aHologram " + args[1] + " successfully removed!");
         } else if (args[0].equalsIgnoreCase("update")) {
-            if (args.length < 3) {
+            if (args.length < 2) {
                 return;
             }
             if (voteRewardPlugin.getHolograms().hologramExists(args[1])) {
@@ -89,7 +89,6 @@ public class HologramCommand extends Command {
                 voteRewardPlugin.getHolograms().getPlaceholderMap().clear();
                 voteRewardPlugin.getHolograms().hide(hologram, player);
                 Bukkit.getScheduler().runTaskLaterAsynchronously(voteRewardPlugin, () -> voteRewardPlugin.getHolograms().show(hologram, player), 20);
-                MinecraftUtils.msg(player, args[1] + " " + args[2]);
                 MinecraftUtils.msg(sender, "&a&l(!) &aHologram " + args[1] + " successfully updated!");
             } else {
                 MinecraftUtils.msg(player, "&c&l(!) &cHologram doesn't exists!");
