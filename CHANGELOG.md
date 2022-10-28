@@ -1,3 +1,10 @@
+# [7.13.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.12.3...v7.13.0) (2022-10-28)
+
+
+### Features
+
+* **Holograms:** HolographicDisplays hook ([bea31a2](https://github.com/GeorgeV220/VoteRewards/commit/bea31a2c5c98ba3f8121b1c3e6c1bb8259e46f27))
+
 ## [7.12.3](https://github.com/GeorgeV220/VoteRewards/compare/v7.12.2...v7.12.3) (2022-10-26)
 
 
