@@ -159,7 +159,7 @@ public record VoteUtils(User user) {
 
         // VOTE PARTY
         if (addVoteParty)
-            new VotePartyUtils(user.getOfflinePlayer()).run(false);
+            VotePartyUtils.voteParty(user.getOfflinePlayer(), false);
 
         // NPC/HOLOGRAM UPDATE
         if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
@@ -227,7 +227,7 @@ public record VoteUtils(User user) {
                         return onFailure();
                     }
                 });
-                new VotePartyUtils(user.getOfflinePlayer()).run(false);
+                VotePartyUtils.voteParty(user.getOfflinePlayer(), false);
                 return true;
             }
 

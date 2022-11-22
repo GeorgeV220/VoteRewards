@@ -178,7 +178,7 @@ public class PlayerListeners implements Listener {
             item.setAmount(amount - 1);
         }
 
-        new VotePartyUtils(player).chooseRandom(OptionsUtil.VOTEPARTY_RANDOM.getBooleanValue());
+        VotePartyUtils.chooseRandom(player, OptionsUtil.VOTEPARTY_RANDOM.getBooleanValue());
 
         if (OptionsUtil.VOTEPARTY_SOUND_CRATE.getBooleanValue()) {
             if (MinecraftUtils.MinecraftVersion.getCurrentVersion().isBelow(MinecraftUtils.MinecraftVersion.V1_12_R1)) {

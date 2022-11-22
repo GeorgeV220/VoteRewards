@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-public record VotePartyUtils(@Nullable OfflinePlayer offlinePlayer) {
+public class VotePartyUtils {
 
     private static final VoteRewardPlugin voteRewardPlugin = VoteRewardPlugin.getInstance();
 
@@ -50,9 +50,10 @@ public record VotePartyUtils(@Nullable OfflinePlayer offlinePlayer) {
     }
 
     /**
-     * @param start Set true to start the voteparty without the required votes.
+     * @param offlinePlayer Player to add to the participation list.
+     * @param start         Set true to start the voteparty without the required votes.
      */
-    public void run(boolean start) {
+    public static void voteParty(@Nullable OfflinePlayer offlinePlayer, boolean start) {
         Bukkit.getScheduler().runTaskAsynchronously(voteRewardPlugin, () -> {
             if ((!start & OptionsUtil.VOTEPARTY_PLAYERS.getBooleanValue()) & Bukkit.getOnlinePlayers().size() > OptionsUtil.VOTEPARTY_PLAYERS_NEED.getIntValue()) {
                 MessagesUtil.VOTEPARTY_NOT_ENOUGH_PLAYERS.msgAll();
@@ -152,7 +153,7 @@ public record VotePartyUtils(@Nullable OfflinePlayer offlinePlayer) {
                         userVoteData.setVoteParties(userVoteData.getVoteParty() + 1);
                     }
                 } else {
-                    chooseRandom(OptionsUtil.VOTEPARTY_RANDOM.getBooleanValue());
+                    chooseRandom(player, OptionsUtil.VOTEPARTY_RANDOM.getBooleanValue());
                 }
             });
 
@@ -166,7 +167,7 @@ public record VotePartyUtils(@Nullable OfflinePlayer offlinePlayer) {
      *
      * @param enable The boolean of random rewards
      */
-    public void chooseRandom(boolean enable) {
+    public static void chooseRandom(OfflinePlayer offlinePlayer, boolean enable) {
         List<String> list = OptionsUtil.VOTEPARTY_REWARDS.getStringList();
         if (enable) {
             Random random = new Random();
@@ -185,7 +186,7 @@ public record VotePartyUtils(@Nullable OfflinePlayer offlinePlayer) {
      * @param location Location to check if is inside on a region.
      * @return true if a specific location is inside a region.
      */
-    public boolean isInLocation(Location location) {
+    public static boolean isInLocation(Location location) {
         CFG cfg = FileManager.getInstance().getData();
         FileConfiguration data = cfg.getFileConfiguration();
         if (!OptionsUtil.VOTEPARTY_REGIONS.getBooleanValue()) {

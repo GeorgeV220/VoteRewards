@@ -34,7 +34,7 @@ public class VotePartyCommand extends Command {
     @Description("{@@commands.descriptions.voteparty.start}")
     @CommandAlias("vpstart")
     public void start() {
-        new VotePartyUtils(null).run(true);
+        VotePartyUtils.voteParty(null, true);
     }
 
     @Subcommand("give")
