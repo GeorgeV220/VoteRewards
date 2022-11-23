@@ -1,3 +1,10 @@
+## [7.13.5](https://github.com/GeorgeV220/VoteRewards/compare/v7.13.4...v7.13.5) (2022-11-23)
+
+
+### Bug Fixes
+
+* **VoteParty:** VoteParty rewards ([519f347](https://github.com/GeorgeV220/VoteRewards/commit/519f3471f821db412b53805d49ce5c243cb24836))
+
 ## [7.13.4](https://github.com/GeorgeV220/VoteRewards/compare/v7.13.3...v7.13.4) (2022-10-28)
 
 
