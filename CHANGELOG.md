@@ -1,3 +1,15 @@
+# [8.0.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.13.5...v8.0.0) (2022-11-23)
+
+
+### Features
+
+* **Extension:** VoteRewards can now load as an extension ([512962a](https://github.com/GeorgeV220/VoteRewards/commit/512962aaf12f85193dd006635b7ba690b6a8c53b))
+
+
+### BREAKING CHANGES
+
+* **Extension:** A lot of API changes
+
 ## [7.13.5](https://github.com/GeorgeV220/VoteRewards/compare/v7.13.4...v7.13.5) (2022-11-23)
 
 
