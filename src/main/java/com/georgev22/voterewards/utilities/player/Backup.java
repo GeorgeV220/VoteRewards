@@ -1,7 +1,7 @@
 package com.georgev22.voterewards.utilities.player;
 
-import com.georgev22.api.minecraft.MinecraftUtils;
-import com.georgev22.voterewards.VoteRewardPlugin;
+import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.voterewards.VoteReward;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.google.common.annotations.Beta;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -9,13 +9,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-import static com.georgev22.api.utilities.Utils.*;
+import static com.georgev22.library.utilities.Utils.*;
 
 public class Backup {
 
@@ -25,13 +23,13 @@ public class Backup {
         this.fileName = fileName;
     }
 
-    private static final VoteRewardPlugin voteRewardPlugin = VoteRewardPlugin.getInstance();
+    private final VoteReward voteReward = VoteReward.getInstance();
 
     private @NotNull File getBackupFolder() {
-        File backupFolder = new File(voteRewardPlugin.getDataFolder(), "backups");
+        File backupFolder = new File(voteReward.getDataFolder(), "backups");
         if (backupFolder.mkdirs()) {
             if (OptionsUtil.DEBUG_CREATE.getBooleanValue()) {
-                MinecraftUtils.debug(voteRewardPlugin, "Backup folder has been created!");
+                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Backup folder has been created!");
             }
         }
         return backupFolder;
@@ -97,13 +95,8 @@ public class Backup {
                             @Override
                             public Boolean onSuccess() {
                                 if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
-                                    MinecraftUtils.debug(VoteRewardPlugin.getInstance(),
-                                            "User " + userVoteData.user().getName() + " successfully saved!",
-                                            "Votes: " + userVoteData.user().getVotes(),
-                                            "Daily Votes: " + userVoteData.user().getDailyVotes(),
-                                            "Last Voted: " + Instant.ofEpochMilli(userVoteData.user().getLastVoted()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())) + userVoteData.user().getLastVoted(),
-                                            "Vote Parties: " + userVoteData.user().getVoteParties(),
-                                            "All time votes: " + userVoteData.user().getAllTimeVotes());
+                                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
+                                            VoteUtils.debugUserMessage(userVoteData.user(), "saved", true));
                                 }
                                 return true;
                             }

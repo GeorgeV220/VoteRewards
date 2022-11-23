@@ -1,14 +1,14 @@
 package com.georgev22.voterewards.utilities;
 
-import com.georgev22.api.minecraft.MinecraftUtils;
-import com.georgev22.voterewards.VoteRewardPlugin;
+import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.scheduler.SchedulerManager;
+import com.georgev22.voterewards.VoteReward;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,15 +23,15 @@ import java.nio.charset.StandardCharsets;
 
 public class Updater {
 
-    private final VoteRewardPlugin voteRewardPlugin = VoteRewardPlugin.getInstance();
-    private final String localVersion = voteRewardPlugin.getDescription().getVersion();
+    private final VoteReward voteReward = VoteReward.getInstance();
+    private final String localVersion = voteReward.getVersion();
     private final String onlineVersion;
 
     {
         try {
             onlineVersion = getOnlineVersion();
         } catch (IOException e) {
-            MinecraftUtils.debug(voteRewardPlugin, "Failed to check for an update on Git.", "Either Git or you are offline or are slow to respond.");
+            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Failed to check for an update on Git.", "Either Git or you are offline or are slow to respond.");
 
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -39,12 +39,12 @@ public class Updater {
     }
 
     public Updater() {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(voteRewardPlugin, () -> {
-            voteRewardPlugin.getLogger().info("Checking for Updates ... ");
+        SchedulerManager.getScheduler().runTaskTimerAsynchronously(voteReward.getClass(), () -> {
+            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Checking for Updates ... ");
             if (compareVersions(onlineVersion.replace("v", ""), localVersion.replace("v", "")) == 0) {
-                MinecraftUtils.debug(voteRewardPlugin, "You are running the newest build.");
+                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "You are running the newest build.");
             } else if (compareVersions(onlineVersion.replace("v", ""), localVersion.replace("v", "")) == 1) {
-                MinecraftUtils.debug(voteRewardPlugin,
+                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
                         "New stable version available!",
                         "Version: " + onlineVersion + ". You are running version: " + localVersion,
                         OptionsUtil.UPDATER_DOWNLOAD.getBooleanValue() ? "Update at: https://github.com/GeorgeV220/VoteRewards/releases/" : "The new update will be automatically downloaded!!");
@@ -52,17 +52,16 @@ public class Updater {
                     downloadLatest(null);
                 }
             } else {
-                MinecraftUtils.debug(voteRewardPlugin, "You are currently using the " + localVersion + " version which is under development.",
+                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "You are currently using the " + localVersion + " version which is under development.",
                         "Your version is " + localVersion,
                         "Latest released version is " + onlineVersion,
                         "If you have problems contact me on discord or github. Thank you for testing this version");
             }
-
         }, 20L, 20 * 7200);
     }
 
     public Updater(Player player) {
-        Bukkit.getScheduler().runTaskAsynchronously(voteRewardPlugin, () -> {
+        SchedulerManager.getScheduler().runTaskAsynchronously(voteReward.getClass(), () -> {
             MinecraftUtils.msg(player, "&e&lUpdater &8» &6Checking for Updates ...");
             if (compareVersions(onlineVersion.replace("v", ""), localVersion.replace("v", "")) == 0) {
                 MinecraftUtils.msg(player, "&e&lUpdater &8» &6You are running the newest build.");
@@ -131,11 +130,11 @@ public class Updater {
 
     private void downloadLatest(@Nullable Player player) {
         if (player == null)
-            MinecraftUtils.debug(voteRewardPlugin,
+            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
                     "New stable version is downloading (" + onlineVersion + ")!");
         else
             MinecraftUtils.msg(player, "&e&lUpdater &8» &6New stable version is downloading (&c" + onlineVersion + "&6)!");
-        File tempFile = new File(voteRewardPlugin.getDataFolder().getParentFile().getAbsolutePath(), "VoteRewards-" + onlineVersion + ".jar.temp");
+        File tempFile = new File(voteReward.getDataFolder().getParentFile().getAbsolutePath(), "VoteRewards-" + onlineVersion + ".jar.temp");
         try {
             HttpsURLConnection httpsURLConnection = (HttpsURLConnection) new URL("https://github.com/GeorgeV220/VoteRewards/releases/download/" + onlineVersion + "/VoteRewards-" + onlineVersion.replace("v", "") + ".jar").openConnection();
             ReadableByteChannel rbc = Channels.newChannel(httpsURLConnection.getInputStream());
@@ -147,12 +146,12 @@ public class Updater {
             e.printStackTrace();
         }
 
-        File jarFile = new File(voteRewardPlugin.getDataFolder().getParentFile().getAbsolutePath(), "VoteRewards-" + onlineVersion + ".jar");
+        File jarFile = new File(voteReward.getDataFolder().getParentFile().getAbsolutePath(), "VoteRewards-" + onlineVersion + ".jar");
         boolean rename = tempFile.renameTo(jarFile);
         if (rename) {
             try {
                 if (player == null)
-                    MinecraftUtils.debug(voteRewardPlugin,
+                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
                             "Version " + onlineVersion + " successfully downloaded!",
                             OptionsUtil.UPDATER_RESTART.getBooleanValue() ? "Server will automatically restart\n" +
                                     "Please keep in mind if you don't have a start.(sh/bat) the server will not automatically start"
@@ -163,16 +162,12 @@ public class Updater {
                             : "&e&lUpdater &8» &6In order for the changes to take effect, please restart the server");
                 Method getFileMethod = JavaPlugin.class.getDeclaredMethod("getFile");
                 getFileMethod.setAccessible(true);
-                File file = (File) getFileMethod.invoke(voteRewardPlugin);
+                File file = (File) getFileMethod.invoke(voteReward);
                 file.deleteOnExit();
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        if (OptionsUtil.UPDATER_RESTART.getBooleanValue())
-                            Bukkit.spigot().restart();
-                    }
-                }.runTaskLater(voteRewardPlugin, 20 * 5L);
-
+                SchedulerManager.getScheduler().runTaskLater(voteReward.getClass(), () -> {
+                    if (OptionsUtil.UPDATER_RESTART.getBooleanValue())
+                        Bukkit.spigot().restart();
+                }, 20 * 5L);
             } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             }

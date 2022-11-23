@@ -7,7 +7,7 @@ Options:
     load: false
     save: false
     create: false
-    useless info: false
+    other info: false
     delete: false
     votes:
       cumulative: false
@@ -41,7 +41,7 @@ Options:
   monthly: #Reset votes each month
     enabled: false
     minutes: 30 #Every how many minutes to check whether the month has changed
-    rewards: false #Give rewards to top montly players
+    rewards: false #Give rewards to top monthly players
     rewards to top: 5
   votetop:
     header: true

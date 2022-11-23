@@ -1,15 +1,15 @@
 package com.georgev22.voterewards.utilities.inventories;
 
-import com.georgev22.api.maps.HashObjectMap;
-import com.georgev22.api.maps.ObjectMap;
-import com.georgev22.api.minecraft.MinecraftUtils;
-import com.georgev22.api.minecraft.inventory.CustomItemInventory;
-import com.georgev22.api.minecraft.inventory.IPagedInventory;
-import com.georgev22.api.minecraft.inventory.ItemBuilder;
-import com.georgev22.api.minecraft.inventory.NavigationRow;
-import com.georgev22.api.minecraft.inventory.handlers.PagedInventoryCustomNavigationHandler;
-import com.georgev22.api.minecraft.inventory.navigationitems.*;
-import com.georgev22.voterewards.VoteRewardPlugin;
+import com.georgev22.library.maps.HashObjectMap;
+import com.georgev22.library.maps.ObjectMap;
+import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.inventory.CustomItemInventory;
+import com.georgev22.library.minecraft.inventory.IPagedInventory;
+import com.georgev22.library.minecraft.inventory.ItemBuilder;
+import com.georgev22.library.minecraft.inventory.NavigationRow;
+import com.georgev22.library.minecraft.inventory.handlers.PagedInventoryCustomNavigationHandler;
+import com.georgev22.library.minecraft.inventory.navigationitems.*;
+import com.georgev22.voterewards.VoteReward;
 import com.georgev22.voterewards.utilities.configmanager.FileManager;
 import com.georgev22.voterewards.utilities.player.VoteUtils;
 import com.google.common.collect.Lists;
@@ -24,7 +24,7 @@ import java.util.Objects;
 
 public class VoteTopInventory {
 
-    private final VoteRewardPlugin voteRewardPlugin = VoteRewardPlugin.getInstance();
+    private final VoteReward voteReward = VoteReward.getInstance();
 
     public void openTopPlayersInventory(Player player, boolean allTimeVotes) {
 
@@ -37,7 +37,7 @@ public class VoteTopInventory {
                 CustomNavigationItem navigationItem = new CustomNavigationItem(itemStack, Integer.parseInt(s)) {
                     @Override
                     public void handleClick(PagedInventoryCustomNavigationHandler handler) {
-                        for (String command : fileManager.getVoteTopInventory().getFileConfiguration().getStringList("custom item.navigation." + s + ".commands")) {
+                        for (String command : fileManager.getVoteTopInventory().getFileConfiguration().getStringList("custom item.navigation." + s + ".commands_old")) {
                             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("%player%", handler.getPlayer().getName()));
                         }
                     }
@@ -45,7 +45,7 @@ public class VoteTopInventory {
                 navigationItemList.add(navigationItem);
             }
 
-        IPagedInventory pagedInventory = voteRewardPlugin.getPagedInventoryAPI()
+        IPagedInventory pagedInventory = voteReward.getPagedInventoryAPI()
                 .createPagedInventory(
                         new NavigationRow(
                                 new NextNavigationItem(ItemBuilder.buildItemFromConfig(fileManager.getVoteTopInventory().getFileConfiguration(), "navigation.next").build(), fileManager.getVoteTopInventory().getFileConfiguration().getInt("navigation.next.slot", 6)),

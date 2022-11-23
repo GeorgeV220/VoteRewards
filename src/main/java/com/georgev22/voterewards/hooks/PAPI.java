@@ -1,9 +1,9 @@
 package com.georgev22.voterewards.hooks;
 
-import com.georgev22.api.maps.HashObjectMap;
-import com.georgev22.api.minecraft.MinecraftUtils;
-import com.georgev22.api.utilities.Utils;
-import com.georgev22.voterewards.VoteRewardPlugin;
+import com.georgev22.library.maps.HashObjectMap;
+import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.utilities.Utils;
+import com.georgev22.voterewards.VoteReward;
 import com.georgev22.voterewards.utilities.MessagesUtil;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.georgev22.voterewards.utilities.configmanager.FileManager;
@@ -11,14 +11,14 @@ import com.georgev22.voterewards.utilities.player.UserVoteData;
 import com.georgev22.voterewards.utilities.player.VotePartyUtils;
 import com.georgev22.voterewards.utilities.player.VoteUtils;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
 public class PAPI extends PlaceholderExpansion {
 
-    VoteRewardPlugin plugin = VoteRewardPlugin.getInstance();
+    VoteReward plugin = VoteReward.getInstance();
 
     @Override
     public @NotNull String getIdentifier() {
@@ -37,7 +37,7 @@ public class PAPI extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getVersion() {
-        return plugin.getDescription().getVersion();
+        return plugin.getVersion();
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.georgev22.voterewards.utilities.interfaces;
 
-import com.georgev22.api.maps.ObjectMap;
-import org.bukkit.Location;
+import com.georgev22.library.maps.ObjectMap;
+import com.georgev22.library.minecraft.MinecraftUtils;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -18,9 +18,9 @@ public interface Holograms {
      * @param location Hologram location.
      * @param type     Hologram type.
      * @param save     Save the hologram in the file.
-     * @return {@link Object instance.
+     * @return {@link Object} instance.
      */
-    Object create(String name, Location location, String type, boolean save);
+    Object create(String name, MinecraftUtils.SerializableLocation location, String type, boolean save);
 
     /**
      * Remove a hologram.
@@ -70,11 +70,11 @@ public interface Holograms {
     @NotNull Collection<Object> getHolograms();
 
     /**
-     * Return a {@link Object from hologram name.
+     * Return a {@link Object} from hologram name.
      * <p>
      *
      * @param name Hologram name
-     * @return a {@link Object from hologram name.
+     * @return a {@link Object} from hologram name.
      */
     Object getHologram(String name);
 
@@ -98,7 +98,7 @@ public interface Holograms {
     Object updateHologram(Object hologram, @NotNull List<String> lines, ObjectMap<String, String> placeholders);
 
     /**
-     * Update all {@link Object instances.
+     * Update all {@link Object} instances.
      */
     void updateAll();
 
@@ -128,10 +128,10 @@ public interface Holograms {
          * @param location Hologram location.
          * @param type     Hologram type.
          * @param save     Save the hologram in the file.
-         * @return {@link Object instance.
+         * @return {@link Object} instance.
          */
         @Override
-        public Object create(String name, Location location, String type, boolean save) {
+        public Object create(String name, MinecraftUtils.SerializableLocation location, String type, boolean save) {
             throw new UnsupportedOperationException("Holograms are not hooked!");
         }
 
@@ -201,11 +201,11 @@ public interface Holograms {
         }
 
         /**
-         * Return a {@link Object from hologram name.
+         * Return a {@link Object} from hologram name.
          * <p>
          *
          * @param name Hologram name
-         * @return a {@link Object from hologram name.
+         * @return a {@link Object} from hologram name.
          */
         @Override
         public Object getHologram(String name) {
@@ -237,7 +237,7 @@ public interface Holograms {
         }
 
         /**
-         * Update all {@link Object instances.
+         * Update all {@link Object} instances.
          */
         @Override
         public void updateAll() {

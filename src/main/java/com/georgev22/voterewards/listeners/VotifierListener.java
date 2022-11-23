@@ -1,9 +1,9 @@
 package com.georgev22.voterewards.listeners;
 
-import com.georgev22.api.maps.HashObjectMap;
-import com.georgev22.api.maps.ObjectMap;
-import com.georgev22.api.minecraft.MinecraftUtils;
-import com.georgev22.voterewards.VoteRewardPlugin;
+import com.georgev22.library.maps.HashObjectMap;
+import com.georgev22.library.maps.ObjectMap;
+import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.voterewards.VoteReward;
 import com.georgev22.voterewards.utilities.MessagesUtil;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.georgev22.voterewards.utilities.player.UserVoteData;
@@ -24,24 +24,24 @@ import java.io.IOException;
  */
 public class VotifierListener implements Listener {
 
-    private final VoteRewardPlugin voteRewardPlugin = VoteRewardPlugin.getInstance();
+    private static VoteReward voteReward = VoteReward.getInstance();
 
     @EventHandler
     public void onVote(VotifierEvent e) throws IOException {
         final Vote vote = e.getVote();
         final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(vote.getUsername());
         if (OptionsUtil.DEBUG_VOTE_PRE.getBooleanValue())
-            MinecraftUtils.debug(voteRewardPlugin, "Pre process of vote " + vote);
+            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Pre process of vote: " + vote);
 
         UserVoteData userVoteData = UserVoteData.getUser(offlinePlayer.getUniqueId());
         if (!offlinePlayer.isOnline()) {
 
-            if (OptionsUtil.DEBUG_USELESS.getBooleanValue())
-                MinecraftUtils.debug(voteRewardPlugin, "Player " + offlinePlayer.getName() + " is offline!");
+            if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
+                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Player " + offlinePlayer.getName() + " is offline!");
             if (OptionsUtil.OFFLINE.getBooleanValue()) {
                 try {
-                    if (OptionsUtil.DEBUG_USELESS.getBooleanValue())
-                        MinecraftUtils.debug(voteRewardPlugin, "Process " + vote.getUsername() + " vote with " + vote.getServiceName() + " service name!");
+                    if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
+                        MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Process " + vote.getUsername() + " vote with " + vote.getServiceName() + " service name!");
                     new VoteUtils(userVoteData.user()).processOfflineVote(vote.getServiceName());
                 } catch (Exception ioException) {
                     ioException.printStackTrace();

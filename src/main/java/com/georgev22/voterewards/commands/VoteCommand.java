@@ -1,7 +1,7 @@
 package com.georgev22.voterewards.commands;
 
 import co.aikar.commands.annotation.*;
-import com.georgev22.api.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.MinecraftUtils;
 import com.georgev22.voterewards.utilities.MessagesUtil;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.georgev22.voterewards.utilities.inventories.VoteInventory;

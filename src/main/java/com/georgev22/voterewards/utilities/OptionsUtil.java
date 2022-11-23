@@ -1,9 +1,9 @@
 package com.georgev22.voterewards.utilities;
 
-import com.georgev22.api.minecraft.xseries.XMaterial;
-import com.georgev22.api.minecraft.colors.Color;
-import com.georgev22.api.minecraft.inventory.ItemBuilder;
-import com.georgev22.voterewards.VoteRewardPlugin;
+import com.georgev22.library.minecraft.xseries.XMaterial;
+import com.georgev22.library.minecraft.colors.Color;
+import com.georgev22.library.minecraft.inventory.ItemBuilder;
+import com.georgev22.voterewards.VoteReward;
 import com.google.common.collect.Lists;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-import static com.georgev22.api.utilities.Utils.Assertions.notNull;
+import static com.georgev22.library.utilities.Utils.Assertions.notNull;
 
 public enum OptionsUtil {
 
@@ -25,7 +25,7 @@ public enum OptionsUtil {
 
     DEBUG_CREATE("debug.create", false, Optional.empty()),
 
-    DEBUG_USELESS("debug.useless info", false, Optional.empty()),
+    DEBUG_OTHER("debug.other info", false, Optional.of("debug.useless info")),
 
     DEBUG_DELETE("debug.delete", false, Optional.empty()),
 
@@ -226,7 +226,7 @@ public enum OptionsUtil {
     private final String pathName;
     private final Object value;
     private final Optional<String>[] oldPaths;
-    private static final VoteRewardPlugin mainPlugin = VoteRewardPlugin.getInstance();
+    private static final VoteReward mainPlugin = VoteReward.getInstance();
 
     @SafeVarargs
     @Contract(pure = true)
@@ -266,7 +266,7 @@ public enum OptionsUtil {
 
     public ItemStack getItemStack(boolean isSavedAsItemStack) {
         if (isSavedAsItemStack) {
-            return mainPlugin.getConfig().getItemStack(getPath(), (ItemStack) getDefaultValue());
+            return (ItemStack) mainPlugin.getConfig().get(getPath(), getDefaultValue());
         } else {
             if (mainPlugin.getConfig().get(getPath()) == null) {
                 return (ItemStack) getDefaultValue();

@@ -1,9 +1,9 @@
 package com.georgev22.voterewards.listeners;
 
-import com.georgev22.api.minecraft.MinecraftUtils;
-import com.georgev22.api.minecraft.xseries.XMaterial;
-import com.georgev22.api.minecraft.xseries.XSound;
-import com.georgev22.voterewards.VoteRewardPlugin;
+import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.xseries.XMaterial;
+import com.georgev22.library.minecraft.xseries.XSound;
+import com.georgev22.voterewards.VoteReward;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.georgev22.voterewards.utilities.Updater;
 import com.georgev22.voterewards.utilities.player.UserVoteData;
@@ -30,11 +30,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static com.georgev22.api.utilities.Utils.Callback;
+import static com.georgev22.library.utilities.Utils.Callback;
 
 public class PlayerListeners implements Listener {
 
-    private final VoteRewardPlugin voteRewardPlugin = VoteRewardPlugin.getInstance();
+    private VoteReward voteReward = VoteReward.getInstance();
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPreLogin(AsyncPlayerPreLoginEvent event) {
@@ -64,13 +64,13 @@ public class PlayerListeners implements Listener {
 
                     UserVoteData.getAllUsersMap().append(userVoteData.user().getUniqueId(), userVoteData.user());
                     //HOLOGRAMS
-                    if (voteRewardPlugin.getHolograms().isHooked()) {
-                        if (!voteRewardPlugin.getHolograms().getHolograms().isEmpty()) {
-                            for (Object hologram : voteRewardPlugin.getHolograms().getHolograms()) {
-                                voteRewardPlugin.getHolograms().show(hologram, event.getPlayer());
+                    if (voteReward.getHolograms().isHooked()) {
+                        if (!voteReward.getHolograms().getHolograms().isEmpty()) {
+                            for (Object hologram : voteReward.getHolograms().getHolograms()) {
+                                voteReward.getHolograms().show(hologram, event.getPlayer());
                             }
 
-                            voteRewardPlugin.getHolograms().updateAll();
+                            voteReward.getHolograms().updateAll();
                         }
                     }
                     return true;
@@ -92,7 +92,7 @@ public class PlayerListeners implements Listener {
         }
         final long elapsedMillis = sw.elapsed(TimeUnit.MILLISECONDS);
         if (OptionsUtil.DEBUG_LOAD.getBooleanValue()) {
-            MinecraftUtils.debug(VoteRewardPlugin.getInstance(), "Elapsed time to load user data: " + elapsedMillis);
+            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Elapsed time to load user data: " + elapsedMillis);
         }
 
         //UPDATER
@@ -116,8 +116,8 @@ public class PlayerListeners implements Listener {
                 if (OptionsUtil.REMINDER.getBooleanValue())
                     VoteUtils.reminderMap.remove(event.getPlayer());
                 if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
-                    MinecraftUtils.debug(voteRewardPlugin, "User " + event.getPlayer().getName() + " saved!",
-                            userVoteData.user().toString());
+                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
+                            VoteUtils.debugUserMessage(userVoteData.user(), "saved", true));
                 }
                 return true;
             }
@@ -185,11 +185,11 @@ public class PlayerListeners implements Listener {
                 Objects.requireNonNull(player.getPlayer()).playSound(player.getPlayer().getLocation(), Objects.requireNonNull(XSound
                                 .matchXSound(OptionsUtil.SOUND_CRATE_OPEN.getStringValue()).get().parseSound()),
                         1000, 1);
-                if (OptionsUtil.DEBUG_USELESS.getBooleanValue()) {
-                    MinecraftUtils.debug(voteRewardPlugin, "========================================================");
-                    MinecraftUtils.debug(voteRewardPlugin, "SoundCategory doesn't exists in versions below 1.12");
-                    MinecraftUtils.debug(voteRewardPlugin, "SoundCategory doesn't exists in versions below 1.12");
-                    MinecraftUtils.debug(voteRewardPlugin, "========================================================");
+                if (OptionsUtil.DEBUG_OTHER.getBooleanValue()) {
+                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
+                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "SoundCategory doesn't exists in versions below 1.12");
+                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "SoundCategory doesn't exists in versions below 1.12");
+                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
                 }
             } else {
                 Objects.requireNonNull(player.getPlayer()).playSound(player.getPlayer().getLocation(), Objects.requireNonNull(XSound

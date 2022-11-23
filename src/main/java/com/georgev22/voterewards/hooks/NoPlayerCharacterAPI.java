@@ -1,10 +1,12 @@
 package com.georgev22.voterewards.hooks;
 
-import com.georgev22.api.maps.ConcurrentObjectMap;
-import com.georgev22.api.maps.HashObjectMap;
-import com.georgev22.api.maps.ObjectMap;
-import com.georgev22.api.minecraft.configmanager.CFG;
-import com.georgev22.voterewards.VoteRewardPlugin;
+import com.georgev22.library.maps.ConcurrentObjectMap;
+import com.georgev22.library.maps.HashObjectMap;
+import com.georgev22.library.maps.ObjectMap;
+import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.yaml.configmanager.CFG;
+import com.georgev22.library.yaml.file.FileConfiguration;
+import com.georgev22.voterewards.VoteReward;
 import com.georgev22.voterewards.utilities.configmanager.FileManager;
 import com.georgev22.voterewards.utilities.player.VoteUtils;
 import com.github.juliarn.npc.NPC;
@@ -14,8 +16,6 @@ import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,15 +28,15 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 
-public class NPCAPI {
+public class NoPlayerCharacterAPI {
 
     private final static FileManager fileManager = FileManager.getInstance();
     private final static CFG dataCFG = fileManager.getData();
     private final static FileConfiguration data = dataCFG.getFileConfiguration();
-    private final static VoteRewardPlugin mainPlugin = VoteRewardPlugin.getInstance();
+    private final static VoteReward main = VoteReward.getInstance();
     private static final ObjectMap<String, ObjectMap.Pair<NPC, Integer>> npcMap = new ConcurrentObjectMap<>();
     private static final Random random = new Random();
-    private static final NPCPool npcPool = NPCPool.builder(mainPlugin)
+    private static final NPCPool npcPool = NPCPool.builder(main.getPlugin())
             .spawnDistance(50)
             .actionDistance(20)
             .tabListRemoveTicks(30)
@@ -48,7 +48,7 @@ public class NPCAPI {
      *
      * @return The new profile
      */
-    public static @NotNull Profile createProfile(int position) {
+    public @NotNull Profile createProfile(int position) {
         Profile profile = new Profile(Bukkit.getOfflinePlayerIfCached(VoteUtils.getTopPlayer(position)) != null ? Objects.requireNonNull(Bukkit.getOfflinePlayerIfCached(VoteUtils.getTopPlayer(position))).getUniqueId() : UUID.fromString("a4f5cd7f-362f-4044-931e-7128b4e6bad9"));
         profile.complete();
 
@@ -67,7 +67,7 @@ public class NPCAPI {
         return profile;
     }
 
-    public static Profile.@Nullable Property getSkin(String skinName) {
+    public Profile.@Nullable Property getSkin(String skinName) {
         if (cachedSkins.containsKey(skinName)) {
             return new Profile.Property("textures", cachedSkins.get(skinName).get("value").getAsString(), cachedSkins.get(skinName).get("signature").getAsString());
         } else {
@@ -75,11 +75,11 @@ public class NPCAPI {
             try {
                 URL url_0 = new URL("https://api.mojang.com/users/profiles/minecraft/" + skinName);
                 InputStreamReader reader_0 = new InputStreamReader(url_0.openStream());
-                String uuid = new JsonParser().parse(reader_0).getAsJsonObject().get("id").getAsString();
+                String uuid = JsonParser.parseReader(reader_0).getAsJsonObject().get("id").getAsString();
 
                 URL url_1 = new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid + "?unsigned=false");
                 reader_1 = new InputStreamReader(url_1.openStream());
-                JsonObject textureProperty = new JsonParser().parse(reader_1).getAsJsonObject().get("properties").getAsJsonArray().get(0).getAsJsonObject();
+                JsonObject textureProperty = JsonParser.parseReader(reader_1).getAsJsonObject().get("properties").getAsJsonArray().get(0).getAsJsonObject();
                 String texture = textureProperty.get("value").getAsString();
                 String signature = textureProperty.get("signature").getAsString();
                 cachedSkins.put(skinName, textureProperty);
@@ -100,10 +100,10 @@ public class NPCAPI {
      * @param save     Save the NPC
      * @return a new created NPC
      */
-    public static @NotNull NPC create(String name, int position, Location location, boolean save) {
+    public @NotNull NPC create(String name, int position, MinecraftUtils.SerializableLocation location, boolean save) {
         NPC npc = getNPCMap().get(name) != null ? getNPCMap().get(name).key() : null;
         if (npc == null) {
-            NPC.Builder builder = NPC.builder().location(location).lookAtPlayer(true).imitatePlayer(false).profile(save ? createProfile(position) : new Profile("Notch"));
+            NPC.Builder builder = NPC.builder().location(location.getLocation()).lookAtPlayer(true).imitatePlayer(false).profile(save ? createProfile(position) : new Profile("Notch"));
             npc = builder.build(npcPool);
         }
 
@@ -116,7 +116,7 @@ public class NPCAPI {
         return npc;
     }
 
-    public static void remove(String name, boolean save) {
+    public void remove(String name, boolean save) {
         NPC npc = getNPCMap().get(name) != null ? getNPCMap().get(name).key() : null;
         if (npc == null) {
             return;
@@ -137,7 +137,7 @@ public class NPCAPI {
      * @param npc    NPC instance.
      * @param player Player to hide the NPC.
      */
-    public static void show(@NotNull NPC npc, Player player) {
+    public void show(@NotNull NPC npc, Player player) {
         npc.removeExcludedPlayer(player);
     }
 
@@ -147,7 +147,7 @@ public class NPCAPI {
      * @param npc    NPC instance.
      * @param player Player to hide the NPC.
      */
-    public static void hide(@NotNull NPC npc, Player player) {
+    public void hide(@NotNull NPC npc, Player player) {
         npc.addExcludedPlayer(player);
     }
 
@@ -157,7 +157,7 @@ public class NPCAPI {
      * @param name NPC name
      * @return a {@link NPC} from npc name.
      */
-    public static NPC getNPC(String name) {
+    public NPC getNPC(String name) {
         return getNPCMap().get(name).key();
     }
 
@@ -167,7 +167,7 @@ public class NPCAPI {
      * @param name NPC name.
      * @return if the npc exists
      */
-    public static boolean npcExists(String name) {
+    public boolean npcExists(String name) {
         return getNPCMap().get(name) != null;
     }
 
@@ -180,10 +180,10 @@ public class NPCAPI {
      * @param save     Save the new changes to the config.
      * @return the updated {@link NPC} instance.
      */
-    public static @NotNull NPC updateNPC(@NotNull String npcName, @NotNull Location location, int position, boolean save) {
+    public @NotNull NPC updateNPC(@NotNull String npcName, @NotNull MinecraftUtils.SerializableLocation location, int position, boolean save) {
         if (npcExists(npcName))
             remove(npcName, false);
-        NPC.Builder builder = NPC.builder().profile(createProfile(position)).imitatePlayer(false).lookAtPlayer(true).location(location);
+        NPC.Builder builder = NPC.builder().profile(createProfile(position)).imitatePlayer(false).lookAtPlayer(true).location(location.getLocation());
         getNPCMap().append(npcName, ObjectMap.Pair.create(builder.build(npcPool), position));
         if (save) {
             data.set("NPCs." + npcName + ".location", location);
@@ -196,11 +196,11 @@ public class NPCAPI {
     /**
      * Update all {@link NPC} instances without saving.
      */
-    public static void updateAll() {
+    public void updateAll() {
         if (data.get("NPCs") == null)
             return;
         for (String npcName : Objects.requireNonNull(data.getConfigurationSection("NPCs")).getKeys(false)) {
-            updateNPC(npcName, Objects.requireNonNull(data.getLocation("NPCs." + npcName + ".location")), data.getInt("NPCs." + npcName + ".position"), false);
+            updateNPC(npcName, data.getSerializable("NPCs." + npcName + ".location", MinecraftUtils.SerializableLocation.class), data.getInt("NPCs." + npcName + ".position"), false);
         }
     }
 
@@ -209,7 +209,7 @@ public class NPCAPI {
      *
      * @return all NPCs in a collection.
      */
-    public static ObjectMap<String, ObjectMap.Pair<NPC, Integer>> getNPCMap() {
+    public ObjectMap<String, ObjectMap.Pair<NPC, Integer>> getNPCMap() {
         return npcMap;
     }
 
@@ -218,19 +218,19 @@ public class NPCAPI {
      *
      * @return all NPCs in a collection.
      */
-    public static @NotNull Collection<ObjectMap.Pair<NPC, Integer>> getNPCs() {
+    public @NotNull Collection<ObjectMap.Pair<NPC, Integer>> getNPCs() {
         return getNPCMap().values();
     }
 
     //IGNORE
-    private static boolean a = false;
+    private boolean a = false;
 
 
-    public static void setHook(boolean b) {
+    public void setHook(boolean b) {
         a = b;
     }
 
-    public static boolean isHooked() {
+    public boolean isHooked() {
         return a;
     }
     //

@@ -2,17 +2,17 @@ package com.georgev22.voterewards.commands;
 
 import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.*;
-import com.georgev22.api.minecraft.MinecraftUtils;
-import com.georgev22.api.minecraft.configmanager.CFG;
+import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.scheduler.SchedulerManager;
+import com.georgev22.library.yaml.configmanager.CFG;
+import com.georgev22.library.yaml.file.FileConfiguration;
 import com.georgev22.voterewards.utilities.MessagesUtil;
 import com.georgev22.voterewards.utilities.configmanager.FileManager;
 import com.georgev22.voterewards.utilities.player.Backup;
 import com.georgev22.voterewards.utilities.player.UserVoteData;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.codemc.worldguardwrapper.WorldGuardWrapper;
 import org.codemc.worldguardwrapper.selection.ICuboidSelection;
@@ -25,7 +25,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
-import static com.georgev22.api.utilities.Utils.*;
+import static com.georgev22.library.utilities.Utils.*;
 
 @CommandAlias("votereward|voterewards|vr")
 public class VoteRewardsCommand extends Command {
@@ -162,7 +162,7 @@ public class VoteRewardsCommand extends Command {
             MinecraftUtils.msg(sender, "&c&l(!)&c The server must be empty before backup starts!");
             return;
         }
-        Bukkit.getScheduler().runTaskAsynchronously(voteRewardPlugin, () -> {
+        SchedulerManager.getScheduler().runTaskAsynchronously(voteReward.getClass(), () -> {
             MinecraftUtils.disallowLogin(true, "Backup ongoing!");
             ZonedDateTime zonedDateTime = Instant.ofEpochMilli(System.currentTimeMillis()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now()));
             new Backup("backup" + zonedDateTime.format(DateTimeFormatter.ofPattern("MM-dd-yyyy--h-mm-a"))).backup(new Callback<>() {
@@ -197,7 +197,7 @@ public class VoteRewardsCommand extends Command {
             MinecraftUtils.msg(sender, "&c&l(!)&c Do not include file extension!");
             return;
         }
-        MinecraftUtils.kickAll(voteRewardPlugin, "Restore started!");
+        MinecraftUtils.kickAll(voteReward.getPlugin(), "Restore started!");
         MinecraftUtils.disallowLogin(true, "Restore ongoing!");
         new Backup(fileName + ".yml").restore(new Callback<>() {
             @Override
@@ -262,8 +262,8 @@ public class VoteRewardsCommand extends Command {
                 return;
             }
             ICuboidSelection selection = (ICuboidSelection) iSelection.get();
-            Location a = selection.getMinimumPoint();
-            Location b = selection.getMaximumPoint();
+            MinecraftUtils.SerializableLocation a = new MinecraftUtils.SerializableLocation(selection.getMinimumPoint());
+            MinecraftUtils.SerializableLocation b = new MinecraftUtils.SerializableLocation(selection.getMaximumPoint());
             String regionName = args[1];
             if (a == null || b == null) {
                 MinecraftUtils.msg(sender, "&c&l(!)&c Please make a selection first!");
@@ -274,8 +274,8 @@ public class VoteRewardsCommand extends Command {
             data.set("Regions." + regionName + ".minimumPos", a);
             data.set("Regions." + regionName + ".maximumPos", b);
             cfg.saveFile();
-            MinecraftUtils.msg(sender, "&a&l(!) &aAdded Location \na: " + a.getX() + "," + a.getY() + "," + a.getZ()
-                    + "\nb: " + b.getX() + "," + b.getY() + "," + b.getZ());
+            MinecraftUtils.msg(sender, "&a&l(!) &aAdded Location \na: " + a.getLocation().getX() + "," + a.getLocation().getY() + "," + a.getLocation().getZ()
+                    + "\nb: " + b.getLocation().getX() + "," + b.getLocation().getY() + "," + b.getLocation().getZ());
         }
         if (args[0].equalsIgnoreCase("remove")) {
             if (args.length == 1) {

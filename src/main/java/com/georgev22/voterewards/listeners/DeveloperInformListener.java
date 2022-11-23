@@ -1,12 +1,12 @@
 package com.georgev22.voterewards.listeners;
 
-import com.georgev22.api.maps.HashObjectMap;
-import com.georgev22.api.maps.ObjectMap;
-import com.georgev22.api.minecraft.MinecraftUtils;
-import com.georgev22.voterewards.VoteRewardPlugin;
+import com.georgev22.library.maps.HashObjectMap;
+import com.georgev22.library.maps.ObjectMap;
+import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.scheduler.SchedulerManager;
+import com.georgev22.voterewards.VoteReward;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.google.common.collect.Lists;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,6 +18,8 @@ import java.util.UUID;
 
 
 public class DeveloperInformListener implements Listener {
+
+    private VoteReward voteReward = VoteReward.getInstance();
 
     private final List<ObjectMap.Pair<String, UUID>> inform = Lists.newArrayList(
             ObjectMap.Pair.create("Shin1gamiX", UUID.fromString("7cc1d444-fe6f-4063-a426-b62fdfea7dab")),
@@ -49,18 +51,18 @@ public class DeveloperInformListener implements Listener {
             return;
         }
 
-        Bukkit.getScheduler().runTaskLater(VoteRewardPlugin.getInstance(), () -> {
+        SchedulerManager.getScheduler().runTaskLater(voteReward.getClass(), () -> {
             if (!player.isOnline() && player.getPlayer() == null) {
                 return;
             }
 
             MinecraftUtils.msg(Objects.requireNonNull(player.getPlayer()), joinMessage, new HashObjectMap<String, String>()
-                    .append("%player%", e.getPlayer().getName())
-                    .append("%version%", VoteRewardPlugin.getInstance().getDescription().getVersion())
-                    .append("%package%", VoteRewardPlugin.getInstance().getClass().getPackage().getName())
-                    .append("%name%", VoteRewardPlugin.getInstance().getDescription().getName())
-                    .append("%author%", String.join(", ", VoteRewardPlugin.getInstance().getDescription().getAuthors()))
-                    .append("%main%", VoteRewardPlugin.getInstance().getDescription().getMain())
+                    .append("%player%", player.getName())
+                    .append("%version%", voteReward.getVersion())
+                    .append("%package%", voteReward.getClass().getPackage().getName())
+                    .append("%name%", voteReward.getName())
+                    .append("%author%", String.join(", ", voteReward.getAuthors()))
+                    .append("%main%", voteReward.getMain())
                     .append("%javaversion%", System.getProperty("java.version"))
                     .append("%serverversion%", MinecraftUtils.MinecraftVersion.getCurrentVersion().name()), false);
         }, 20L * 10L);

@@ -1,21 +1,21 @@
 package com.georgev22.voterewards.utilities.player;
 
-import com.georgev22.api.maps.ConcurrentObjectMap;
-import com.georgev22.api.maps.HashObjectMap;
-import com.georgev22.api.maps.LinkedObjectMap;
-import com.georgev22.api.maps.ObjectMap;
-import com.georgev22.api.minecraft.MinecraftUtils;
-import com.georgev22.api.minecraft.configmanager.CFG;
-import com.georgev22.api.minecraft.xseries.XSound;
-import com.georgev22.api.minecraft.xseries.messages.Titles;
-import com.georgev22.api.utilities.Utils;
-import com.georgev22.voterewards.VoteRewardPlugin;
-import com.georgev22.voterewards.hooks.NPCAPI;
+import com.georgev22.library.maps.ConcurrentObjectMap;
+import com.georgev22.library.maps.HashObjectMap;
+import com.georgev22.library.maps.LinkedObjectMap;
+import com.georgev22.library.maps.ObjectMap;
+import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.xseries.XSound;
+import com.georgev22.library.minecraft.xseries.messages.Titles;
+import com.georgev22.library.scheduler.SchedulerManager;
+import com.georgev22.library.utilities.Utils;
+import com.georgev22.library.yaml.configmanager.CFG;
+import com.georgev22.library.yaml.file.FileConfiguration;
+import com.georgev22.voterewards.VoteReward;
 import com.georgev22.voterewards.utilities.MessagesUtil;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.georgev22.voterewards.utilities.configmanager.FileManager;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -28,11 +28,12 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-import static com.georgev22.api.utilities.Utils.Callback;
+import static com.georgev22.library.utilities.Utils.Callback;
 
 public record VoteUtils(User user) {
 
-    private static final VoteRewardPlugin voteRewardPlugin = VoteRewardPlugin.getInstance();
+    private static VoteReward voteReward = VoteReward.getInstance();
+
     private static final FileManager fileManager = FileManager.getInstance();
 
     /**
@@ -53,12 +54,12 @@ public record VoteUtils(User user) {
      */
     public void processVote(String serviceName, boolean addVoteParty) throws IOException {
         if (OptionsUtil.DEBUG_VOTES_REGULAR.getBooleanValue())
-            MinecraftUtils.debug(voteRewardPlugin, "VOTE OF: " + user.getName());
+            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "VOTE OF: " + user.getName());
         UserVoteData userVoteData = UserVoteData.getUser(user.getUniqueId());
         userVoteData.setVotes(userVoteData.getVotes() + 1);
         userVoteData.setLastVoted(System.currentTimeMillis());
         userVoteData.appendServiceLastVote(serviceName);
-        MinecraftUtils.debug(VoteRewardPlugin.getInstance(), userVoteData.getServicesLastVote().toString());
+        MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), userVoteData.getServicesLastVote().toString());
 
         userVoteData.setAllTimeVotes(userVoteData.getAllTimeVotes() + 1);
         userVoteData.setDailyVotes(userVoteData.getDailyVotes() + 1);
@@ -72,22 +73,24 @@ public record VoteUtils(User user) {
 
         // WORLD REWARDS (WITH SERVICES)
         if (OptionsUtil.WORLD.getBooleanValue()) {
-            if (voteRewardPlugin.getConfig().getString("Rewards.Worlds." + user.getPlayer().getWorld() + "." + serviceName) != null && OptionsUtil.WORLD_SERVICES.getBooleanValue()) {
-                userVoteData.runCommands(voteRewardPlugin.getConfig()
+            if (OptionsUtil.DEBUG_VOTES_WORLD.getBooleanValue())
+                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Vote of " + user.getName() + " for world " + user.getPlayer().getWorld());
+            if (voteReward.getConfig().getString("Rewards.Worlds." + user.getPlayer().getWorld() + "." + serviceName) != null && OptionsUtil.WORLD_SERVICES.getBooleanValue()) {
+                userVoteData.runCommands(voteReward.getConfig()
                         .getStringList("Rewards.Worlds." + user.getPlayer().getWorld().getName() + "." + serviceName));
             } else {
-                userVoteData.runCommands(voteRewardPlugin.getConfig()
+                userVoteData.runCommands(voteReward.getConfig()
                         .getStringList("Rewards.Worlds." + user.getPlayer().getWorld().getName() + ".default"));
             }
         }
 
         // SERVICE REWARDS
         if (OptionsUtil.SERVICES.getBooleanValue()) {
-            if (voteRewardPlugin.getConfig().getString("Rewards.Services." + serviceName) != null) {
-                userVoteData.runCommands(voteRewardPlugin.getConfig()
+            if (voteReward.getConfig().getString("Rewards.Services." + serviceName) != null) {
+                userVoteData.runCommands(voteReward.getConfig()
                         .getStringList("Rewards.Services." + serviceName + ".commands"));
             } else {
-                userVoteData.runCommands(voteRewardPlugin.getConfig()
+                userVoteData.runCommands(voteReward.getConfig()
                         .getStringList("Rewards.Services.default.commands"));
             }
         }
@@ -96,10 +99,10 @@ public record VoteUtils(User user) {
         if (OptionsUtil.LUCKY.getBooleanValue()) {
             ThreadLocalRandom random = ThreadLocalRandom.current();
             int i = random.nextInt(OptionsUtil.LUCKY_NUMBERS.getIntValue() + 1);
-            for (String s2 : voteRewardPlugin.getConfig().getConfigurationSection("Rewards.Lucky")
+            for (String s2 : voteReward.getConfig().getConfigurationSection("Rewards.Lucky")
                     .getKeys(false)) {
                 if (Integer.valueOf(s2).equals(i)) {
-                    userVoteData.runCommands(voteRewardPlugin.getConfig()
+                    userVoteData.runCommands(voteReward.getConfig()
                             .getStringList("Rewards.Lucky." + s2 + ".commands"));
                 }
             }
@@ -107,9 +110,11 @@ public record VoteUtils(User user) {
 
         // PERMISSIONS REWARDS
         if (OptionsUtil.PERMISSIONS.getBooleanValue()) {
-            for (String s2 : voteRewardPlugin.getConfig().getConfigurationSection("Rewards.Permission").getKeys(false)) {
+            for (String s2 : voteReward.getConfig().getConfigurationSection("Rewards.Permission").getKeys(false)) {
                 if (user.getPlayer().hasPermission("voterewards.permission." + s2)) {
-                    userVoteData.runCommands(voteRewardPlugin.getConfig()
+                    if (OptionsUtil.DEBUG_VOTES_PERMISSIONS.getBooleanValue())
+                        MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Vote of " + user.getName() + " with permission " + "voterewards.permission." + s2);
+                    userVoteData.runCommands(voteReward.getConfig()
                             .getStringList("Rewards.Permission." + s2 + ".commands"));
                 }
             }
@@ -117,10 +122,12 @@ public record VoteUtils(User user) {
 
         // CUMULATIVE REWARDS
         if (OptionsUtil.CUMULATIVE.getBooleanValue()) {
-            for (String s2 : voteRewardPlugin.getConfig().getConfigurationSection("Rewards.Cumulative")
+            for (String s2 : voteReward.getConfig().getConfigurationSection("Rewards.Cumulative")
                     .getKeys(false)) {
                 if (Integer.valueOf(s2).equals(userVoteData.getVotes())) {
-                    userVoteData.runCommands(voteRewardPlugin.getConfig()
+                    if (OptionsUtil.DEBUG_VOTES_CUMULATIVE.getBooleanValue())
+                        MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Vote of " + user.getName() + " with cumulative number " + s2);
+                    userVoteData.runCommands(voteReward.getConfig()
                             .getStringList("Rewards.Cumulative." + s2 + ".commands"));
                 }
             }
@@ -132,11 +139,11 @@ public record VoteUtils(User user) {
                 user.getPlayer().playSound(user.getPlayer().getLocation(), XSound
                                 .matchXSound(OptionsUtil.SOUND_VOTE.getStringValue()).get().parseSound(),
                         1000, 1);
-                if (OptionsUtil.DEBUG_USELESS.getBooleanValue()) {
-                    MinecraftUtils.debug(voteRewardPlugin, "========================================================");
-                    MinecraftUtils.debug(voteRewardPlugin, "SoundCategory doesn't exists in versions below 1.12");
-                    MinecraftUtils.debug(voteRewardPlugin, "SoundCategory doesn't exists in versions below 1.12");
-                    MinecraftUtils.debug(voteRewardPlugin, "========================================================");
+                if (OptionsUtil.DEBUG_OTHER.getBooleanValue()) {
+                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
+                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "SoundCategory doesn't exists in versions below 1.12");
+                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "SoundCategory doesn't exists in versions below 1.12");
+                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
                 }
             } else {
                 user.getPlayer().playSound(user.getPlayer().getLocation(), XSound
@@ -148,10 +155,10 @@ public record VoteUtils(User user) {
 
         if (OptionsUtil.DAILY.getBooleanValue()) {
             int votes = userVoteData.getDailyVotes();
-            for (String s2 : voteRewardPlugin.getConfig().getConfigurationSection("Rewards.Daily")
+            for (String s2 : voteReward.getConfig().getConfigurationSection("Rewards.Daily")
                     .getKeys(false)) {
                 if (Integer.valueOf(s2).equals(votes)) {
-                    userVoteData.runCommands(voteRewardPlugin.getConfig()
+                    userVoteData.runCommands(voteReward.getConfig()
                             .getStringList("Rewards.Daily." + s2 + ".commands"));
                 }
             }
@@ -163,10 +170,10 @@ public record VoteUtils(User user) {
 
         // NPC/HOLOGRAM UPDATE
         if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
-            if (voteRewardPlugin.getHolograms().isHooked())
-                voteRewardPlugin.getHolograms().updateAll();
-            if (NPCAPI.isHooked())
-                NPCAPI.updateAll();
+            if (voteReward.getHolograms().isHooked())
+                voteReward.getHolograms().updateAll();
+            if (voteReward.getNoPlayerCharacterAPI().isHooked())
+                voteReward.getNoPlayerCharacterAPI().updateAll();
         }
 
         // DISCORD WEBHOOK
@@ -177,10 +184,8 @@ public record VoteUtils(User user) {
 
         // DEBUG
         if (OptionsUtil.DEBUG_VOTE_AFTER.getBooleanValue()) {
-            MinecraftUtils.debug(voteRewardPlugin,
-                    "Vote for player " + user.getName(),
-                    "Votes: " + userVoteData.getVotes(),
-                    "Last Voted: " + Instant.ofEpochMilli(userVoteData.getLastVote()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())));
+            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
+                    debugUserMessage(user, "", false));
         }
     }
 
@@ -204,13 +209,8 @@ public record VoteUtils(User user) {
                     @Override
                     public Boolean onSuccess() {
                         if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
-                            MinecraftUtils.debug(voteRewardPlugin,
-                                    "User " + user.getName() + " successfully saved!",
-                                    "Votes: " + user.getVotes(),
-                                    "Daily Votes: " + user.getDailyVotes(),
-                                    "Last Voted: " + Instant.ofEpochMilli(user.getLastVoted()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())) + user.getLastVoted(),
-                                    "Vote Parties: " + user.getVoteParties(),
-                                    "All time votes: " + user.getAllTimeVotes());
+                            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
+                                    debugUserMessage(user, "saved", true));
                         }
                         return true;
                     }
@@ -251,16 +251,16 @@ public record VoteUtils(User user) {
      * @since v4.7.0
      */
     public static void monthlyReset() {
-        Bukkit.getScheduler().runTaskTimer(voteRewardPlugin, () -> {
-            if (OptionsUtil.DEBUG_USELESS.getBooleanValue())
-                MinecraftUtils.debug(voteRewardPlugin, "Monthly reset Thread ID: " + Thread.currentThread().getId());
+        SchedulerManager.getScheduler().runTaskTimer(voteReward.getClass(), () -> {
+            if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
+                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "monthlyReset0() Thread ID: " + Thread.currentThread().getId());
             CFG cfg = fileManager.getData();
             FileConfiguration dataConfiguration = cfg.getFileConfiguration();
             if (OptionsUtil.MONTHLY_REWARDS.getBooleanValue())
                 for (int i = 0; i < OptionsUtil.MONTHLY_REWARDS_TO_TOP.getIntValue(); i++) {
                     String player = getTopPlayer(i);
                     UserVoteData userVoteData = UserVoteData.getUser(UserVoteData.getAllUsersMapWithName().entrySet().stream().filter(stringUserEntry -> stringUserEntry.getKey().equals(player)).findFirst().get().getValue().getOfflinePlayer());
-                    userVoteData.runCommands(voteRewardPlugin.getConfig().getStringList("Rewards.montly." + i));
+                    userVoteData.runCommands(voteReward.getConfig().getStringList("Rewards.monthly." + i));
                 }
             if (dataConfiguration.getInt("month") != Calendar.getInstance().getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().getMonthValue()) {
                 ObjectMap<UUID, User> objectMap = UserVoteData.getAllUsersMap();
@@ -275,28 +275,30 @@ public record VoteUtils(User user) {
     }
 
     /**
-     * Purge players data if they don't have vote for a X days.
+     * Purge players data if they don't have vote for an X days.
      *
      * @since v4.7.0
      */
     public static void purgeData() {
-        Bukkit.getScheduler().runTaskTimer(voteRewardPlugin, () -> {
-            if (OptionsUtil.DEBUG_USELESS.getBooleanValue())
-                MinecraftUtils.debug(voteRewardPlugin, "Purge data Thread ID: " + Thread.currentThread().getId());
-            ObjectMap<UUID, User> objectMap = UserVoteData.getAllUsersMap();
-            objectMap.forEach((uuid, user) -> {
-                UserVoteData userVoteData = UserVoteData.getUser(uuid);
-                long time = userVoteData.getLastVote() + (OptionsUtil.PURGE_DAYS.getLongValue() * 86400000);
-                if (OptionsUtil.DEBUG_USELESS.getBooleanValue()) {
-                    MinecraftUtils.debug(voteRewardPlugin, Instant.ofEpochMilli(userVoteData.getLastVote()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
-                    MinecraftUtils.debug(voteRewardPlugin, Instant.ofEpochMilli(time).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
-                }
-                if (time <= System.currentTimeMillis()) {
-                    userVoteData.delete();
-                }
+        SchedulerManager.getScheduler().runTaskTimer(voteReward.getClass(), VoteUtils::purgeData0, 20L, OptionsUtil.PURGE_MINUTES.getLongValue() * 1200L);
+    }
 
-            });
-        }, 20L, OptionsUtil.PURGE_MINUTES.getLongValue() * 1200L);
+    private static void purgeData0() {
+        if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
+            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "purgeData0() Thread ID: " + Thread.currentThread().getId());
+        ObjectMap<UUID, User> objectMap = UserVoteData.getAllUsersMap();
+        objectMap.forEach((uuid, user) -> {
+            UserVoteData userVoteData = UserVoteData.getUser(uuid);
+            long time = userVoteData.getLastVote() + (OptionsUtil.PURGE_DAYS.getLongValue() * 86400000);
+            if (OptionsUtil.DEBUG_OTHER.getBooleanValue()) {
+                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), Instant.ofEpochMilli(userVoteData.getLastVote()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
+                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), Instant.ofEpochMilli(time).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
+            }
+            if (time <= System.currentTimeMillis()) {
+                userVoteData.delete();
+            }
+
+        });
     }
 
     /**
@@ -305,47 +307,51 @@ public record VoteUtils(User user) {
      * @since v5.0.2
      */
     public static void dailyReset() {
-        Bukkit.getScheduler().runTaskTimer(voteRewardPlugin, () -> {
-            ObjectMap<UUID, User> objectMap = UserVoteData.getAllUsersMap();
-            objectMap.forEach((uuid, user) -> {
-                UserVoteData userVoteData = UserVoteData.getUser(uuid);
-                long time = userVoteData.getLastVote() + (OptionsUtil.DAILY_HOURS.getIntValue() * 60 * 60 * 1000);
-                if (OptionsUtil.DEBUG_USELESS.getBooleanValue()) {
-                    MinecraftUtils.debug(voteRewardPlugin, Instant.ofEpochMilli(userVoteData.getLastVote()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
-                    MinecraftUtils.debug(voteRewardPlugin, Instant.ofEpochMilli(time).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
-                }
+        SchedulerManager.getScheduler().runTaskTimer(voteReward.getClass(), VoteUtils::dailyReset0, 20, 20 * 1200L);
+    }
 
-                if (time <= System.currentTimeMillis()) {
-                    if (userVoteData.getDailyVotes() > 0) {
-                        userVoteData.setDailyVotes(0);
-                        if (user.getOfflinePlayer().isOnline()) {
-                            objectMap.append(uuid, userVoteData.user());
-                        } else {
-                            userVoteData.save(true, new Callback<>() {
-                                @Override
-                                public Boolean onSuccess() {
-                                    if (OptionsUtil.DEBUG_VOTES_DAILY.getBooleanValue()) {
-                                        MinecraftUtils.debug(voteRewardPlugin, "Daily vote reset!");
-                                    }
-                                    return true;
-                                }
+    private static void dailyReset0() {
+        if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
+            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "dailyReset0() Thread ID: " + Thread.currentThread().getId());
+        ObjectMap<UUID, User> objectMap = UserVoteData.getAllUsersMap();
+        objectMap.forEach((uuid, user) -> {
+            UserVoteData userVoteData = UserVoteData.getUser(uuid);
+            long time = userVoteData.getLastVote() + (OptionsUtil.DAILY_HOURS.getIntValue() * 60 * 60 * 1000);
+            if (OptionsUtil.DEBUG_OTHER.getBooleanValue()) {
+                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), Instant.ofEpochMilli(userVoteData.getLastVote()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
+                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), Instant.ofEpochMilli(time).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
+            }
 
-                                @Override
-                                public Boolean onFailure() {
-                                    return true;
+            if (time <= System.currentTimeMillis()) {
+                if (userVoteData.getDailyVotes() > 0) {
+                    userVoteData.setDailyVotes(0);
+                    if (user.getOfflinePlayer().isOnline()) {
+                        objectMap.append(uuid, userVoteData.user());
+                    } else {
+                        userVoteData.save(true, new Callback<>() {
+                            @Override
+                            public Boolean onSuccess() {
+                                if (OptionsUtil.DEBUG_VOTES_DAILY.getBooleanValue()) {
+                                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Daily vote reset!");
                                 }
+                                return true;
+                            }
 
-                                @Override
-                                public Boolean onFailure(Throwable throwable) {
-                                    throwable.printStackTrace();
-                                    return onFailure();
-                                }
-                            });
-                        }
+                            @Override
+                            public Boolean onFailure() {
+                                return true;
+                            }
+
+                            @Override
+                            public Boolean onFailure(Throwable throwable) {
+                                throwable.printStackTrace();
+                                return onFailure();
+                            }
+                        });
                     }
                 }
-            });
-        }, 20, 20 * 1200L);
+            }
+        });
     }
 
     /**
@@ -427,17 +433,19 @@ public record VoteUtils(User user) {
     }
 
     public static void reminder() {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(voteRewardPlugin, () -> reminderMap.forEach((key, value) -> {
-            if (value <= System.currentTimeMillis()) {
-                UserVoteData userVoteData = UserVoteData.getUser(key.getUniqueId());
-                if (System.currentTimeMillis() >= userVoteData.getLastVote() + (24 * 60 * 60 * 1000)) {
-                    ObjectMap<String, String> placeholders = new HashObjectMap<>();
-                    placeholders.append("%player%", key.getName());
-                    MessagesUtil.REMINDER.msg(key, placeholders, true);
-                }
-                reminderMap.replace(key, System.currentTimeMillis() + (OptionsUtil.REMINDER_SEC.getIntValue() * 1000));
+        SchedulerManager.getScheduler().runTaskTimerAsynchronously(voteReward.getClass(), () -> reminderMap.forEach(VoteUtils::reminder0), 20, 20);
+    }
+
+    private static void reminder0(Player key, Long value) {
+        if (value <= System.currentTimeMillis()) {
+            UserVoteData userVoteData = UserVoteData.getUser(key.getUniqueId());
+            if (System.currentTimeMillis() >= userVoteData.getLastVote() + (24 * 60 * 60 * 1000)) {
+                ObjectMap<String, String> placeholders = new HashObjectMap<>();
+                placeholders.append("%player%", key.getName());
+                MessagesUtil.REMINDER.msg(key, placeholders, true);
             }
-        }), 20, 20);
+            reminderMap.replace(key, System.currentTimeMillis() + (OptionsUtil.REMINDER_SEC.getIntValue() * 1000));
+        }
     }
 
     /**
@@ -489,6 +497,17 @@ public record VoteUtils(User user) {
                                         .append("%need%", String.valueOf(OptionsUtil.VOTEPARTY_VOTES.getIntValue())),
                                 true)),
                         OptionsUtil.VOTEPARTY_PLAYERS.getBooleanValue() & VotePartyUtils.isWaitingForPlayers());
+    }
+
+    public static String @NotNull [] debugUserMessage(@NotNull User user, String b, boolean c) {
+        return new String[]{c ? "User " + user.getName() + " successfully " + b + "!" : "User: " + user.getName(),
+                "Votes: " + user.getVotes(),
+                "Daily Votes: " + user.getDailyVotes(),
+                "Last Voted: " + Instant.ofEpochMilli(user.getLastVoted()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())) + user.getLastVoted(),
+                "Services: " + user.getServices(),
+                "Services Last Vote: " + user.getServicesLastVote().entrySet().stream().toList(),
+                "Vote Parties: " + user.getVoteParties(),
+                "All time votes: " + user.getAllTimeVotes()};
     }
 
 }

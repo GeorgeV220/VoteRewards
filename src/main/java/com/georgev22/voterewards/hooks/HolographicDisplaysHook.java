@@ -1,19 +1,18 @@
 package com.georgev22.voterewards.hooks;
 
-import com.georgev22.api.maps.ConcurrentObjectMap;
-import com.georgev22.api.maps.ObjectMap;
-import com.georgev22.api.minecraft.MinecraftUtils;
-import com.georgev22.api.minecraft.configmanager.CFG;
-import com.georgev22.api.utilities.Utils;
-import com.georgev22.voterewards.VoteRewardPlugin;
+import com.georgev22.library.maps.ConcurrentObjectMap;
+import com.georgev22.library.maps.ObjectMap;
+import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.utilities.Utils;
+import com.georgev22.library.yaml.configmanager.CFG;
+import com.georgev22.library.yaml.file.FileConfiguration;
+import com.georgev22.voterewards.VoteReward;
 import com.georgev22.voterewards.utilities.configmanager.FileManager;
 import com.georgev22.voterewards.utilities.interfaces.Holograms;
 import com.georgev22.voterewards.utilities.player.VoteUtils;
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
 import com.gmail.filoghost.holographicdisplays.api.line.TextLine;
-import org.bukkit.Location;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,7 +28,7 @@ public class HolographicDisplaysHook implements Holograms {
     private final FileManager fileManager = FileManager.getInstance();
     private final CFG dataCFG = fileManager.getData();
     private final FileConfiguration data = dataCFG.getFileConfiguration();
-    private final VoteRewardPlugin mainPlugin = VoteRewardPlugin.getInstance();
+    private final VoteReward main = VoteReward.getInstance();
     private final ObjectMap<String, Object> hologramMap = new ConcurrentObjectMap<>();
 
     /**
@@ -41,10 +40,10 @@ public class HolographicDisplaysHook implements Holograms {
      * @param save     Save the hologram in the file.
      * @return {@link Hologram} instance.
      */
-    public Hologram create(String name, Location location, String type, boolean save) {
+    public Hologram create(String name, MinecraftUtils.SerializableLocation location, String type, boolean save) {
         Hologram hologram = (Hologram) getHologramMap().get(name);
         if (hologram == null) {
-            hologram = HologramsAPI.createHologram(mainPlugin, location);
+            hologram = HologramsAPI.createHologram(main.getPlugin(), location.getLocation());
             getHologramMap().append(name, hologram);
         }
 
@@ -192,7 +191,7 @@ public class HolographicDisplaysHook implements Holograms {
             return;
         for (String hologramName : Objects.requireNonNull(data.getConfigurationSection("Holograms")).getKeys(false)) {
             Hologram hologram = getHologram(hologramName);
-            updateHologram(hologram, mainPlugin.getConfig().getStringList("Holograms." + data.getString("Holograms." + hologramName + ".type")), getPlaceholderMap());
+            updateHologram(hologram, main.getConfig().getStringList("Holograms." + data.getString("Holograms." + hologramName + ".type")), getPlaceholderMap());
             getPlaceholderMap().clear();
         }
     }

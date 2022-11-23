@@ -2,7 +2,6 @@
 commands:
   descriptions:
     fakevote: 'Sends a fake vote for the target player.'
-    hologram: 'Creates, remove or update a hologram.'
     vote: 'Shows the player''s total votes.'
     votes: 'Shows the player'' or target player''s total votes.'
     rewards: 'Shows the vote rewards.'
@@ -28,3 +27,9 @@ commands:
       remove: 'Remove an existing VoteRewards NPC'
       update: 'Force update a specific NPC'
       updateall: 'Force update all NPCs'
+    hologram:
+      default: 'The basic hologram command'
+      help: 'Shows the help page'
+      create: 'Create a new VoteRewards hologram'
+      remove: 'Remove an existing VoteRewards hologram'
+      update: 'Update a specific hologram'

@@ -1,20 +1,21 @@
 package com.georgev22.voterewards.utilities.player;
 
-import com.georgev22.api.maps.HashObjectMap;
-import com.georgev22.api.maps.ObjectMap;
-import com.georgev22.api.minecraft.MinecraftUtils;
-import com.georgev22.api.minecraft.configmanager.CFG;
-import com.georgev22.api.minecraft.xseries.XMaterial;
-import com.georgev22.api.minecraft.xseries.XSound;
-import com.georgev22.api.utilities.Utils;
-import com.georgev22.voterewards.VoteRewardPlugin;
+import com.georgev22.library.maps.HashObjectMap;
+import com.georgev22.library.maps.ObjectMap;
+import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.xseries.XMaterial;
+import com.georgev22.library.minecraft.xseries.XSound;
+import com.georgev22.library.scheduler.SchedulerManager;
+import com.georgev22.library.utilities.Utils;
+import com.georgev22.library.yaml.configmanager.CFG;
+import com.georgev22.library.yaml.file.FileConfiguration;
+import com.georgev22.voterewards.VoteReward;
 import com.georgev22.voterewards.utilities.*;
 import com.georgev22.voterewards.utilities.configmanager.FileManager;
 import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 public class VotePartyUtils {
 
-    private static final VoteRewardPlugin voteRewardPlugin = VoteRewardPlugin.getInstance();
+    private static final VoteReward voteReward = VoteReward.getInstance();
 
     private static final List<OfflinePlayer> players = Lists.newArrayList();
 
@@ -54,7 +55,7 @@ public class VotePartyUtils {
      * @param start         Set true to start the voteparty without the required votes.
      */
     public static void voteParty(@Nullable OfflinePlayer offlinePlayer, boolean start) {
-        Bukkit.getScheduler().runTaskAsynchronously(voteRewardPlugin, () -> {
+        SchedulerManager.getScheduler().runTaskAsynchronously(voteReward.getClass(), () -> {
             if ((!start & OptionsUtil.VOTEPARTY_PLAYERS.getBooleanValue()) & Bukkit.getOnlinePlayers().size() > OptionsUtil.VOTEPARTY_PLAYERS_NEED.getIntValue()) {
                 MessagesUtil.VOTEPARTY_NOT_ENOUGH_PLAYERS.msgAll();
                 isWaitingForPlayers = true;
@@ -107,7 +108,7 @@ public class VotePartyUtils {
                 players.addAll(Bukkit.getOnlinePlayers());
             }
 
-            //COOLDOWN
+            //COOL DOWN
             if (OptionsUtil.VOTEPARTY_COOLDOWN.getBooleanValue()) {
                 placeholders.append("%secs%",
                         String.valueOf(OptionsUtil.VOTEPARTY_COOLDOWN_SECONDS.getIntValue()));
@@ -127,11 +128,11 @@ public class VotePartyUtils {
                     if (player.isOnline()) {
                         if (OptionsUtil.VOTEPARTY_SOUND_START.getBooleanValue()) {
                             if (MinecraftUtils.MinecraftVersion.getCurrentVersion().isBelow(MinecraftUtils.MinecraftVersion.V1_12_R1)) {
-                                if (OptionsUtil.DEBUG_USELESS.getBooleanValue()) {
-                                    MinecraftUtils.debug(voteRewardPlugin, "========================================================");
-                                    MinecraftUtils.debug(voteRewardPlugin, "SoundCategory doesn't exists in versions below 1.12");
-                                    MinecraftUtils.debug(voteRewardPlugin, "SoundCategory doesn't exists in versions below 1.12");
-                                    MinecraftUtils.debug(voteRewardPlugin, "========================================================");
+                                if (OptionsUtil.DEBUG_OTHER.getBooleanValue()) {
+                                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
+                                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "SoundCategory doesn't exists in versions below 1.12");
+                                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "SoundCategory doesn't exists in versions below 1.12");
+                                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
                                 }
                                 Objects.requireNonNull(player.getPlayer()).playSound(player.getPlayer().getLocation(), Objects.requireNonNull(XSound
                                                 .matchXSound(OptionsUtil.SOUND_VOTEPARTY_START.getStringValue()).get().parseSound()),
@@ -165,17 +166,17 @@ public class VotePartyUtils {
     /**
      * Choose a random voteparty reward
      *
-     * @param enable The boolean of random rewards
+     * @param enable The boolean value of random rewards
      */
     public static void chooseRandom(OfflinePlayer offlinePlayer, boolean enable) {
         List<String> list = OptionsUtil.VOTEPARTY_REWARDS.getStringList();
         if (enable) {
             Random random = new Random();
             int selector = random.nextInt(list.size());
-            MinecraftUtils.runCommand(voteRewardPlugin, list.get(selector).replace("%player%", Objects.requireNonNull(Objects.requireNonNull(offlinePlayer).getName())));
+            MinecraftUtils.runCommand(voteReward.getPlugin(), list.get(selector).replace("%player%", Objects.requireNonNull(Objects.requireNonNull(offlinePlayer).getName())));
         } else {
             for (String s : list) {
-                MinecraftUtils.runCommand(voteRewardPlugin, s.replace("%player%", Objects.requireNonNull(Objects.requireNonNull(offlinePlayer).getName())));
+                MinecraftUtils.runCommand(voteReward.getPlugin(), s.replace("%player%", Objects.requireNonNull(Objects.requireNonNull(offlinePlayer).getName())));
             }
         }
     }
@@ -198,8 +199,8 @@ public class VotePartyUtils {
         for (String s : Objects.requireNonNull(data.getConfigurationSection("Regions")).getKeys(false)) {
             Location a = (Location) data.get("Regions." + s + ".minimumPos");
             Location b = (Location) data.get("Regions." + s + ".maximumPos");
-            Regions regions = new Regions(Objects.requireNonNull(a), Objects.requireNonNull(b));
-            return regions.locationIsInRegion(location);
+            Regions regions = new Regions(new MinecraftUtils.SerializableLocation(Objects.requireNonNull(a)), new MinecraftUtils.SerializableLocation(Objects.requireNonNull(b)));
+            return regions.locationIsInRegion(new MinecraftUtils.SerializableLocation(location));
         }
         return false;
     }

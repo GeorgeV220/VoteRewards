@@ -1,9 +1,10 @@
 package com.georgev22.voterewards.utilities.configmanager;
 
-import com.georgev22.api.minecraft.configmanager.CFG;
-import org.bukkit.plugin.java.JavaPlugin;
+import com.georgev22.library.yaml.configmanager.CFG;
+import com.georgev22.voterewards.VoteReward;
 
 import java.io.File;
+import java.util.logging.Logger;
 
 public final class FileManager {
 
@@ -12,6 +13,8 @@ public final class FileManager {
     public static FileManager getInstance() {
         return instance == null ? instance = new FileManager() : instance;
     }
+
+    private VoteReward voteReward = VoteReward.getInstance();
 
     private CFG config;
     private CFG data;
@@ -23,13 +26,13 @@ public final class FileManager {
     private FileManager() {
     }
 
-    public void loadFiles(final JavaPlugin plugin) {
-        this.messages = new CFG(plugin, "messages", false);
-        this.config = new CFG(plugin, "config", true);
-        this.data = new CFG(plugin, "data", true);
-        this.voteInventory = new CFG(plugin, "inventories" + File.separator + "vote", true);
-        this.voteTopInventory = new CFG(plugin, "inventories" + File.separator + "votetop", true);
-        this.discord = new CFG(plugin, "discord", true);
+    public void loadFiles(Logger logger, Class<?> clazz) throws Exception {
+        this.messages = new CFG("messages", voteReward.getDataFolder(), false, logger, clazz);
+        this.config = new CFG("config", voteReward.getDataFolder(), true, logger, clazz);
+        this.data = new CFG("data", voteReward.getDataFolder(), true, logger, clazz);
+        this.voteInventory = new CFG("vote", new File(voteReward.getDataFolder(), "inventories"), true, logger, clazz);
+        this.voteTopInventory = new CFG("votetop", new File(voteReward.getDataFolder(), "inventories"), true, logger, clazz);
+        this.discord = new CFG("discord", voteReward.getDataFolder(), true, logger, clazz);
     }
 
     public CFG getMessages() {

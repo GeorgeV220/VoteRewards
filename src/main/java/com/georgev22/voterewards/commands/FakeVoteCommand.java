@@ -1,8 +1,7 @@
 package com.georgev22.voterewards.commands;
 
 import co.aikar.commands.annotation.*;
-import co.aikar.locales.MessageKey;
-import com.georgev22.api.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.MinecraftUtils;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.model.VotifierEvent;
 import org.bukkit.Bukkit;
@@ -12,10 +11,6 @@ import org.jetbrains.annotations.NotNull;
 
 @CommandAlias("fakevote|vrfake|vfake")
 public class FakeVoteCommand extends Command {
-
-    static MessageKey key(String key) {
-        return MessageKey.of("commands." + key);
-    }
 
     @Default
     @Description("{@@commands.descriptions.fakevote}")

@@ -1,11 +1,12 @@
 package com.georgev22.voterewards.utilities.player;
 
-import com.georgev22.api.maps.ConcurrentObjectMap;
-import com.georgev22.api.maps.HashObjectMap;
-import com.georgev22.api.maps.LinkedObjectMap;
-import com.georgev22.api.maps.ObjectMap;
-import com.georgev22.api.minecraft.MinecraftUtils;
-import com.georgev22.voterewards.VoteRewardPlugin;
+import com.georgev22.library.maps.ConcurrentObjectMap;
+import com.georgev22.library.maps.HashObjectMap;
+import com.georgev22.library.maps.LinkedObjectMap;
+import com.georgev22.library.maps.ObjectMap;
+import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.scheduler.SchedulerManager;
+import com.georgev22.voterewards.VoteReward;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.georgev22.voterewards.utilities.interfaces.IDatabaseType;
 import com.google.common.collect.Lists;
@@ -27,33 +28,33 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
-import static com.georgev22.api.utilities.Utils.*;
+import static com.georgev22.library.utilities.Utils.*;
 
 /**
  * Used to handle all user's data and anything related to them.
  */
 public record UserVoteData(User user) {
-    private static final VoteRewardPlugin voteRewardPlugin = VoteRewardPlugin.getInstance();
+
+    private static final VoteReward voteReward = VoteReward.getInstance();
 
     private static final ObjectMap<UUID, User> allUsersMap = new ConcurrentObjectMap<>();
 
     public UserVoteData(@NotNull User user) {
         if (!allUsersMap.containsKey(user.getUniqueId())) {
             if (OptionsUtil.DEBUG_VOTE_PRE.getBooleanValue()) {
-                MinecraftUtils.debug(voteRewardPlugin, "Player " + Bukkit.getOfflinePlayer(user.getUniqueId()).getName() + " is not loaded!");
+                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Player " + Bukkit.getOfflinePlayer(user.getUniqueId()).getName() + " is not loaded!");
             }
 
             allUsersMap.append(user.getUniqueId(), new User(user.getUniqueId()));
         }
         this.user = allUsersMap.get(user.getUniqueId());
-        if (OptionsUtil.DEBUG_USELESS.getBooleanValue())
-            MinecraftUtils.debug(voteRewardPlugin, user.toString());
+        if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
+            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), user.toString());
     }
 
     /**
@@ -79,9 +80,9 @@ public record UserVoteData(User user) {
      * @throws Exception When something goes wrong
      */
     public static void loadAllUsers() throws Exception {
-        allUsersMap.putAll(voteRewardPlugin.getIDatabaseType().getAllUsers());
+        allUsersMap.putAll(voteReward.getIDatabaseType().getAllUsers());
         if (OptionsUtil.DEBUG_LOAD.getBooleanValue())
-            MinecraftUtils.debug(voteRewardPlugin, getAllUsersMap().toString());
+            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), getAllUsersMap().toString());
     }
 
     /**
@@ -167,7 +168,7 @@ public record UserVoteData(User user) {
      */
     public UserVoteData setOfflineServices(List<String> services) {
         if (OptionsUtil.DEBUG_VOTES_OFFLINE.getBooleanValue())
-            MinecraftUtils.debug(voteRewardPlugin, "Offline Voting Debug", services.toString());
+            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Offline Voting Debug" + services.toString());
         user.append("services", services);
         return this;
     }
@@ -257,11 +258,11 @@ public record UserVoteData(User user) {
      * @return Integer total votes until the next cumulative reward
      */
     public int votesUntilNextCumulativeVote() {
-        if (voteRewardPlugin.getConfig().getConfigurationSection("Rewards.Cumulative") == null) {
+        if (voteReward.getConfig().getConfigurationSection("Rewards.Cumulative") == null) {
             return 0;
         }
         int votesUntil = 0;
-        for (String b : voteRewardPlugin.getConfig().getConfigurationSection("Rewards.Cumulative").getKeys(false)) {
+        for (String b : voteReward.getConfig().getConfigurationSection("Rewards.Cumulative").getKeys(false)) {
             int cumulative = Integer.parseInt(b);
             if (cumulative <= getVotes()) {
                 continue;
@@ -273,15 +274,15 @@ public record UserVoteData(User user) {
     }
 
     /**
-     * Run the commands from config
+     * Run the commands_old from config
      * Check {@link MinecraftUtils#runCommand(Plugin, String)}
      *
-     * @param s the list with all the commands
+     * @param s the list with all the commands_old
      */
     public void runCommands(@NotNull List<String> s) {
-        MinecraftUtils.debug(voteRewardPlugin, "RUNNING COMMANDS FOR PLAYER: " + user.getName());
+        MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "RUNNING COMMANDS FOR PLAYER: " + user.getName());
         for (String b : s) {
-            MinecraftUtils.runCommand(voteRewardPlugin, b.replace("%player%", user.getName()));
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), b.replace("%player%", Objects.requireNonNull(user.getName())));
         }
     }
 
@@ -292,7 +293,7 @@ public record UserVoteData(User user) {
      * @throws Exception When something goes wrong
      */
     public UserVoteData load(Callback<Boolean> callback) throws Exception {
-        voteRewardPlugin.getIDatabaseType().load(user, callback);
+        voteReward.getIDatabaseType().load(user, callback);
         return this;
     }
 
@@ -303,25 +304,21 @@ public record UserVoteData(User user) {
      */
     public UserVoteData save(boolean async, Callback<Boolean> callback) {
         if (async) {
-            Bukkit.getScheduler().runTaskAsynchronously(voteRewardPlugin, () -> {
-                try {
-                    voteRewardPlugin.getIDatabaseType().save(user);
-                    callback.onSuccess();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    callback.onFailure(e.getCause());
-                }
-            });
+            SchedulerManager.getScheduler().runTaskAsynchronously(voteReward.getClass(), () -> save(callback));
         } else {
-            try {
-                voteRewardPlugin.getIDatabaseType().save(user);
-                callback.onSuccess();
-            } catch (Exception e) {
-                e.printStackTrace();
-                callback.onFailure(e.getCause());
-            }
+            save(callback);
         }
         return this;
+    }
+
+    private void save(Callback<Boolean> callback) {
+        try {
+            voteReward.getIDatabaseType().save(user);
+            callback.onSuccess();
+        } catch (Exception e) {
+            e.printStackTrace();
+            callback.onFailure(e.getCause());
+        }
     }
 
     /**
@@ -330,9 +327,9 @@ public record UserVoteData(User user) {
      * @param allTime Set it true to reset all time votes.
      */
     public UserVoteData reset(boolean allTime) {
-        Bukkit.getScheduler().runTaskAsynchronously(voteRewardPlugin, () -> {
+        SchedulerManager.getScheduler().runTaskAsynchronously(voteReward.getClass(), () -> {
             try {
-                voteRewardPlugin.getIDatabaseType().reset(user, allTime);
+                voteReward.getIDatabaseType().reset(user, allTime);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -344,9 +341,9 @@ public record UserVoteData(User user) {
      * Delete user from database
      */
     public UserVoteData delete() {
-        Bukkit.getScheduler().runTaskAsynchronously(voteRewardPlugin, () -> {
+        SchedulerManager.getScheduler().runTaskAsynchronously(voteReward.getClass(), () -> {
             try {
-                voteRewardPlugin.getIDatabaseType().delete(user);
+                voteReward.getIDatabaseType().delete(user);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -357,11 +354,11 @@ public record UserVoteData(User user) {
     /**
      * All SQL Utils for the user
      * Everything here must run asynchronously
-     * Expect shits to happened
+     * Expect shits to happen
      */
     public static class SQLUserUtils implements IDatabaseType {
 
-        private static final VoteRewardPlugin voteRewardPlugin = VoteRewardPlugin.getInstance();
+        private static final VoteReward voteReward = VoteReward.getInstance();
 
         /**
          * Save all user's data
@@ -370,7 +367,7 @@ public record UserVoteData(User user) {
          * @throws ClassNotFoundException When class not found
          */
         public void save(@NotNull User user) throws SQLException, ClassNotFoundException {
-            voteRewardPlugin.getDatabaseWrapper().getSQLDatabase().updateSQL(
+            voteReward.getDatabaseWrapper().getSQLDatabase().updateSQL(
                     "UPDATE `" + OptionsUtil.DATABASE_TABLE_NAME.getStringValue() + "` " +
                             "SET `votes` = '" + user.getVotes() + "', " +
                             "`name` = '" + user.getName() + "', " +
@@ -381,17 +378,6 @@ public record UserVoteData(User user) {
                             "`servicesLastVote` = '" + stringListToString(mapToStringList(user.getServicesLastVote())) + "', " +
                             "`totalvotes` = '" + user.getAllTimeVotes() + "' " +
                             "WHERE `uuid` = '" + user.getUniqueId() + "'");
-            if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
-                MinecraftUtils.debug(voteRewardPlugin,
-                        "User " + user.getName() + " successfully saved!",
-                        "Votes: " + user.getVotes(),
-                        "Daily Votes: " + user.getDailyVotes(),
-                        "Last Voted: " + Instant.ofEpochMilli(user.getLastVoted()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())) + user.getLastVoted(),
-                        "Vote Parties: " + user.getVoteParties(),
-                        "All time votes: " + user.getAllTimeVotes(),
-                        "Services: " + user.getServices(),
-                        "Services last vote: " + user.getServicesLastVote());
-            }
         }
 
         /**
@@ -401,8 +387,8 @@ public record UserVoteData(User user) {
          * @throws ClassNotFoundException When class is not found
          */
         public void delete(@NotNull User user) throws SQLException, ClassNotFoundException {
-            voteRewardPlugin.getDatabaseWrapper().getSQLDatabase().updateSQL("DELETE FROM `" + OptionsUtil.DATABASE_TABLE_NAME.getStringValue() + "` WHERE `uuid` = '" + user.getUniqueId().toString() + "';");
-            MinecraftUtils.debug(voteRewardPlugin, "User " + user.getName() + " deleted from the database!");
+            voteReward.getDatabaseWrapper().getSQLDatabase().updateSQL("DELETE FROM `" + OptionsUtil.DATABASE_TABLE_NAME.getStringValue() + "` WHERE `uuid` = '" + user.getUniqueId().toString() + "';");
+            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "User " + user.getName() + " deleted from the database!");
             allUsersMap.remove(user.getUniqueId());
         }
 
@@ -416,7 +402,7 @@ public record UserVoteData(User user) {
                 @Override
                 public Boolean onSuccess() {
                     try {
-                        ResultSet resultSet = voteRewardPlugin.getDatabaseWrapper().getSQLDatabase().querySQL("SELECT * FROM `" + OptionsUtil.DATABASE_TABLE_NAME.getStringValue() + "` WHERE `uuid` = '" + user.getUniqueId().toString() + "'");
+                        ResultSet resultSet = voteReward.getDatabaseWrapper().getSQLDatabase().querySQL("SELECT * FROM `" + OptionsUtil.DATABASE_TABLE_NAME.getStringValue() + "` WHERE `uuid` = '" + user.getUniqueId().toString() + "'");
                         while (resultSet.next()) {
                             user.append("votes", resultSet.getInt("votes"))
                                     .append("name", resultSet.getString("name"))
@@ -426,17 +412,6 @@ public record UserVoteData(User user) {
                                     .append("voteparty", resultSet.getInt("voteparty"))
                                     .append("daily", resultSet.getInt("daily"))
                                     .append("totalvotes", resultSet.getInt("totalvotes"));
-                            if (OptionsUtil.DEBUG_LOAD.getBooleanValue()) {
-                                MinecraftUtils.debug(voteRewardPlugin,
-                                        "User " + user.getName() + " successfully loaded!",
-                                        "Votes: " + user.getVotes(),
-                                        "Daily Votes: " + user.getDailyVotes(),
-                                        "Last Voted: " + Instant.ofEpochMilli(user.getLastVoted()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())) + user.getLastVoted(),
-                                        "Vote Parties: " + user.getVoteParties(),
-                                        "All time votes: " + user.getAllTimeVotes(),
-                                        "Services: " + user.getServices(),
-                                        "Services last vote: " + user.getServicesLastVote());
-                            }
                         }
                         return callback.onSuccess();
                     } catch (SQLException | ClassNotFoundException throwables) {
@@ -463,18 +438,18 @@ public record UserVoteData(User user) {
          * @return true if user exists or false when is not
          */
         public boolean playerExists(@NotNull User user) throws SQLException, ClassNotFoundException {
-            return voteRewardPlugin.getDatabaseWrapper().getSQLDatabase().querySQL("SELECT * FROM " + OptionsUtil.DATABASE_TABLE_NAME.getStringValue() + " WHERE `uuid` = '" + user.getUniqueId().toString() + "'").next();
+            return voteReward.getDatabaseWrapper().getSQLDatabase().querySQL("SELECT * FROM " + OptionsUtil.DATABASE_TABLE_NAME.getStringValue() + " WHERE `uuid` = '" + user.getUniqueId().toString() + "'").next();
         }
 
         /**
-         * Setup the user data to the database
+         * Set up the user data to the database
          *
          * @param callback Callback
          */
         public void setupUser(User user, Callback<Boolean> callback) {
             try {
                 if (!playerExists(user)) {
-                    voteRewardPlugin.getDatabaseWrapper().getSQLDatabase().updateSQL(
+                    voteReward.getDatabaseWrapper().getSQLDatabase().updateSQL(
                             "INSERT INTO `" + OptionsUtil.DATABASE_TABLE_NAME.getStringValue() + "` (`uuid`, `name`, `votes`, `time`, `daily`, `voteparty`, `services`, `servicesLastVote`, `totalvotes`)" +
                                     " VALUES " +
                                     "('" + user.getUniqueId().toString() + "', '" + user.getOfflinePlayer().getName() + "','0', '0', '0', '0', '" + stringListToString(Lists.newArrayList()) + "', '" + stringListToString(Lists.newArrayList()) + "', '0'" + ");");
@@ -494,7 +469,7 @@ public record UserVoteData(User user) {
          */
         public ObjectMap<UUID, User> getAllUsers() throws Exception {
             ObjectMap<UUID, User> map = new ConcurrentObjectMap<>();
-            ResultSet resultSet = voteRewardPlugin.getDatabaseWrapper().getSQLDatabase().querySQL("SELECT * FROM `" + OptionsUtil.DATABASE_TABLE_NAME.getStringValue() + "`");
+            ResultSet resultSet = voteReward.getDatabaseWrapper().getSQLDatabase().querySQL("SELECT * FROM `" + OptionsUtil.DATABASE_TABLE_NAME.getStringValue() + "`");
             while (resultSet.next()) {
                 UserVoteData userVoteData = UserVoteData.getUser(UUID.fromString(resultSet.getString("uuid")));
                 userVoteData.load(new Callback<>() {
@@ -524,7 +499,7 @@ public record UserVoteData(User user) {
     /**
      * All Mongo Utils for the user
      * Everything here must run asynchronously
-     * Expect shits to happened
+     * Expect shits to happen
      */
     public static class MongoDBUtils implements IDatabaseType {
 
@@ -547,18 +522,7 @@ public record UserVoteData(User user) {
                     .append("servicesLastVote", user.getServicesLastVote())
                     .append("totalvotes", user.getAllTimeVotes()));
 
-            voteRewardPlugin.getMongoClient().getDatabase(OptionsUtil.DATABASE_MONGO_DATABASE.getStringValue()).getCollection(OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue()).updateOne(query, updateObject);
-            if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
-                MinecraftUtils.debug(voteRewardPlugin,
-                        "User " + user.getName() + " successfully saved!",
-                        "Votes: " + user.getVotes(),
-                        "Daily Votes: " + user.getDailyVotes(),
-                        "Last Voted: " + Instant.ofEpochMilli(user.getLastVoted()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())) + user.getLastVoted(),
-                        "Vote Parties: " + user.getVoteParties(),
-                        "All time votes: " + user.getAllTimeVotes(),
-                        "Services: " + user.getServices(),
-                        "Services last vote: " + user.getServicesLastVote());
-            }
+            voteReward.getMongoClient().getDatabase(OptionsUtil.DATABASE_MONGO_DATABASE.getStringValue()).getCollection(OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue()).updateOne(query, updateObject);
         }
 
         /**
@@ -573,7 +537,7 @@ public record UserVoteData(User user) {
                 public Boolean onSuccess() {
                     BasicDBObject searchQuery = new BasicDBObject();
                     searchQuery.append("uuid", user.getUniqueId().toString());
-                    FindIterable<Document> findIterable = voteRewardPlugin.getMongoClient().getDatabase(OptionsUtil.DATABASE_MONGO_DATABASE.getStringValue()).getCollection(OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue()).find(searchQuery);
+                    FindIterable<Document> findIterable = voteReward.getMongoClient().getDatabase(OptionsUtil.DATABASE_MONGO_DATABASE.getStringValue()).getCollection(OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue()).find(searchQuery);
                     Document document = findIterable.first();
                     user.append("votes", document.getInteger("votes"))
                             .append("name", document.getString("name"))
@@ -583,18 +547,6 @@ public record UserVoteData(User user) {
                             .append("services", document.getList("services", String.class))
                             .append("servicesLastVote", document.get("servicesLastVote"))
                             .append("totalvotes", document.getInteger("totalvotes"));
-
-                    if (OptionsUtil.DEBUG_LOAD.getBooleanValue()) {
-                        MinecraftUtils.debug(voteRewardPlugin,
-                                "User " + user.getName() + " successfully loaded!",
-                                "Votes: " + user.getVotes(),
-                                "Daily Votes: " + user.getDailyVotes(),
-                                "Last Voted: " + Instant.ofEpochMilli(user.getLastVoted()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())) + user.getLastVoted(),
-                                "Vote Parties: " + user.getVoteParties(),
-                                "All time votes: " + user.getAllTimeVotes(),
-                                "Services: " + user.getServices(),
-                                "Services last vote: " + user.getServicesLastVote());
-                    }
                     return callback.onSuccess();
                 }
 
@@ -613,14 +565,14 @@ public record UserVoteData(User user) {
         }
 
         /**
-         * Setup the user
+         * Set up the user
          *
          * @param user     User object
          * @param callback Callback
          */
         public void setupUser(User user, Callback<Boolean> callback) {
             if (!playerExists(user)) {
-                voteRewardPlugin.getMongoClient().getDatabase(OptionsUtil.DATABASE_MONGO_DATABASE.getStringValue()).getCollection(OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue()).insertOne(new Document()
+                voteReward.getMongoClient().getDatabase(OptionsUtil.DATABASE_MONGO_DATABASE.getStringValue()).getCollection(OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue()).insertOne(new Document()
                         .append("uuid", user.getUniqueId().toString())
                         .append("name", user.getOfflinePlayer().getName())
                         .append("votes", 0)
@@ -640,7 +592,7 @@ public record UserVoteData(User user) {
          * @return true if user exists or false when is not
          */
         public boolean playerExists(@NotNull User user) {
-            long count = voteRewardPlugin.getMongoClient().getDatabase(OptionsUtil.DATABASE_MONGO_DATABASE.getStringValue()).getCollection(OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue()).count(new BsonDocument("uuid", new BsonString(user.getUniqueId().toString())));
+            long count = voteReward.getMongoClient().getDatabase(OptionsUtil.DATABASE_MONGO_DATABASE.getStringValue()).getCollection(OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue()).count(new BsonDocument("uuid", new BsonString(user.getUniqueId().toString())));
             return count > 0;
         }
 
@@ -650,10 +602,10 @@ public record UserVoteData(User user) {
         public void delete(@NotNull User user) {
             BasicDBObject theQuery = new BasicDBObject();
             theQuery.put("uuid", user.getUniqueId().toString());
-            DeleteResult result = voteRewardPlugin.getMongoClient().getDatabase(OptionsUtil.DATABASE_MONGO_DATABASE.getStringValue()).getCollection(OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue()).deleteMany(theQuery);
+            DeleteResult result = voteReward.getMongoClient().getDatabase(OptionsUtil.DATABASE_MONGO_DATABASE.getStringValue()).getCollection(OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue()).deleteMany(theQuery);
             if (result.getDeletedCount() > 0) {
                 if (OptionsUtil.DEBUG_DELETE.getBooleanValue()) {
-                    MinecraftUtils.debug(voteRewardPlugin, "User " + user.getName() + " deleted from the database!");
+                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "User " + user.getName() + " deleted from the database!");
                 }
                 allUsersMap.remove(user.getUniqueId());
             }
@@ -667,7 +619,7 @@ public record UserVoteData(User user) {
          */
         public ObjectMap<UUID, User> getAllUsers() {
             ObjectMap<UUID, User> map = new ConcurrentObjectMap<>();
-            FindIterable<Document> iterable = voteRewardPlugin.getMongoClient().getDatabase(OptionsUtil.DATABASE_MONGO_DATABASE.getStringValue()).getCollection(OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue()).find();
+            FindIterable<Document> iterable = voteReward.getMongoClient().getDatabase(OptionsUtil.DATABASE_MONGO_DATABASE.getStringValue()).getCollection(OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue()).find();
             iterable.forEach((Block<Document>) document -> {
                 UserVoteData userVoteData = UserVoteData.getUser(UUID.fromString(document.getString("uuid")));
                 try {
@@ -706,7 +658,7 @@ public record UserVoteData(User user) {
 
     public static class FileUserUtils implements IDatabaseType {
 
-        private final VoteRewardPlugin voteRewardPlugin = VoteRewardPlugin.getInstance();
+        private final VoteReward voteReward = VoteReward.getInstance();
 
         /**
          * Save all user's data
@@ -715,7 +667,7 @@ public record UserVoteData(User user) {
          */
         @Override
         public void save(@NotNull User user) {
-            File file = new File(VoteRewardPlugin.getInstance().getDataFolder(),
+            File file = new File(voteReward.getDataFolder(),
                     "userdata" + File.separator + user.getUniqueId().toString() + ".yml");
             if (!file.exists()) {
                 setupUser(user, new Callback<>() {
@@ -750,17 +702,6 @@ public record UserVoteData(User user) {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
-                MinecraftUtils.debug(voteRewardPlugin,
-                        "User " + user.getName() + " successfully saved!",
-                        "Votes: " + user.getVotes(),
-                        "Daily Votes: " + user.getDailyVotes(),
-                        "Last Voted: " + Instant.ofEpochMilli(user.getLastVoted()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())) + user.getLastVoted(),
-                        "Vote Parties: " + user.getVoteParties(),
-                        "All time votes: " + user.getAllTimeVotes(),
-                        "Services: " + user.getServices(),
-                        "Services last vote: " + user.getServicesLastVote());
-            }
         }
 
         /**
@@ -773,7 +714,7 @@ public record UserVoteData(User user) {
             setupUser(user, new Callback<>() {
                 @Override
                 public Boolean onSuccess() {
-                    YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(new File(VoteRewardPlugin.getInstance().getDataFolder(),
+                    YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(new File(voteReward.getDataFolder(),
                             "userdata" + File.separator + user.getUniqueId().toString() + ".yml"));
                     user.append("votes", yamlConfiguration.getInt("votes"))
                             .append("name", yamlConfiguration.getString("name"))
@@ -783,18 +724,6 @@ public record UserVoteData(User user) {
                             .append("voteparty", yamlConfiguration.getInt("voteparty"))
                             .append("daily", yamlConfiguration.getInt("daily"))
                             .append("totalvotes", yamlConfiguration.getInt("totalvotes"));
-
-                    if (OptionsUtil.DEBUG_LOAD.getBooleanValue()) {
-                        MinecraftUtils.debug(voteRewardPlugin,
-                                "User " + user.getName() + " successfully loaded!",
-                                "Votes: " + user.getVotes(),
-                                "Daily Votes: " + user.getDailyVotes(),
-                                "Last Voted: " + Instant.ofEpochMilli(user.getLastVoted()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())) + user.getLastVoted(),
-                                "Vote Parties: " + user.getVoteParties(),
-                                "All time votes: " + user.getAllTimeVotes(),
-                                "Services: " + user.getServices(),
-                                "Services last vote: " + user.getServicesLastVote());
-                    }
                     return callback.onSuccess();
                 }
 
@@ -813,25 +742,25 @@ public record UserVoteData(User user) {
         }
 
         /**
-         * Setup the user
+         * Set up the user
          *
          * @param user     User object
          * @param callback Callback
          */
         public void setupUser(User user, Callback<Boolean> callback) {
-            if (new File(VoteRewardPlugin.getInstance().getDataFolder(),
+            if (new File(voteReward.getDataFolder(),
                     "userdata").mkdirs()) {
                 if (OptionsUtil.DEBUG_CREATE.getBooleanValue()) {
-                    MinecraftUtils.debug(voteRewardPlugin, "Folder userdata has been created!");
+                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Folder userdata has been created!");
                 }
             }
-            File file = new File(VoteRewardPlugin.getInstance().getDataFolder(),
+            File file = new File(voteReward.getDataFolder(),
                     "userdata" + File.separator + user.getUniqueId().toString() + ".yml");
             if (!playerExists(user)) {
                 try {
                     if (file.createNewFile()) {
                         if (OptionsUtil.DEBUG_CREATE.getBooleanValue()) {
-                            MinecraftUtils.debug(voteRewardPlugin, "File " + file.getName() + " for the user " + Bukkit.getOfflinePlayer(user.getUniqueId()).getName() + " has been created!");
+                            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "File " + file.getName() + " for the user " + Bukkit.getOfflinePlayer(user.getUniqueId()).getName() + " has been created!");
                         }
                     }
                 } catch (IOException e) {
@@ -854,11 +783,11 @@ public record UserVoteData(User user) {
          * Remove user's data from file.
          */
         public void delete(@NotNull User user) {
-            File file = new File(VoteRewardPlugin.getInstance().getDataFolder(),
+            File file = new File(voteReward.getDataFolder(),
                     "userdata" + File.separator + user.getUniqueId().toString() + ".yml");
             if (file.exists() & file.delete()) {
                 if (OptionsUtil.DEBUG_DELETE.getBooleanValue()) {
-                    MinecraftUtils.debug(voteRewardPlugin, "File " + file.getName() + " deleted!");
+                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "File " + file.getName() + " deleted!");
                 }
                 UserVoteData.getAllUsersMap().remove(user.getUniqueId());
             }
@@ -870,14 +799,14 @@ public record UserVoteData(User user) {
          * @return true if user exists or false when is not
          */
         public boolean playerExists(@NotNull User user) {
-            return new File(VoteRewardPlugin.getInstance().getDataFolder(),
+            return new File(voteReward.getDataFolder(),
                     "userdata" + File.separator + user.getUniqueId().toString() + ".yml").exists();
         }
 
         public ObjectMap<UUID, User> getAllUsers() throws Exception {
             ObjectMap<UUID, User> map = new LinkedObjectMap<>();
 
-            File[] files = new File(voteRewardPlugin.getDataFolder(), "userdata").listFiles((dir, name) -> name.endsWith(".yml"));
+            File[] files = new File(voteReward.getDataFolder(), "userdata").listFiles((dir, name) -> name.endsWith(".yml"));
 
             if (files == null) {
                 return map;
