@@ -4,16 +4,19 @@ import com.georgev22.library.extensions.Extensions;
 import com.georgev22.library.extensions.java.JavaExtension;
 import com.georgev22.api.libraryloader.exceptions.InvalidDependencyException;
 import com.georgev22.api.libraryloader.exceptions.UnknownDependencyException;
+import lombok.Getter;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Level;
 
-public class VoteRewardExtension extends JavaExtension {
+public class VoteRewardExtension extends JavaExtension implements VoteRewardImpl {
 
     private static VoteRewardExtension instance;
 
     private static VoteReward voteRewardInstance;
+
+    private Description description;
 
     /**
      * Return the VoteRewardExtension instance
@@ -31,7 +34,8 @@ public class VoteRewardExtension extends JavaExtension {
     @Override
     public void onLoad() {
         instance = this;
-        voteRewardInstance = new VoteReward(this.getDataFolder(), this.getLogger(), false);
+        description = new Description(getDescription());
+        voteRewardInstance = new VoteReward(this);
         try {
             getVoteReward().onLoad();
         } catch (UnknownDependencyException | InvalidDependencyException e) {
@@ -60,7 +64,14 @@ public class VoteRewardExtension extends JavaExtension {
         getVoteReward().onDisable();
     }
 
-    public void setEnabled0(boolean enabled) {
-        setEnabled(enabled);
+    @Override
+    public Description getDesc() {
+        return description;
+    }
+
+    @Override
+    public boolean setEnable(boolean enabled) {
+        super.setEnabled(enabled);
+        return isEnabled();
     }
 }

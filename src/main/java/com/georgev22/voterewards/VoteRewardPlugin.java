@@ -14,12 +14,14 @@ import java.io.File;
 import java.util.logging.Level;
 
 @MavenLibrary(value = "com.github.GeorgeV220:API:v8.1.0:https://jitpack.io/")
-public class VoteRewardPlugin extends JavaPlugin {
+public class VoteRewardPlugin extends JavaPlugin implements VoteRewardImpl {
 
     @Getter
     private static VoteRewardPlugin instance = null;
 
     private static VoteReward voteRewardInstance = null;
+
+    private Description description;
 
     public static VoteReward getVoteReward() {
         return voteRewardInstance;
@@ -36,7 +38,8 @@ public class VoteRewardPlugin extends JavaPlugin {
     @Override
     public void onLoad() {
         instance = this;
-        voteRewardInstance = new VoteReward(this.getDataFolder(), getLogger(), true);
+        description = new Description(getDescription());
+        voteRewardInstance = new VoteReward(this);
         try {
             new LibraryLoader(this.getClass(), this.getDataFolder()).loadAll();
             getVoteReward().onLoad();
@@ -48,7 +51,6 @@ public class VoteRewardPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         try {
-            Bukkit.getScheduler().runTaskTimer(this, () -> com.georgev22.library.scheduler.SchedulerManager.getScheduler().mainThreadHeartbeat(Bukkit.getServer().getCurrentTick()), 0L, 1L);
             getVoteReward().setPlugin(this);
             getVoteReward().onEnable();
         } catch (Exception e) {
@@ -58,8 +60,8 @@ public class VoteRewardPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        Bukkit.getScheduler().cancelTasks(this);
         getVoteReward().onDisable();
+        Bukkit.getScheduler().cancelTasks(this);
     }
 
 
@@ -68,4 +70,14 @@ public class VoteRewardPlugin extends JavaPlugin {
     }
 
 
+    @Override
+    public Description getDesc() {
+        return description;
+    }
+
+    @Override
+    public boolean setEnable(boolean enabled) {
+        setEnabled(enabled);
+        return isEnabled();
+    }
 }

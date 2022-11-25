@@ -117,7 +117,7 @@ public class VoteReward {
     @Getter
     private File dataFolder;
 
-    private boolean isJavaPlugin;
+    private VoteRewardImpl voteReward;
 
     private PaperCommandManager commandManager;
 
@@ -128,10 +128,10 @@ public class VoteReward {
         return instance;
     }
 
-    protected VoteReward(File dataFolder, Logger logger, boolean isJavaPlugin) {
-        this.dataFolder = dataFolder;
-        this.logger = logger;
-        this.isJavaPlugin = isJavaPlugin;
+    protected VoteReward(@NotNull VoteRewardImpl voteReward) {
+        this.voteReward = voteReward;
+        this.dataFolder = voteReward.getDataFolder();
+        this.logger = voteReward.getLogger();
     }
 
     public void onLoad() throws UnknownDependencyException, InvalidDependencyException {
@@ -172,7 +172,9 @@ public class VoteReward {
             data.set("month", Calendar.getInstance().getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().getMonthValue());
             dataCFG.saveFile();
         }
-
+        if (getMain().endsWith("VoteRewardPlugin")) {
+            Bukkit.getScheduler().runTaskTimer(plugin, () -> SchedulerManager.getScheduler().mainThreadHeartbeat(Bukkit.getServer().getCurrentTick()), 0L, 1L);
+        }
         MinecraftUtils.registerListeners(plugin, new VotifierListener(), new PlayerListeners(), new DeveloperInformListener());
         pagedInventoryAPI = new PagedInventoryAPI(plugin);
         commandManager = new PaperCommandManager(plugin);
@@ -180,7 +182,7 @@ public class VoteReward {
         if (!MinecraftUtils.MinecraftVersion.getCurrentVersion().isAboveOrEqual(MinecraftUtils.MinecraftVersion.UNKNOWN)) {
             new Metrics(plugin, 3179);
             if (YamlConfiguration.loadConfiguration(new File(new File(this.getDataFolder().getParentFile(), "bStats"), "config.yml")).getBoolean("enabled", true)) {
-                logger.info("[VoteRewards] Metrics are enabled!");
+                MinecraftUtils.debug(getName(), getVersion(), "Metrics are enabled!");
             }
         }
 
@@ -197,7 +199,7 @@ public class VoteReward {
             if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
                 placeholdersAPI = new PAPI();
                 if (placeholdersAPI.register())
-                    logger.info("[VoteRewards] Hooked into PlaceholderAPI!");
+                    MinecraftUtils.debug(getName(), getVersion(), "Hooked into PlaceholderAPI!");
             }
 
             if (OptionsUtil.HOLOGRAMS_ENABLED.getBooleanValue()) {
@@ -226,17 +228,17 @@ public class VoteReward {
                                 .forEach(s -> holograms.create(s, data.getSerializable("Holograms." + s + ".location", MinecraftUtils.SerializableLocation.class),
                                         data.getString("Holograms." + s + ".type"), false));
                     }
-                    logger.info("[VoteRewards] " + holograms.getClass().getName() + " hooked - Holograms enabled!");
+                    MinecraftUtils.debug(getName(), getVersion(), holograms.getClass().getName() + " hooked - Holograms enabled!");
                 }
             }
             if (Bukkit.getPluginManager().isPluginEnabled("AuthMeReloaded")) {
                 Bukkit.getPluginManager().registerEvents(new AuthMe(), plugin);
-                logger.info("[VoteRewards] Hooked into AuthMeReloaded!");
+                MinecraftUtils.debug(getName(), getVersion(), "Hooked into AuthMeReloaded!");
             }
             if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
                 noPlayerCharacterAPI = new NoPlayerCharacterAPI();
                 noPlayerCharacterAPI.setHook(true);
-                logger.info("[VoteRewards] ProtocolLib installed - NPCs enabled!");
+                MinecraftUtils.debug(getName(), getVersion(), "ProtocolLib installed - NPCs enabled!");
             }
             try {
                 setupDatabase();
@@ -282,7 +284,7 @@ public class VoteReward {
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             if (placeholdersAPI.isRegistered()) {
                 if (placeholdersAPI.unregister()) {
-                    logger.info("[VoteRewards] Unhooked from PlaceholderAPI!");
+                    MinecraftUtils.debug(getName(), getVersion(), "Unhooked from PlaceholderAPI!");
                 }
             }
         }
@@ -441,45 +443,27 @@ public class VoteReward {
     }
 
     public String getName() {
-        if (isJavaPlugin)
-            return VoteRewardPlugin.getInstance().getDescription().getName();
-        else
-            return VoteRewardExtension.getInstance().getDescription().getName();
+        return voteReward.getDesc().getName();
     }
 
     public String getVersion() {
-        if (isJavaPlugin)
-            return VoteRewardPlugin.getInstance().getDescription().getVersion();
-        else
-            return VoteRewardExtension.getInstance().getDescription().getVersion();
+        return voteReward.getDesc().getVersion();
     }
 
     public String getMain() {
-        if (isJavaPlugin)
-            return VoteRewardPlugin.getInstance().getDescription().getMain();
-        else
-            return VoteRewardExtension.getInstance().getDescription().getMain();
+        return voteReward.getDesc().getMain();
     }
 
     public @NotNull List<String> getAuthors() {
-        if (isJavaPlugin)
-            return VoteRewardPlugin.getInstance().getDescription().getAuthors();
-        else
-            return VoteRewardExtension.getInstance().getDescription().getAuthors();
+        return voteReward.getDesc().getAuthors();
     }
 
     public void saveResource(String resourcePath, boolean replace) {
-        if (isJavaPlugin)
-            VoteRewardPlugin.getInstance().saveResource(resourcePath, replace);
-        else
-            VoteRewardExtension.getInstance().saveResource(resourcePath, replace);
+        voteReward.saveResource(resourcePath, replace);
     }
 
     public void setEnabled(boolean enable) {
-        if (isJavaPlugin)
-            VoteRewardPlugin.getInstance().setEnabled0(enable);
-        else
-            VoteRewardExtension.getInstance().setEnabled0(enable);
+        voteReward.setEnable(enable);
     }
 
     private void setupCommands() {
@@ -535,7 +519,7 @@ public class VoteReward {
             commandManager.getLocales().loadYamlLanguageFile(new File(getDataFolder(), "lang_en.yaml"), Locale.ENGLISH);
             commandManager.usePerIssuerLocale(true);
         } catch (IOException | InvalidConfigurationException e) {
-            logger.severe("Failed to load language config 'lang_en.yaml': " + e.getMessage());
+            MinecraftUtils.debug(getName(), getVersion(), "Failed to load language config 'lang_en.yaml': " + e.getMessage());
             e.printStackTrace();
         }
     }
