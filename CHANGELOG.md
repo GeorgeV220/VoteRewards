@@ -1,3 +1,10 @@
+## [8.0.1](https://github.com/GeorgeV220/VoteRewards/compare/v8.0.0...v8.0.1) (2022-11-25)
+
+
+### Bug Fixes
+
+* **VoteRewardPlugin:** Fixed an issue that caused voterewards to not load ([14ec9b8](https://github.com/GeorgeV220/VoteRewards/commit/14ec9b839ebba1f7f661e8eb9b6e654a33033448))
+
 # [8.0.0](https://github.com/GeorgeV220/VoteRewards/compare/v7.13.5...v8.0.0) (2022-11-23)
 
 
