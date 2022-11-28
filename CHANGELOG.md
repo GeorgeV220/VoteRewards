@@ -1,3 +1,15 @@
+# [8.1.0](https://github.com/GeorgeV220/VoteRewards/compare/v8.0.2...v8.1.0) (2022-11-28)
+
+
+### Bug Fixes
+
+* **gradle.properties:** Changed API version from 1.18 to 1.13 ([fa2a725](https://github.com/GeorgeV220/VoteRewards/commit/fa2a725e3a37ea200e21af34a63e4a4fad37b725))
+
+
+### Features
+
+* **VoteReward:** Change package. ([320e266](https://github.com/GeorgeV220/VoteRewards/commit/320e26691b37d46a77119a7d6e6014cc987b48b7))
+
 ## [8.0.2](https://github.com/GeorgeV220/VoteRewards/compare/v8.0.1...v8.0.2) (2022-11-28)
 
 
