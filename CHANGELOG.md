@@ -1,3 +1,10 @@
+## [8.0.2](https://github.com/GeorgeV220/VoteRewards/compare/v8.0.1...v8.0.2) (2022-11-28)
+
+
+### Bug Fixes
+
+* **Updater:** Changed updater player messages to be more specific which plugin is sending the message. ([e43d590](https://github.com/GeorgeV220/VoteRewards/commit/e43d5906820538e52a77ac3581eece4933a5a6e9))
+
 ## [8.0.1](https://github.com/GeorgeV220/VoteRewards/compare/v8.0.0...v8.0.1) (2022-11-25)
 
 
