@@ -1,10 +1,10 @@
-package com.georgev22.voterewards;
+package com.georgev22.voterewards.votereward;
 
 import com.georgev22.library.extensions.Extensions;
 import com.georgev22.library.extensions.java.JavaExtension;
 import com.georgev22.api.libraryloader.exceptions.InvalidDependencyException;
 import com.georgev22.api.libraryloader.exceptions.UnknownDependencyException;
-import lombok.Getter;
+import com.georgev22.voterewards.VoteReward;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 

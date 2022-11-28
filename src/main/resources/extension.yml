@@ -1,6 +1,6 @@
 name: VoteRewards
 version: ${version}
-main: com.georgev22.voterewards.VoteRewardExtension
+main: com.georgev22.voterewards.votereward.VoteRewardExtension
 package: com.georgev22.voterewards
 api-version: 1.19
 authors: [ GeorgeV22 ]

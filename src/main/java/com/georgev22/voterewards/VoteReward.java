@@ -31,6 +31,7 @@ import com.georgev22.voterewards.utilities.interfaces.Holograms;
 import com.georgev22.voterewards.utilities.interfaces.IDatabaseType;
 import com.georgev22.voterewards.utilities.player.UserVoteData;
 import com.georgev22.voterewards.utilities.player.VoteUtils;
+import com.georgev22.voterewards.votereward.VoteRewardImpl;
 import com.google.common.collect.Lists;
 import com.mongodb.client.MongoClient;
 import lombok.Getter;
@@ -128,7 +129,7 @@ public class VoteReward {
         return instance;
     }
 
-    protected VoteReward(@NotNull VoteRewardImpl voteReward) {
+    public VoteReward(@NotNull VoteRewardImpl voteReward) {
         this.voteReward = voteReward;
         this.dataFolder = voteReward.getDataFolder();
         this.logger = voteReward.getLogger();

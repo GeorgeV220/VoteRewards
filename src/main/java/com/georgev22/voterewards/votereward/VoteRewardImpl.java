@@ -1,9 +1,7 @@
-package com.georgev22.voterewards;
+package com.georgev22.voterewards.votereward;
 
-import com.georgev22.library.extensions.Extension;
 import com.georgev22.library.extensions.ExtensionDescriptionFile;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -30,11 +28,11 @@ public interface VoteRewardImpl {
 
         private ExtensionDescriptionFile extensionDescriptionFile;
 
-        protected Description(PluginDescriptionFile pluginDescriptionFile) {
+        Description(PluginDescriptionFile pluginDescriptionFile) {
             this.pluginDescriptionFile = pluginDescriptionFile;
         }
 
-        protected Description(ExtensionDescriptionFile extensionDescriptionFile) {
+        Description(ExtensionDescriptionFile extensionDescriptionFile) {
             this.extensionDescriptionFile = extensionDescriptionFile;
         }
 

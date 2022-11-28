@@ -1,9 +1,10 @@
-package com.georgev22.voterewards;
+package com.georgev22.voterewards.votereward;
 
 import com.georgev22.api.libraryloader.LibraryLoader;
 import com.georgev22.api.libraryloader.annotations.MavenLibrary;
 import com.georgev22.api.libraryloader.exceptions.InvalidDependencyException;
 import com.georgev22.api.libraryloader.exceptions.UnknownDependencyException;
+import com.georgev22.voterewards.VoteReward;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -23,10 +24,6 @@ public class VoteRewardPlugin extends JavaPlugin implements VoteRewardImpl {
 
     private Description description;
 
-    public static VoteReward getVoteReward() {
-        return voteRewardInstance;
-    }
-
     public VoteRewardPlugin() {
         super();
     }
@@ -38,11 +35,11 @@ public class VoteRewardPlugin extends JavaPlugin implements VoteRewardImpl {
     @Override
     public void onLoad() {
         instance = this;
-        description = new Description(getDescription());
-        voteRewardInstance = new VoteReward(this);
         try {
             new LibraryLoader(this.getClass(), this.getDataFolder()).loadAll();
-            getVoteReward().onLoad();
+            description = new Description(getDescription());
+            voteRewardInstance = new VoteReward(this);
+            voteRewardInstance.onLoad();
         } catch (UnknownDependencyException | InvalidDependencyException e) {
             getLogger().log(Level.SEVERE, "Error: ", e);
         }
@@ -51,8 +48,8 @@ public class VoteRewardPlugin extends JavaPlugin implements VoteRewardImpl {
     @Override
     public void onEnable() {
         try {
-            getVoteReward().setPlugin(this);
-            getVoteReward().onEnable();
+            voteRewardInstance.setPlugin(this);
+            voteRewardInstance.onEnable();
         } catch (Exception e) {
             getLogger().log(Level.SEVERE, "Error: ", e);
         }
@@ -60,7 +57,7 @@ public class VoteRewardPlugin extends JavaPlugin implements VoteRewardImpl {
 
     @Override
     public void onDisable() {
-        getVoteReward().onDisable();
+        voteRewardInstance.onDisable();
         Bukkit.getScheduler().cancelTasks(this);
     }
 
