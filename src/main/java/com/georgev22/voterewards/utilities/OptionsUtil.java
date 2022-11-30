@@ -216,6 +216,8 @@ public enum OptionsUtil {
 
     EXPERIMENTAL_FEATURES("experimental features", false, Optional.empty()),
 
+    METRICS("metrics", true, Optional.empty()),
+
     DISCORD("discord", false, Optional.empty()),
 
     HOLOGRAMS_ENABLED("hologram.enabled", false, Optional.empty()),

@@ -17,6 +17,7 @@ import com.georgev22.library.scheduler.SchedulerManager;
 import com.georgev22.library.utilities.Utils;
 import com.georgev22.library.yaml.configmanager.CFG;
 import com.georgev22.library.yaml.file.FileConfiguration;
+import com.georgev22.library.yaml.file.YamlConfiguration;
 import com.georgev22.library.yaml.serialization.ConfigurationSerialization;
 import com.georgev22.voterewards.commands.*;
 import com.georgev22.voterewards.hooks.*;
@@ -39,7 +40,6 @@ import lombok.Setter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -181,8 +181,8 @@ public class VoteReward {
         commandManager = new PaperCommandManager(plugin);
 
         if (!MinecraftUtils.MinecraftVersion.getCurrentVersion().isAboveOrEqual(MinecraftUtils.MinecraftVersion.UNKNOWN)) {
-            new Metrics(plugin, 3179);
-            if (YamlConfiguration.loadConfiguration(new File(new File(this.getDataFolder().getParentFile(), "bStats"), "config.yml")).getBoolean("enabled", true)) {
+            if (YamlConfiguration.loadConfiguration(new File(new File(this.getDataFolder().getParentFile(), "bStats"), "config.yml")).getBoolean("enabled", true) & OptionsUtil.METRICS.getBooleanValue()) {
+                new Metrics(plugin, 3179);
                 MinecraftUtils.debug(getName(), getVersion(), "Metrics are enabled!");
             }
         }

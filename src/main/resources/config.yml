@@ -1,5 +1,6 @@
 Options:
   experimental features: false #Turn on experimental features
+  metrics: true
   debug: #Shows debug message
     vote:
       preVote: false
