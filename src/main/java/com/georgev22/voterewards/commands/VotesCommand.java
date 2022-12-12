@@ -1,7 +1,7 @@
 package com.georgev22.voterewards.commands;
 
 import co.aikar.commands.annotation.*;
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.voterewards.utilities.MessagesUtil;
 import com.georgev22.voterewards.utilities.player.UserVoteData;
 import org.bukkit.Bukkit;
@@ -21,7 +21,7 @@ public class VotesCommand extends Command {
     public void execute(@NotNull final CommandSender sender, final String @NotNull [] args) {
         if (args.length == 0) {
             if (!(sender instanceof Player)) {
-                MinecraftUtils.msg(sender, "/votes <player>");
+                BukkitMinecraftUtils.msg(sender, "/votes <player>");
                 return;
             }
             UserVoteData userVoteData = UserVoteData.getUser((OfflinePlayer) sender);

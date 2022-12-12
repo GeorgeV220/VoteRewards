@@ -4,7 +4,7 @@ import com.georgev22.library.maps.ConcurrentObjectMap;
 import com.georgev22.library.maps.HashObjectMap;
 import com.georgev22.library.maps.LinkedObjectMap;
 import com.georgev22.library.maps.ObjectMap;
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.library.minecraft.xseries.XSound;
 import com.georgev22.library.minecraft.xseries.messages.Titles;
 import com.georgev22.library.scheduler.SchedulerManager;
@@ -54,12 +54,12 @@ public record VoteUtils(User user) {
      */
     public void processVote(String serviceName, boolean addVoteParty) throws IOException {
         if (OptionsUtil.DEBUG_VOTES_REGULAR.getBooleanValue())
-            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "VOTE OF: " + user.getName());
+            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "VOTE OF: " + user.getName());
         UserVoteData userVoteData = UserVoteData.getUser(user.getUniqueId());
         userVoteData.setVotes(userVoteData.getVotes() + 1);
         userVoteData.setLastVoted(System.currentTimeMillis());
         userVoteData.appendServiceLastVote(serviceName);
-        MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), userVoteData.getServicesLastVote().toString());
+        BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), userVoteData.getServicesLastVote().toString());
 
         userVoteData.setAllTimeVotes(userVoteData.getAllTimeVotes() + 1);
         userVoteData.setDailyVotes(userVoteData.getDailyVotes() + 1);
@@ -67,14 +67,14 @@ public record VoteUtils(User user) {
 
         if (OptionsUtil.VOTE_TITLE.getBooleanValue()) {
             Titles.sendTitle(user.getPlayer(),
-                    MinecraftUtils.colorize(MessagesUtil.VOTE_TITLE.getMessages()[0]).replace("%player%", user.getName()),
-                    MinecraftUtils.colorize(MessagesUtil.VOTE_SUBTITLE.getMessages()[0]).replace("%player%", user.getName()));
+                    BukkitMinecraftUtils.colorize(MessagesUtil.VOTE_TITLE.getMessages()[0]).replace("%player%", user.getName()),
+                    BukkitMinecraftUtils.colorize(MessagesUtil.VOTE_SUBTITLE.getMessages()[0]).replace("%player%", user.getName()));
         }
 
         // WORLD REWARDS (WITH SERVICES)
         if (OptionsUtil.WORLD.getBooleanValue()) {
             if (OptionsUtil.DEBUG_VOTES_WORLD.getBooleanValue())
-                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Vote of " + user.getName() + " for world " + user.getPlayer().getWorld());
+                BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Vote of " + user.getName() + " for world " + user.getPlayer().getWorld());
             if (voteReward.getConfig().getString("Rewards.Worlds." + user.getPlayer().getWorld() + "." + serviceName) != null && OptionsUtil.WORLD_SERVICES.getBooleanValue()) {
                 userVoteData.runCommands(voteReward.getConfig()
                         .getStringList("Rewards.Worlds." + user.getPlayer().getWorld().getName() + "." + serviceName));
@@ -113,7 +113,7 @@ public record VoteUtils(User user) {
             for (String s2 : voteReward.getConfig().getConfigurationSection("Rewards.Permission").getKeys(false)) {
                 if (user.getPlayer().hasPermission("voterewards.permission." + s2)) {
                     if (OptionsUtil.DEBUG_VOTES_PERMISSIONS.getBooleanValue())
-                        MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Vote of " + user.getName() + " with permission " + "voterewards.permission." + s2);
+                        BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Vote of " + user.getName() + " with permission " + "voterewards.permission." + s2);
                     userVoteData.runCommands(voteReward.getConfig()
                             .getStringList("Rewards.Permission." + s2 + ".commands"));
                 }
@@ -126,7 +126,7 @@ public record VoteUtils(User user) {
                     .getKeys(false)) {
                 if (Integer.valueOf(s2).equals(userVoteData.getVotes())) {
                     if (OptionsUtil.DEBUG_VOTES_CUMULATIVE.getBooleanValue())
-                        MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Vote of " + user.getName() + " with cumulative number " + s2);
+                        BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Vote of " + user.getName() + " with cumulative number " + s2);
                     userVoteData.runCommands(voteReward.getConfig()
                             .getStringList("Rewards.Cumulative." + s2 + ".commands"));
                 }
@@ -135,15 +135,15 @@ public record VoteUtils(User user) {
 
         // PLAY SOUND
         if (OptionsUtil.SOUND.getBooleanValue()) {
-            if (MinecraftUtils.MinecraftVersion.getCurrentVersion().isBelow(MinecraftUtils.MinecraftVersion.V1_12_R1)) {
+            if (BukkitMinecraftUtils.MinecraftVersion.getCurrentVersion().isBelow(BukkitMinecraftUtils.MinecraftVersion.V1_12_R1)) {
                 user.getPlayer().playSound(user.getPlayer().getLocation(), XSound
                                 .matchXSound(OptionsUtil.SOUND_VOTE.getStringValue()).get().parseSound(),
                         1000, 1);
                 if (OptionsUtil.DEBUG_OTHER.getBooleanValue()) {
-                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
-                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "SoundCategory doesn't exists in versions below 1.12");
-                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "SoundCategory doesn't exists in versions below 1.12");
-                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
+                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
+                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "SoundCategory doesn't exists in versions below 1.12");
+                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "SoundCategory doesn't exists in versions below 1.12");
+                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
                 }
             } else {
                 user.getPlayer().playSound(user.getPlayer().getLocation(), XSound
@@ -179,12 +179,12 @@ public record VoteUtils(User user) {
         // DISCORD WEBHOOK
         if (OptionsUtil.DISCORD.getBooleanValue() & OptionsUtil.EXPERIMENTAL_FEATURES.getBooleanValue()) {
             FileConfiguration discordFileConfiguration = fileManager.getDiscord().getFileConfiguration();
-            MinecraftUtils.buildDiscordWebHookFromConfig(discordFileConfiguration, "vote", user.placeholders(), user.placeholders()).execute();
+            BukkitMinecraftUtils.buildDiscordWebHookFromConfig(discordFileConfiguration, "vote", user.placeholders(), user.placeholders()).execute();
         }
 
         // DEBUG
         if (OptionsUtil.DEBUG_VOTE_AFTER.getBooleanValue()) {
-            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
+            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
                     debugUserMessage(user, "", false));
         }
     }
@@ -209,7 +209,7 @@ public record VoteUtils(User user) {
                     @Override
                     public Boolean onSuccess() {
                         if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
-                            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
+                            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
                                     debugUserMessage(user, "saved", true));
                         }
                         return true;
@@ -253,7 +253,7 @@ public record VoteUtils(User user) {
     public static void monthlyReset() {
         SchedulerManager.getScheduler().runTaskTimer(voteReward.getClass(), () -> {
             if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
-                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "monthlyReset0() Thread ID: " + Thread.currentThread().getId());
+                BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "monthlyReset0() Thread ID: " + Thread.currentThread().getId());
             CFG cfg = fileManager.getData();
             FileConfiguration dataConfiguration = cfg.getFileConfiguration();
             if (OptionsUtil.MONTHLY_REWARDS.getBooleanValue())
@@ -285,14 +285,14 @@ public record VoteUtils(User user) {
 
     private static void purgeData0() {
         if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
-            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "purgeData0() Thread ID: " + Thread.currentThread().getId());
+            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "purgeData0() Thread ID: " + Thread.currentThread().getId());
         ObjectMap<UUID, User> objectMap = UserVoteData.getAllUsersMap();
         objectMap.forEach((uuid, user) -> {
             UserVoteData userVoteData = UserVoteData.getUser(uuid);
             long time = userVoteData.getLastVote() + (OptionsUtil.PURGE_DAYS.getLongValue() * 86400000);
             if (OptionsUtil.DEBUG_OTHER.getBooleanValue()) {
-                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), Instant.ofEpochMilli(userVoteData.getLastVote()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
-                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), Instant.ofEpochMilli(time).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
+                BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), Instant.ofEpochMilli(userVoteData.getLastVote()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
+                BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), Instant.ofEpochMilli(time).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
             }
             if (time <= System.currentTimeMillis()) {
                 userVoteData.delete();
@@ -312,14 +312,14 @@ public record VoteUtils(User user) {
 
     private static void dailyReset0() {
         if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
-            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "dailyReset0() Thread ID: " + Thread.currentThread().getId());
+            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "dailyReset0() Thread ID: " + Thread.currentThread().getId());
         ObjectMap<UUID, User> objectMap = UserVoteData.getAllUsersMap();
         objectMap.forEach((uuid, user) -> {
             UserVoteData userVoteData = UserVoteData.getUser(uuid);
             long time = userVoteData.getLastVote() + (OptionsUtil.DAILY_HOURS.getIntValue() * 60 * 60 * 1000);
             if (OptionsUtil.DEBUG_OTHER.getBooleanValue()) {
-                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), Instant.ofEpochMilli(userVoteData.getLastVote()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
-                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), Instant.ofEpochMilli(time).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
+                BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), Instant.ofEpochMilli(userVoteData.getLastVote()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
+                BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), Instant.ofEpochMilli(time).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
             }
 
             if (time <= System.currentTimeMillis()) {
@@ -332,7 +332,7 @@ public record VoteUtils(User user) {
                             @Override
                             public Boolean onSuccess() {
                                 if (OptionsUtil.DEBUG_VOTES_DAILY.getBooleanValue()) {
-                                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Daily vote reset!");
+                                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Daily vote reset!");
                                 }
                                 return true;
                             }
@@ -470,7 +470,7 @@ public record VoteUtils(User user) {
             map.append("%alltimetop-" + allTimeTop + "%", args[0]).append("%alltimevote-" + allTimeTop + "%", args[1]);
             allTimeTop++;
         }
-        return map.append("%bar%", MinecraftUtils.getProgressBar(
+        return map.append("%bar%", BukkitMinecraftUtils.getProgressBar(
                         data.getInt("VoteParty-Votes"),
                         OptionsUtil.VOTEPARTY_VOTES.getIntValue(),
                         OptionsUtil.VOTEPARTY_BARS.getIntValue(),
@@ -482,13 +482,13 @@ public record VoteUtils(User user) {
                 .append("%voteparty_votes_need%", OptionsUtil.VOTEPARTY_VOTES.getStringValue())
                 .append("%voteparty_total_votes%", String.valueOf(fileManager.getData().getFileConfiguration().getInt("VoteParty-Votes")))
                 .appendIfTrue("%voteparty_votes_full%",
-                        MinecraftUtils.colorize(Utils.placeHolder(
+                        BukkitMinecraftUtils.colorize(Utils.placeHolder(
                                 MessagesUtil.VOTEPARTY_WAITING_FOR_MORE_PLAYERS_PLACEHOLDER.getMessages()[0],
                                 new HashObjectMap<String, String>()
                                         .append("%online%", String.valueOf(Bukkit.getOnlinePlayers().size()))
                                         .append("%need%", String.valueOf(OptionsUtil.VOTEPARTY_PLAYERS_NEED.getIntValue())),
                                 true)),
-                        MinecraftUtils.colorize(Utils.placeHolder(
+                        BukkitMinecraftUtils.colorize(Utils.placeHolder(
                                 MessagesUtil.VOTEPARTY_PLAYERS_FULL_PLACEHOLDER.getMessages()[0],
                                 new HashObjectMap<String, String>()
                                         .append("%until%", String.valueOf(OptionsUtil.VOTEPARTY_VOTES.getIntValue()

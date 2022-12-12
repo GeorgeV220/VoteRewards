@@ -3,7 +3,7 @@ package com.georgev22.voterewards.hooks;
 import com.georgev22.library.maps.ConcurrentObjectMap;
 import com.georgev22.library.maps.HashObjectMap;
 import com.georgev22.library.maps.ObjectMap;
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.library.yaml.configmanager.CFG;
 import com.georgev22.library.yaml.file.FileConfiguration;
 import com.georgev22.voterewards.VoteReward;
@@ -100,7 +100,7 @@ public class NoPlayerCharacterAPI {
      * @param save     Save the NPC
      * @return a new created NPC
      */
-    public @NotNull NPC create(String name, int position, MinecraftUtils.SerializableLocation location, boolean save) {
+    public @NotNull NPC create(String name, int position, BukkitMinecraftUtils.SerializableLocation location, boolean save) {
         NPC npc = getNPCMap().get(name) != null ? getNPCMap().get(name).key() : null;
         if (npc == null) {
             NPC.Builder builder = NPC.builder().location(location.getLocation()).lookAtPlayer(true).imitatePlayer(false).profile(save ? createProfile(position) : new Profile("Notch"));
@@ -180,7 +180,7 @@ public class NoPlayerCharacterAPI {
      * @param save     Save the new changes to the config.
      * @return the updated {@link NPC} instance.
      */
-    public @NotNull NPC updateNPC(@NotNull String npcName, @NotNull MinecraftUtils.SerializableLocation location, int position, boolean save) {
+    public @NotNull NPC updateNPC(@NotNull String npcName, @NotNull BukkitMinecraftUtils.SerializableLocation location, int position, boolean save) {
         if (npcExists(npcName))
             remove(npcName, false);
         NPC.Builder builder = NPC.builder().profile(createProfile(position)).imitatePlayer(false).lookAtPlayer(true).location(location.getLocation());
@@ -200,7 +200,7 @@ public class NoPlayerCharacterAPI {
         if (data.get("NPCs") == null)
             return;
         for (String npcName : Objects.requireNonNull(data.getConfigurationSection("NPCs")).getKeys(false)) {
-            updateNPC(npcName, data.getSerializable("NPCs." + npcName + ".location", MinecraftUtils.SerializableLocation.class), data.getInt("NPCs." + npcName + ".position"), false);
+            updateNPC(npcName, data.getSerializable("NPCs." + npcName + ".location", BukkitMinecraftUtils.SerializableLocation.class), data.getInt("NPCs." + npcName + ".position"), false);
         }
     }
 

@@ -1,7 +1,7 @@
 package com.georgev22.voterewards.utilities;
 
 import com.georgev22.library.maps.HashObjectMap;
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.library.utilities.Utils;
 import com.georgev22.library.yaml.configmanager.CFG;
 import org.bukkit.Bukkit;
@@ -207,9 +207,9 @@ public enum MessagesUtil {
      */
     public void msg(final CommandSender target, final Map<String, String> map, final boolean ignoreCase) {
         if (this.isMultiLined()) {
-            MinecraftUtils.msg(target, this.getMessages(), map, ignoreCase);
+            BukkitMinecraftUtils.msg(target, this.getMessages(), map, ignoreCase);
         } else {
-            MinecraftUtils.msg(target, this.getMessages()[0], map, ignoreCase);
+            BukkitMinecraftUtils.msg(target, this.getMessages()[0], map, ignoreCase);
         }
     }
 
@@ -220,9 +220,9 @@ public enum MessagesUtil {
      */
     public void msgAll() {
         if (this.isMultiLined()) {
-            Bukkit.getOnlinePlayers().forEach(target -> MinecraftUtils.msg(target, this.getMessages()));
+            Bukkit.getOnlinePlayers().forEach(target -> BukkitMinecraftUtils.msg(target, this.getMessages()));
         } else {
-            Bukkit.getOnlinePlayers().forEach(target -> MinecraftUtils.msg(target, this.getMessages()[0]));
+            Bukkit.getOnlinePlayers().forEach(target -> BukkitMinecraftUtils.msg(target, this.getMessages()[0]));
         }
     }
 
@@ -236,9 +236,9 @@ public enum MessagesUtil {
      */
     public void msgAll(final Map<String, String> map, final boolean ignoreCase) {
         if (this.isMultiLined()) {
-            Bukkit.getOnlinePlayers().forEach(target -> MinecraftUtils.msg(target, this.getMessages(), map, ignoreCase));
+            Bukkit.getOnlinePlayers().forEach(target -> BukkitMinecraftUtils.msg(target, this.getMessages(), map, ignoreCase));
         } else {
-            Bukkit.getOnlinePlayers().forEach(target -> MinecraftUtils.msg(target, this.getMessages()[0], map, ignoreCase));
+            Bukkit.getOnlinePlayers().forEach(target -> BukkitMinecraftUtils.msg(target, this.getMessages()[0], map, ignoreCase));
         }
     }
 

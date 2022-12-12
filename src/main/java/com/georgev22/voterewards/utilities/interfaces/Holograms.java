@@ -1,7 +1,7 @@
 package com.georgev22.voterewards.utilities.interfaces;
 
 import com.georgev22.library.maps.ObjectMap;
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +20,7 @@ public interface Holograms {
      * @param save     Save the hologram in the file.
      * @return {@link Object} instance.
      */
-    Object create(String name, MinecraftUtils.SerializableLocation location, String type, boolean save);
+    Object create(String name, BukkitMinecraftUtils.SerializableLocation location, String type, boolean save);
 
     /**
      * Remove a hologram.
@@ -131,7 +131,7 @@ public interface Holograms {
          * @return {@link Object} instance.
          */
         @Override
-        public Object create(String name, MinecraftUtils.SerializableLocation location, String type, boolean save) {
+        public Object create(String name, BukkitMinecraftUtils.SerializableLocation location, String type, boolean save) {
             throw new UnsupportedOperationException("Holograms are not hooked!");
         }
 

@@ -2,7 +2,7 @@ package com.georgev22.voterewards.utilities.player;
 
 import com.georgev22.library.maps.HashObjectMap;
 import com.georgev22.library.maps.ObjectMap;
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.library.minecraft.xseries.XMaterial;
 import com.georgev22.library.minecraft.xseries.XSound;
 import com.georgev22.library.scheduler.SchedulerManager;
@@ -127,12 +127,12 @@ public class VotePartyUtils {
                 if (OptionsUtil.VOTEPARTY_CRATE.getBooleanValue()) {
                     if (player.isOnline()) {
                         if (OptionsUtil.VOTEPARTY_SOUND_START.getBooleanValue()) {
-                            if (MinecraftUtils.MinecraftVersion.getCurrentVersion().isBelow(MinecraftUtils.MinecraftVersion.V1_12_R1)) {
+                            if (BukkitMinecraftUtils.MinecraftVersion.getCurrentVersion().isBelow(BukkitMinecraftUtils.MinecraftVersion.V1_12_R1)) {
                                 if (OptionsUtil.DEBUG_OTHER.getBooleanValue()) {
-                                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
-                                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "SoundCategory doesn't exists in versions below 1.12");
-                                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "SoundCategory doesn't exists in versions below 1.12");
-                                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
+                                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
+                                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "SoundCategory doesn't exists in versions below 1.12");
+                                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "SoundCategory doesn't exists in versions below 1.12");
+                                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
                                 }
                                 Objects.requireNonNull(player.getPlayer()).playSound(player.getPlayer().getLocation(), Objects.requireNonNull(XSound
                                                 .matchXSound(OptionsUtil.SOUND_VOTEPARTY_START.getStringValue()).get().parseSound()),
@@ -173,10 +173,10 @@ public class VotePartyUtils {
         if (enable) {
             Random random = new Random();
             int selector = random.nextInt(list.size());
-            MinecraftUtils.runCommand(voteReward.getPlugin(), list.get(selector).replace("%player%", Objects.requireNonNull(Objects.requireNonNull(offlinePlayer).getName())));
+            BukkitMinecraftUtils.runCommand(voteReward.getPlugin(), list.get(selector).replace("%player%", Objects.requireNonNull(Objects.requireNonNull(offlinePlayer).getName())));
         } else {
             for (String s : list) {
-                MinecraftUtils.runCommand(voteReward.getPlugin(), s.replace("%player%", Objects.requireNonNull(Objects.requireNonNull(offlinePlayer).getName())));
+                BukkitMinecraftUtils.runCommand(voteReward.getPlugin(), s.replace("%player%", Objects.requireNonNull(Objects.requireNonNull(offlinePlayer).getName())));
             }
         }
     }
@@ -199,8 +199,8 @@ public class VotePartyUtils {
         for (String s : Objects.requireNonNull(data.getConfigurationSection("Regions")).getKeys(false)) {
             Location a = (Location) data.get("Regions." + s + ".minimumPos");
             Location b = (Location) data.get("Regions." + s + ".maximumPos");
-            Regions regions = new Regions(new MinecraftUtils.SerializableLocation(Objects.requireNonNull(a)), new MinecraftUtils.SerializableLocation(Objects.requireNonNull(b)));
-            return regions.locationIsInRegion(new MinecraftUtils.SerializableLocation(location));
+            Regions regions = new Regions(new BukkitMinecraftUtils.SerializableLocation(Objects.requireNonNull(a)), new BukkitMinecraftUtils.SerializableLocation(Objects.requireNonNull(b)));
+            return regions.locationIsInRegion(new BukkitMinecraftUtils.SerializableLocation(location));
         }
         return false;
     }
@@ -218,8 +218,8 @@ public class VotePartyUtils {
                         XMaterial.matchXMaterial(
                                 Objects.requireNonNull(OptionsUtil.VOTEPARTY_CRATE_ITEM.getStringValue())).get().parseMaterial()));
         ItemMeta itemMeta = itemStack.getItemMeta();
-        itemMeta.setDisplayName(MinecraftUtils.colorize(OptionsUtil.VOTEPARTY_CRATE_NAME.getStringValue()));
-        itemMeta.setLore(MinecraftUtils.colorize(OptionsUtil.VOTEPARTY_CRATE_LORES.getStringList()));
+        itemMeta.setDisplayName(BukkitMinecraftUtils.colorize(OptionsUtil.VOTEPARTY_CRATE_NAME.getStringValue()));
+        itemMeta.setLore(BukkitMinecraftUtils.colorize(OptionsUtil.VOTEPARTY_CRATE_LORES.getStringList()));
         itemStack.setItemMeta(itemMeta);
         itemStack.setAmount(amount);
         return itemStack;

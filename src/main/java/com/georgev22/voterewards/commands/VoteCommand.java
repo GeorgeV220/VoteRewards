@@ -1,7 +1,7 @@
 package com.georgev22.voterewards.commands;
 
 import co.aikar.commands.annotation.*;
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.voterewards.utilities.MessagesUtil;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.georgev22.voterewards.utilities.inventories.VoteInventory;
@@ -19,7 +19,7 @@ public class VoteCommand extends Command {
     @CommandPermission("voterewards.vote")
     public void execute(@NotNull final CommandSender sender, final String[] args) {
         if (!(sender instanceof Player player)) {
-            MinecraftUtils.msg(sender, MessagesUtil.ONLY_PLAYER_COMMAND.getMessages()[0]);
+            BukkitMinecraftUtils.msg(sender, MessagesUtil.ONLY_PLAYER_COMMAND.getMessages()[0]);
             return;
         }
 

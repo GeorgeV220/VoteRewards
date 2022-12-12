@@ -2,7 +2,7 @@ package com.georgev22.voterewards.utilities.inventories;
 
 import com.georgev22.library.maps.HashObjectMap;
 import com.georgev22.library.maps.ObjectMap;
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.library.minecraft.inventory.CustomItemInventory;
 import com.georgev22.library.minecraft.inventory.IPagedInventory;
 import com.georgev22.library.minecraft.inventory.ItemBuilder;
@@ -87,7 +87,7 @@ public class VoteInventory {
                                 new CloseNavigationItem(ItemBuilder.buildItemFromConfig(fileManager.getVoteInventory().getFileConfiguration(), "navigation.cancel").build(), fileManager.getVoteInventory().getFileConfiguration().getInt("navigation.cancel.slot", 4)),
                                 navigationItemList.toArray(new NavigationItem[0])));
 
-        CustomItemInventory customItemInventory = new CustomItemInventory(MinecraftUtils.colorize(Objects.requireNonNull(fileManager.getVoteInventory().getFileConfiguration().getString("name"))), objectMap, 54);
+        CustomItemInventory customItemInventory = new CustomItemInventory(BukkitMinecraftUtils.colorize(Objects.requireNonNull(fileManager.getVoteInventory().getFileConfiguration().getString("name"))), objectMap, 54);
 
         Inventory inventory = customItemInventory.getInventory();
 

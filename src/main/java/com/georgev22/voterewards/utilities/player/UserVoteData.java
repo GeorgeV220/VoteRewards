@@ -4,7 +4,7 @@ import com.georgev22.library.maps.ConcurrentObjectMap;
 import com.georgev22.library.maps.HashObjectMap;
 import com.georgev22.library.maps.LinkedObjectMap;
 import com.georgev22.library.maps.ObjectMap;
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.library.scheduler.SchedulerManager;
 import com.georgev22.voterewards.VoteReward;
 import com.georgev22.voterewards.utilities.OptionsUtil;
@@ -47,14 +47,14 @@ public record UserVoteData(User user) {
     public UserVoteData(@NotNull User user) {
         if (!allUsersMap.containsKey(user.getUniqueId())) {
             if (OptionsUtil.DEBUG_VOTE_PRE.getBooleanValue()) {
-                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Player " + Bukkit.getOfflinePlayer(user.getUniqueId()).getName() + " is not loaded!");
+                BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Player " + Bukkit.getOfflinePlayer(user.getUniqueId()).getName() + " is not loaded!");
             }
 
             allUsersMap.append(user.getUniqueId(), new User(user.getUniqueId()));
         }
         this.user = allUsersMap.get(user.getUniqueId());
         if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
-            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), user.toString());
+            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), user.toString());
     }
 
     /**
@@ -82,7 +82,7 @@ public record UserVoteData(User user) {
     public static void loadAllUsers() throws Exception {
         allUsersMap.putAll(voteReward.getIDatabaseType().getAllUsers());
         if (OptionsUtil.DEBUG_LOAD.getBooleanValue())
-            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), getAllUsersMap().toString());
+            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), getAllUsersMap().toString());
     }
 
     /**
@@ -168,7 +168,7 @@ public record UserVoteData(User user) {
      */
     public UserVoteData setOfflineServices(List<String> services) {
         if (OptionsUtil.DEBUG_VOTES_OFFLINE.getBooleanValue())
-            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Offline Voting Debug" + services.toString());
+            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Offline Voting Debug" + services.toString());
         user.append("services", services);
         return this;
     }
@@ -275,12 +275,12 @@ public record UserVoteData(User user) {
 
     /**
      * Run the commands_old from config
-     * Check {@link MinecraftUtils#runCommand(Plugin, String)}
+     * Check {@link BukkitMinecraftUtils#runCommand(Plugin, String)}
      *
      * @param s the list with all the commands_old
      */
     public void runCommands(@NotNull List<String> s) {
-        MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "RUNNING COMMANDS FOR PLAYER: " + user.getName());
+        BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "RUNNING COMMANDS FOR PLAYER: " + user.getName());
         for (String b : s) {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), b.replace("%player%", Objects.requireNonNull(user.getName())));
         }
@@ -388,7 +388,7 @@ public record UserVoteData(User user) {
          */
         public void delete(@NotNull User user) throws SQLException, ClassNotFoundException {
             voteReward.getDatabaseWrapper().getSQLDatabase().updateSQL("DELETE FROM `" + OptionsUtil.DATABASE_TABLE_NAME.getStringValue() + "` WHERE `uuid` = '" + user.getUniqueId().toString() + "';");
-            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "User " + user.getName() + " deleted from the database!");
+            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "User " + user.getName() + " deleted from the database!");
             allUsersMap.remove(user.getUniqueId());
         }
 
@@ -605,7 +605,7 @@ public record UserVoteData(User user) {
             DeleteResult result = voteReward.getMongoClient().getDatabase(OptionsUtil.DATABASE_MONGO_DATABASE.getStringValue()).getCollection(OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue()).deleteMany(theQuery);
             if (result.getDeletedCount() > 0) {
                 if (OptionsUtil.DEBUG_DELETE.getBooleanValue()) {
-                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "User " + user.getName() + " deleted from the database!");
+                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "User " + user.getName() + " deleted from the database!");
                 }
                 allUsersMap.remove(user.getUniqueId());
             }
@@ -751,7 +751,7 @@ public record UserVoteData(User user) {
             if (new File(voteReward.getDataFolder(),
                     "userdata").mkdirs()) {
                 if (OptionsUtil.DEBUG_CREATE.getBooleanValue()) {
-                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Folder userdata has been created!");
+                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Folder userdata has been created!");
                 }
             }
             File file = new File(voteReward.getDataFolder(),
@@ -760,7 +760,7 @@ public record UserVoteData(User user) {
                 try {
                     if (file.createNewFile()) {
                         if (OptionsUtil.DEBUG_CREATE.getBooleanValue()) {
-                            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "File " + file.getName() + " for the user " + Bukkit.getOfflinePlayer(user.getUniqueId()).getName() + " has been created!");
+                            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "File " + file.getName() + " for the user " + Bukkit.getOfflinePlayer(user.getUniqueId()).getName() + " has been created!");
                         }
                     }
                 } catch (IOException e) {
@@ -787,7 +787,7 @@ public record UserVoteData(User user) {
                     "userdata" + File.separator + user.getUniqueId().toString() + ".yml");
             if (file.exists() & file.delete()) {
                 if (OptionsUtil.DEBUG_DELETE.getBooleanValue()) {
-                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "File " + file.getName() + " deleted!");
+                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "File " + file.getName() + " deleted!");
                 }
                 UserVoteData.getAllUsersMap().remove(user.getUniqueId());
             }

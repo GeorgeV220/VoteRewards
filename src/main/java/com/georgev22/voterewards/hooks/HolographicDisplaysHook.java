@@ -2,7 +2,7 @@ package com.georgev22.voterewards.hooks;
 
 import com.georgev22.library.maps.ConcurrentObjectMap;
 import com.georgev22.library.maps.ObjectMap;
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.library.utilities.Utils;
 import com.georgev22.library.yaml.configmanager.CFG;
 import com.georgev22.library.yaml.file.FileConfiguration;
@@ -40,7 +40,7 @@ public class HolographicDisplaysHook implements Holograms {
      * @param save     Save the hologram in the file.
      * @return {@link Hologram} instance.
      */
-    public Hologram create(String name, MinecraftUtils.SerializableLocation location, String type, boolean save) {
+    public Hologram create(String name, BukkitMinecraftUtils.SerializableLocation location, String type, boolean save) {
         Hologram hologram = (Hologram) getHologramMap().get(name);
         if (hologram == null) {
             hologram = HologramsAPI.createHologram(main.getPlugin(), location.getLocation());
@@ -48,7 +48,7 @@ public class HolographicDisplaysHook implements Holograms {
         }
 
         for (String line : fileManager.getConfig().getFileConfiguration().getStringList("Holograms." + type)) {
-            hologram.appendTextLine(MinecraftUtils.colorize(line));
+            hologram.appendTextLine(BukkitMinecraftUtils.colorize(line));
         }
 
         if (save) {
@@ -86,7 +86,7 @@ public class HolographicDisplaysHook implements Holograms {
         Hologram hologram = (Hologram) getHologramMap().get(name);
 
         if (hologram == null) {
-            MinecraftUtils.msg(player, "Hologram " + name + " doesn't exist");
+            BukkitMinecraftUtils.msg(player, "Hologram " + name + " doesn't exist");
             return;
         }
         hologram.getVisibilityManager().showTo(player);
@@ -102,7 +102,7 @@ public class HolographicDisplaysHook implements Holograms {
         Hologram hologram = (Hologram) getHologramMap().get(name);
 
         if (hologram == null) {
-            MinecraftUtils.msg(player, "Hologram " + name + " doesn't exist");
+            BukkitMinecraftUtils.msg(player, "Hologram " + name + " doesn't exist");
             return;
         }
 
@@ -174,7 +174,7 @@ public class HolographicDisplaysHook implements Holograms {
             for (String placeholder : placeholders.keySet()) {
                 if (key.contains(placeholder)) {
                     TextLine line = (TextLine) ((Hologram) hologram).getLine(i);
-                    line.setText(Utils.placeHolder(MinecraftUtils.colorize(key), placeholders, true));
+                    line.setText(Utils.placeHolder(BukkitMinecraftUtils.colorize(key), placeholders, true));
                     break;
                 }
             }

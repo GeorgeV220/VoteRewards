@@ -14,7 +14,7 @@ import org.bukkit.plugin.java.JavaPluginLoader;
 import java.io.File;
 import java.util.logging.Level;
 
-@MavenLibrary(value = "com.github.GeorgeV220:API:v8.1.0:https://jitpack.io/")
+@MavenLibrary(value = "com.github.GeorgeV220:API:v8.3.0:https://jitpack.io/")
 public class VoteRewardPlugin extends JavaPlugin implements VoteRewardImpl {
 
     @Getter

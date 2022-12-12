@@ -1,6 +1,6 @@
 package com.georgev22.voterewards.utilities.player;
 
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.voterewards.VoteReward;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.google.common.annotations.Beta;
@@ -29,7 +29,7 @@ public class Backup {
         File backupFolder = new File(voteReward.getDataFolder(), "backups");
         if (backupFolder.mkdirs()) {
             if (OptionsUtil.DEBUG_CREATE.getBooleanValue()) {
-                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Backup folder has been created!");
+                BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Backup folder has been created!");
             }
         }
         return backupFolder;
@@ -95,7 +95,7 @@ public class Backup {
                             @Override
                             public Boolean onSuccess() {
                                 if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
-                                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
+                                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
                                             VoteUtils.debugUserMessage(userVoteData.user(), "saved", true));
                                 }
                                 return true;

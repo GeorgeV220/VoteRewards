@@ -1,6 +1,6 @@
 package com.georgev22.voterewards.listeners;
 
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.library.minecraft.xseries.XMaterial;
 import com.georgev22.library.minecraft.xseries.XSound;
 import com.georgev22.voterewards.VoteReward;
@@ -38,8 +38,8 @@ public class PlayerListeners implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPreLogin(AsyncPlayerPreLoginEvent event) {
-        if (MinecraftUtils.isLoginDisallowed())
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, MinecraftUtils.colorize(MinecraftUtils.getDisallowLoginMessage()));
+        if (BukkitMinecraftUtils.isLoginDisallowed())
+            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, BukkitMinecraftUtils.colorize(BukkitMinecraftUtils.getDisallowLoginMessage()));
     }
 
     @EventHandler
@@ -92,7 +92,7 @@ public class PlayerListeners implements Listener {
         }
         final long elapsedMillis = sw.elapsed(TimeUnit.MILLISECONDS);
         if (OptionsUtil.DEBUG_LOAD.getBooleanValue()) {
-            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Elapsed time to load user data: " + elapsedMillis);
+            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Elapsed time to load user data: " + elapsedMillis);
         }
 
         //UPDATER
@@ -116,7 +116,7 @@ public class PlayerListeners implements Listener {
                 if (OptionsUtil.REMINDER.getBooleanValue())
                     VoteUtils.reminderMap.remove(event.getPlayer());
                 if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
-                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
+                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
                             VoteUtils.debugUserMessage(userVoteData.user(), "saved", true));
                 }
                 return true;
@@ -166,7 +166,7 @@ public class PlayerListeners implements Listener {
             return;
         }
 
-        if (!meta.getDisplayName().equals(MinecraftUtils.colorize(itemName))) {
+        if (!meta.getDisplayName().equals(BukkitMinecraftUtils.colorize(itemName))) {
             return;
         }
 
@@ -181,15 +181,15 @@ public class PlayerListeners implements Listener {
         VotePartyUtils.chooseRandom(player, OptionsUtil.VOTEPARTY_RANDOM.getBooleanValue());
 
         if (OptionsUtil.VOTEPARTY_SOUND_CRATE.getBooleanValue()) {
-            if (MinecraftUtils.MinecraftVersion.getCurrentVersion().isBelow(MinecraftUtils.MinecraftVersion.V1_12_R1)) {
+            if (BukkitMinecraftUtils.MinecraftVersion.getCurrentVersion().isBelow(BukkitMinecraftUtils.MinecraftVersion.V1_12_R1)) {
                 Objects.requireNonNull(player.getPlayer()).playSound(player.getPlayer().getLocation(), Objects.requireNonNull(XSound
                                 .matchXSound(OptionsUtil.SOUND_CRATE_OPEN.getStringValue()).get().parseSound()),
                         1000, 1);
                 if (OptionsUtil.DEBUG_OTHER.getBooleanValue()) {
-                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
-                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "SoundCategory doesn't exists in versions below 1.12");
-                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "SoundCategory doesn't exists in versions below 1.12");
-                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
+                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
+                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "SoundCategory doesn't exists in versions below 1.12");
+                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "SoundCategory doesn't exists in versions below 1.12");
+                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
                 }
             } else {
                 Objects.requireNonNull(player.getPlayer()).playSound(player.getPlayer().getLocation(), Objects.requireNonNull(XSound

@@ -1,6 +1,6 @@
 package com.georgev22.voterewards.utilities;
 
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.library.scheduler.SchedulerManager;
 import com.georgev22.voterewards.VoteReward;
 import com.google.gson.JsonArray;
@@ -31,7 +31,7 @@ public class Updater {
         try {
             onlineVersion = getOnlineVersion();
         } catch (IOException e) {
-            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Failed to check for an update on Git.", "Either Git or you are offline or are slow to respond.");
+            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Failed to check for an update on Git.", "Either Git or you are offline or are slow to respond.");
 
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -40,11 +40,11 @@ public class Updater {
 
     public Updater() {
         SchedulerManager.getScheduler().runTaskTimerAsynchronously(voteReward.getClass(), () -> {
-            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Checking for Updates ... ");
+            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Checking for Updates ... ");
             if (compareVersions(onlineVersion.replace("v", ""), localVersion.replace("v", "")) == 0) {
-                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "You are running the newest build.");
+                BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "You are running the newest build.");
             } else if (compareVersions(onlineVersion.replace("v", ""), localVersion.replace("v", "")) == 1) {
-                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
+                BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
                         "New stable version available!",
                         "Version: " + onlineVersion + ". You are running version: " + localVersion,
                         OptionsUtil.UPDATER_DOWNLOAD.getBooleanValue() ? "Update at: https://github.com/GeorgeV220/VoteRewards/releases/" : "The new update will be automatically downloaded!!");
@@ -52,7 +52,7 @@ public class Updater {
                     downloadLatest(null);
                 }
             } else {
-                MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "You are currently using the " + localVersion + " version which is under development.",
+                BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "You are currently using the " + localVersion + " version which is under development.",
                         "Your version is " + localVersion,
                         "Latest released version is " + onlineVersion,
                         "If you have problems contact me on discord or github. Thank you for testing this version");
@@ -62,23 +62,23 @@ public class Updater {
 
     public Updater(Player player) {
         SchedulerManager.getScheduler().runTaskAsynchronously(voteReward.getClass(), () -> {
-            MinecraftUtils.msg(player, "&e&lVoteRewards Updater &8» &6Checking for Updates ...");
+            BukkitMinecraftUtils.msg(player, "&e&lVoteRewards Updater &8» &6Checking for Updates ...");
             if (compareVersions(onlineVersion.replace("v", ""), localVersion.replace("v", "")) == 0) {
-                MinecraftUtils.msg(player, "&e&lVoteRewards Updater &8» &6You are running the newest build.");
+                BukkitMinecraftUtils.msg(player, "&e&lVoteRewards Updater &8» &6You are running the newest build.");
             } else if (compareVersions(onlineVersion.replace("v", ""), localVersion.replace("v", "")) == 1) {
-                MinecraftUtils.msg(player,
+                BukkitMinecraftUtils.msg(player,
                         "&e&lVoteRewards Updater &8» &6New version available!");
-                MinecraftUtils.msg(player, "&e&lVoteRewards Updater &8» &6Version: &c"
+                BukkitMinecraftUtils.msg(player, "&e&lVoteRewards Updater &8» &6Version: &c"
                         + onlineVersion + ". &6You are running version: &c" + localVersion);
-                MinecraftUtils.msg(player, OptionsUtil.UPDATER_DOWNLOAD.getBooleanValue() ? "&e&lVoteRewards Updater &8» &6Update at: https://github.com/GeorgeV220/VoteRewards/releases/" : "&e&lVoteRewards Updater &8» &6The new update will be automatically downloaded!!");
+                BukkitMinecraftUtils.msg(player, OptionsUtil.UPDATER_DOWNLOAD.getBooleanValue() ? "&e&lVoteRewards Updater &8» &6Update at: https://github.com/GeorgeV220/VoteRewards/releases/" : "&e&lVoteRewards Updater &8» &6The new update will be automatically downloaded!!");
                 if (OptionsUtil.UPDATER_DOWNLOAD.getBooleanValue()) {
                     downloadLatest(player);
                 }
 
             } else {
-                MinecraftUtils.msg(player, "&e&lVoteRewards Updater &8» &6You are currently using the &c" + localVersion + " &6version which is under development. If you have problems contact me on discord or github");
-                MinecraftUtils.msg(player, "&e&lVoteRewards Updater &8» &6Your version is &c" + localVersion);
-                MinecraftUtils.msg(player, "&e&lVoteRewards Updater &8» &6Latest released version is &c" + onlineVersion);
+                BukkitMinecraftUtils.msg(player, "&e&lVoteRewards Updater &8» &6You are currently using the &c" + localVersion + " &6version which is under development. If you have problems contact me on discord or github");
+                BukkitMinecraftUtils.msg(player, "&e&lVoteRewards Updater &8» &6Your version is &c" + localVersion);
+                BukkitMinecraftUtils.msg(player, "&e&lVoteRewards Updater &8» &6Latest released version is &c" + onlineVersion);
             }
         });
     }
@@ -130,10 +130,10 @@ public class Updater {
 
     private void downloadLatest(@Nullable Player player) {
         if (player == null)
-            MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
+            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
                     "New stable version is downloading (" + onlineVersion + ")!");
         else
-            MinecraftUtils.msg(player, "&e&lVoteRewards Updater &8» &6New stable version is downloading (&c" + onlineVersion + "&6)!");
+            BukkitMinecraftUtils.msg(player, "&e&lVoteRewards Updater &8» &6New stable version is downloading (&c" + onlineVersion + "&6)!");
         File tempFile = new File(voteReward.getDataFolder().getParentFile().getAbsolutePath(), "VoteRewards-" + onlineVersion + ".jar.temp");
         try {
             HttpsURLConnection httpsURLConnection = (HttpsURLConnection) new URL("https://github.com/GeorgeV220/VoteRewards/releases/download/" + onlineVersion + "/VoteRewards-" + onlineVersion.replace("v", "") + ".jar").openConnection();
@@ -151,13 +151,13 @@ public class Updater {
         if (rename) {
             try {
                 if (player == null)
-                    MinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
+                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
                             "Version " + onlineVersion + " successfully downloaded!",
                             OptionsUtil.UPDATER_RESTART.getBooleanValue() ? "Server will automatically restart\n" +
                                     "Please keep in mind if you don't have a start.(sh/bat) the server will not automatically start"
                                     : "In order for the changes to take effect, please restart the server");
                 else
-                    MinecraftUtils.msg(player, "&e&lVoteRewards Updater &8» &6Version &c" + onlineVersion + " &6successfully downloaded!", OptionsUtil.UPDATER_RESTART.getBooleanValue() ? "&e&lVoteRewards Updater &8» &6Server will automatically restart\n" +
+                    BukkitMinecraftUtils.msg(player, "&e&lVoteRewards Updater &8» &6Version &c" + onlineVersion + " &6successfully downloaded!", OptionsUtil.UPDATER_RESTART.getBooleanValue() ? "&e&lVoteRewards Updater &8» &6Server will automatically restart\n" +
                             "&e&lVoteRewards Updater &8» &6Please keep in mind if you don't have a start.(sh/bat) the server will not automatically start"
                             : "&e&lVoteRewards Updater &8» &6In order for the changes to take effect, please restart the server");
                 Method getFileMethod = JavaPlugin.class.getDeclaredMethod("getFile");

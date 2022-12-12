@@ -1,7 +1,7 @@
 package com.georgev22.voterewards.commands;
 
 import co.aikar.commands.annotation.*;
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.model.VotifierEvent;
 import org.bukkit.Bukkit;
@@ -20,7 +20,7 @@ public class FakeVoteCommand extends Command {
     public void execute(@NotNull CommandSender sender, String @NotNull [] args) {
         if (args.length == 0) {
             if (!(sender instanceof Player)) {
-                MinecraftUtils.msg(sender, "&c&l(!) &cNot enough arguments");
+                BukkitMinecraftUtils.msg(sender, "&c&l(!) &cNot enough arguments");
                 return;
             }
             process(sender.getName(), "fakeVote");

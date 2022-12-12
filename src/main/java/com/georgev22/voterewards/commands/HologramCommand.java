@@ -2,7 +2,7 @@ package com.georgev22.voterewards.commands;
 
 import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.*;
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.library.scheduler.SchedulerManager;
 import com.georgev22.voterewards.utilities.MessagesUtil;
 import org.bukkit.Bukkit;
@@ -22,14 +22,14 @@ public class HologramCommand extends Command {
     @CommandPermission("voterewards.hologram")
     public void execute(@NotNull CommandSender sender, String @NotNull [] args) {
         if (!voteReward.getHolograms().isHooked()) {
-            MinecraftUtils.msg(sender, "&c&l(!) &cHolograms has not been hooked!");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!) &cHolograms has not been hooked!");
             return;
         }
-        MinecraftUtils.msg(sender, "&c&l(!)&c Commands &c&l(!)");
-        MinecraftUtils.msg(sender, "&6/vhologram create");
-        MinecraftUtils.msg(sender, "&6/vhologram remove");
-        MinecraftUtils.msg(sender, "&6/vhologram update");
-        MinecraftUtils.msg(sender, "&c&l==============");
+        BukkitMinecraftUtils.msg(sender, "&c&l(!)&c Commands &c&l(!)");
+        BukkitMinecraftUtils.msg(sender, "&6/vhologram create");
+        BukkitMinecraftUtils.msg(sender, "&6/vhologram remove");
+        BukkitMinecraftUtils.msg(sender, "&6/vhologram update");
+        BukkitMinecraftUtils.msg(sender, "&c&l==============");
     }
 
     @HelpCommand
@@ -38,11 +38,11 @@ public class HologramCommand extends Command {
     @Description("{@@commands.descriptions.hologram.help}")
     @Override
     public void onHelp(final CommandSender sender, @NotNull CommandHelp commandHelp, String @NotNull [] args) {
-        MinecraftUtils.msg(sender, "&c&l(!)&c Commands &c&l(!)");
-        MinecraftUtils.msg(sender, "&6/vhologram create");
-        MinecraftUtils.msg(sender, "&6/vhologram remove");
-        MinecraftUtils.msg(sender, "&6/vhologram update");
-        MinecraftUtils.msg(sender, "&c&l==============");
+        BukkitMinecraftUtils.msg(sender, "&c&l(!)&c Commands &c&l(!)");
+        BukkitMinecraftUtils.msg(sender, "&6/vhologram create");
+        BukkitMinecraftUtils.msg(sender, "&6/vhologram remove");
+        BukkitMinecraftUtils.msg(sender, "&6/vhologram update");
+        BukkitMinecraftUtils.msg(sender, "&c&l==============");
     }
 
     @Subcommand("create")
@@ -55,17 +55,17 @@ public class HologramCommand extends Command {
             return;
         }
         if (args.length < 2) {
-            MinecraftUtils.msg(player, "&c&l(!) &cUsage: /hologram create <hologramName> <type>");
+            BukkitMinecraftUtils.msg(player, "&c&l(!) &cUsage: /hologram create <hologramName> <type>");
             return;
         }
 
         if (voteReward.getHolograms().hologramExists(args[0])) {
-            MinecraftUtils.msg(sender, "&c&l(!) &cHologram already exists!");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!) &cHologram already exists!");
             return;
         }
 
         if (voteReward.getConfig().get("Holograms." + args[1]) == null) {
-            MinecraftUtils.msg(sender, "&c&l(!) &cHologram type doesn't exists!");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!) &cHologram type doesn't exists!");
             return;
         }
 
@@ -73,7 +73,7 @@ public class HologramCommand extends Command {
                 voteReward.getHolograms().updateHologram(
                         voteReward.getHolograms().create(
                                 args[0],
-                                new MinecraftUtils.SerializableLocation(player.getLocation()),
+                                new BukkitMinecraftUtils.SerializableLocation(player.getLocation()),
                                 args[1],
                                 true
                         ),
@@ -83,7 +83,7 @@ public class HologramCommand extends Command {
 
         voteReward.getHolograms().getPlaceholderMap().clear();
 
-        MinecraftUtils.msg(sender, "&a&l(!) &aHologram " + args[0] + " with type " + args[1] + " successfully created!");
+        BukkitMinecraftUtils.msg(sender, "&a&l(!) &aHologram " + args[0] + " with type " + args[1] + " successfully created!");
 
     }
 
@@ -93,18 +93,18 @@ public class HologramCommand extends Command {
     @CommandPermission("voterewards.hologram.remove")
     public void remove(@NotNull CommandSender sender, String @NotNull [] args) {
         if (args.length == 0) {
-            MinecraftUtils.msg(sender, "&c&l(!) &cUsage: /hologram remove <hologramName>");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!) &cUsage: /hologram remove <hologramName>");
             return;
         }
 
         if (!voteReward.getHolograms().hologramExists(args[0])) {
-            MinecraftUtils.msg(sender, "&c&l(!) &cHologram doesn't exists!");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!) &cHologram doesn't exists!");
             return;
         }
 
         voteReward.getHolograms().remove(args[0], true);
 
-        MinecraftUtils.msg(sender, "&a&l(!) &aHologram " + args[0] + " successfully removed!");
+        BukkitMinecraftUtils.msg(sender, "&a&l(!) &aHologram " + args[0] + " successfully removed!");
     }
 
     @Subcommand("update")
@@ -113,7 +113,7 @@ public class HologramCommand extends Command {
     @CommandPermission("voterewards.hologram.update")
     public void update(@NotNull CommandSender sender, String @NotNull [] args) {
         if (args.length < 2) {
-            MinecraftUtils.msg(sender, "&c&l(!) &c/vrh update <hologram> <config lines name>");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!) &c/vrh update <hologram> <config lines name>");
             return;
         }
         if (voteReward.getHolograms().hologramExists(args[0])) {
@@ -125,9 +125,9 @@ public class HologramCommand extends Command {
                 SchedulerManager.getScheduler().runTaskLaterAsynchronously(voteReward.getClass(), () -> voteReward.getHolograms().show(hologram, player), 20);
             });
 
-            MinecraftUtils.msg(sender, "&a&l(!) &aHologram " + args[0] + " successfully updated!");
+            BukkitMinecraftUtils.msg(sender, "&a&l(!) &aHologram " + args[0] + " successfully updated!");
         } else {
-            MinecraftUtils.msg(sender, "&c&l(!) &cHologram doesn't exists!");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!) &cHologram doesn't exists!");
         }
     }
 }

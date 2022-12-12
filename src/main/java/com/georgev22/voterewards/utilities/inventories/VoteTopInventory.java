@@ -2,7 +2,7 @@ package com.georgev22.voterewards.utilities.inventories;
 
 import com.georgev22.library.maps.HashObjectMap;
 import com.georgev22.library.maps.ObjectMap;
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.library.minecraft.inventory.CustomItemInventory;
 import com.georgev22.library.minecraft.inventory.IPagedInventory;
 import com.georgev22.library.minecraft.inventory.ItemBuilder;
@@ -63,7 +63,7 @@ public class VoteTopInventory {
                 objectMap.append(Integer.parseInt(s), itemStack);
             }
 
-        CustomItemInventory customItemInventory = new CustomItemInventory(MinecraftUtils.colorize(Objects.requireNonNull(fileManager.getVoteTopInventory().getFileConfiguration().getString("name"))), objectMap, 54);
+        CustomItemInventory customItemInventory = new CustomItemInventory(BukkitMinecraftUtils.colorize(Objects.requireNonNull(fileManager.getVoteTopInventory().getFileConfiguration().getString("name"))), objectMap, 54);
 
         Inventory inventory = customItemInventory.getInventory();
 

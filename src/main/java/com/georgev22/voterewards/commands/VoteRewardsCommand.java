@@ -2,7 +2,7 @@ package com.georgev22.voterewards.commands;
 
 import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.*;
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.library.scheduler.SchedulerManager;
 import com.georgev22.library.yaml.configmanager.CFG;
 import com.georgev22.library.yaml.file.FileConfiguration;
@@ -36,11 +36,11 @@ public class VoteRewardsCommand extends Command {
     @Syntax("<subcommand> <option1> <option2> <option3>...")
     @CommandPermission("voterewards.basic")
     public void execute(@NotNull final CommandSender sender, final String[] args) {
-        MinecraftUtils.msg(sender, "&c&l(!)&c Commands&c &l(!)");
-        MinecraftUtils.msg(sender, "&6/vr reload");
-        MinecraftUtils.msg(sender, "&6/vr backup");
-        MinecraftUtils.msg(sender, "&6/vr help [player, voteparty]");
-        MinecraftUtils.msg(sender, "&c&l==============");
+        BukkitMinecraftUtils.msg(sender, "&c&l(!)&c Commands&c &l(!)");
+        BukkitMinecraftUtils.msg(sender, "&6/vr reload");
+        BukkitMinecraftUtils.msg(sender, "&6/vr backup");
+        BukkitMinecraftUtils.msg(sender, "&6/vr help [player, voteparty]");
+        BukkitMinecraftUtils.msg(sender, "&c&l==============");
     }
 
     @HelpCommand
@@ -51,31 +51,31 @@ public class VoteRewardsCommand extends Command {
     @Override
     public void onHelp(final CommandSender sender, @NotNull CommandHelp commandHelp, final String @NotNull [] args) {
         if (args.length == 0) {
-            MinecraftUtils.msg(sender, "&c&l(!)&c Commands&c &l(!)");
-            MinecraftUtils.msg(sender, "&6/vr reload");
-            MinecraftUtils.msg(sender, "&6/vr backup");
-            MinecraftUtils.msg(sender, "&6/vr help [player, voteparty]");
-            MinecraftUtils.msg(sender, "&c&l==============");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!)&c Commands&c &l(!)");
+            BukkitMinecraftUtils.msg(sender, "&6/vr reload");
+            BukkitMinecraftUtils.msg(sender, "&6/vr backup");
+            BukkitMinecraftUtils.msg(sender, "&6/vr help [player, voteparty]");
+            BukkitMinecraftUtils.msg(sender, "&c&l==============");
             return;
         }
         if (args[0].equalsIgnoreCase("player")) {
-            MinecraftUtils.msg(sender, " ");
-            MinecraftUtils.msg(sender, " ");
-            MinecraftUtils.msg(sender, " ");
-            MinecraftUtils.msg(sender, "&c&l(!)&c Commands&c &l(!)");
-            MinecraftUtils.msg(sender, "&6/vr clear <player>");
-            MinecraftUtils.msg(sender, "&6/vr set <player> <data> <value>");
-            MinecraftUtils.msg(sender, "&6/vr region add/remove <regionName>");
-            MinecraftUtils.msg(sender, "&c&l==============");
+            BukkitMinecraftUtils.msg(sender, " ");
+            BukkitMinecraftUtils.msg(sender, " ");
+            BukkitMinecraftUtils.msg(sender, " ");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!)&c Commands&c &l(!)");
+            BukkitMinecraftUtils.msg(sender, "&6/vr clear <player>");
+            BukkitMinecraftUtils.msg(sender, "&6/vr set <player> <data> <value>");
+            BukkitMinecraftUtils.msg(sender, "&6/vr region add/remove <regionName>");
+            BukkitMinecraftUtils.msg(sender, "&c&l==============");
         } else if (args[0].equalsIgnoreCase("voteparty")) {
-            MinecraftUtils.msg(sender, " ");
-            MinecraftUtils.msg(sender, " ");
-            MinecraftUtils.msg(sender, " ");
-            MinecraftUtils.msg(sender, "&c&l(!)&c Commands&c &l(!)");
-            MinecraftUtils.msg(sender, "&6/vp start");
-            MinecraftUtils.msg(sender, "&6/vp claim");
-            MinecraftUtils.msg(sender, "&6/vp give <player> <amount>");
-            MinecraftUtils.msg(sender, "&c&l==============");
+            BukkitMinecraftUtils.msg(sender, " ");
+            BukkitMinecraftUtils.msg(sender, " ");
+            BukkitMinecraftUtils.msg(sender, " ");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!)&c Commands&c &l(!)");
+            BukkitMinecraftUtils.msg(sender, "&6/vp start");
+            BukkitMinecraftUtils.msg(sender, "&6/vp claim");
+            BukkitMinecraftUtils.msg(sender, "&6/vp give <player> <amount>");
+            BukkitMinecraftUtils.msg(sender, "&c&l==============");
         }
     }
 
@@ -86,7 +86,7 @@ public class VoteRewardsCommand extends Command {
     @Syntax("clear <player>")
     public void clear(@NotNull final CommandSender sender, final String player) {
         if (player == null) {
-            MinecraftUtils.msg(sender, "&c&l(!)&c /vr clear <player>");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!)&c /vr clear <player>");
             return;
         }
         OfflinePlayer target = Bukkit.getOfflinePlayer(player);
@@ -98,9 +98,9 @@ public class VoteRewardsCommand extends Command {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            MinecraftUtils.msg(sender, "&c&l(!)&c You cleared player " + target.getName());
+            BukkitMinecraftUtils.msg(sender, "&c&l(!)&c You cleared player " + target.getName());
         } else {
-            MinecraftUtils.msg(sender, "&c&l(!)&c Player " + target.getName() + " doesn't exist");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!)&c Player " + target.getName() + " doesn't exist");
         }
     }
 
@@ -111,27 +111,27 @@ public class VoteRewardsCommand extends Command {
     @Syntax("set <player> <votes|voteparty|time|dailyvotes|alltimevotes> <values...>")
     public void set(final CommandSender sender, final String @NotNull [] args) {
         if (args.length <= 2) {
-            MinecraftUtils.msg(sender, "&c&l(!)&c /vr set <player> <data> <value>!");
-            MinecraftUtils.msg(sender, "&c&l(!)&c Data: vote voteparty time dailyvotes alltimevotes");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!)&c /vr set <player> <data> <value>!");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!)&c Data: vote voteparty time dailyvotes alltimevotes");
             return;
         }
         OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
         UserVoteData userVoteData = UserVoteData.getUser(target.getUniqueId());
         if (args[1].equalsIgnoreCase("votes")) {
             userVoteData.setVotes(Integer.parseInt(args[2]));
-            MinecraftUtils.msg(sender, "&a&l(!) &aSuccessfully set " + target.getName() + " votes to " + args[2]);
+            BukkitMinecraftUtils.msg(sender, "&a&l(!) &aSuccessfully set " + target.getName() + " votes to " + args[2]);
         } else if (args[1].equalsIgnoreCase("voteparty")) {
             userVoteData.setVoteParties(Integer.parseInt(args[2]));
-            MinecraftUtils.msg(sender, "&a&l(!) &aSuccessfully set " + target.getName() + " voteparty crates to " + args[2]);
+            BukkitMinecraftUtils.msg(sender, "&a&l(!) &aSuccessfully set " + target.getName() + " voteparty crates to " + args[2]);
         } else if (args[1].equalsIgnoreCase("time")) {
             userVoteData.setLastVoted(Long.parseLong(args[2]));
-            MinecraftUtils.msg(sender, "&a&l(!) &aSuccessfully set " + target.getName() + " last time vote to " + args[2]);
+            BukkitMinecraftUtils.msg(sender, "&a&l(!) &aSuccessfully set " + target.getName() + " last time vote to " + args[2]);
         } else if (args[1].equalsIgnoreCase("dailyvotes")) {
             userVoteData.setDailyVotes(Integer.parseInt(args[2]));
-            MinecraftUtils.msg(sender, "&a&l(!) &aSuccessfully set " + target.getName() + " daily votes to " + args[2]);
+            BukkitMinecraftUtils.msg(sender, "&a&l(!) &aSuccessfully set " + target.getName() + " daily votes to " + args[2]);
         } else {
-            MinecraftUtils.msg(sender, "&c&l(!)&c /vr set <player> <data>!");
-            MinecraftUtils.msg(sender, "&c&l(!)&c Data: vote voteparty time dailyvotes");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!)&c /vr set <player> <data>!");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!)&c Data: vote voteparty time dailyvotes");
         }
         UserVoteData.getAllUsersMap().replace(target.getUniqueId(), userVoteData.user());
         userVoteData.save(true, new Callback<>() {
@@ -159,16 +159,16 @@ public class VoteRewardsCommand extends Command {
     @Syntax("backup")
     public void backup(final CommandSender sender) {
         if (Bukkit.getOnlinePlayers().size() > 0) {
-            MinecraftUtils.msg(sender, "&c&l(!)&c The server must be empty before backup starts!");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!)&c The server must be empty before backup starts!");
             return;
         }
         SchedulerManager.getScheduler().runTaskAsynchronously(voteReward.getClass(), () -> {
-            MinecraftUtils.disallowLogin(true, "Backup ongoing!");
+            BukkitMinecraftUtils.disallowLogin(true, "Backup ongoing!");
             ZonedDateTime zonedDateTime = Instant.ofEpochMilli(System.currentTimeMillis()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now()));
             new Backup("backup" + zonedDateTime.format(DateTimeFormatter.ofPattern("MM-dd-yyyy--h-mm-a"))).backup(new Callback<>() {
                 @Override
                 public Boolean onSuccess() {
-                    MinecraftUtils.disallowLogin(false, "");
+                    BukkitMinecraftUtils.disallowLogin(false, "");
                     return true;
                 }
 
@@ -180,7 +180,7 @@ public class VoteRewardsCommand extends Command {
                 @Override
                 public Boolean onFailure(Throwable throwable) {
                     throwable.printStackTrace();
-                    MinecraftUtils.disallowLogin(false, "");
+                    BukkitMinecraftUtils.disallowLogin(false, "");
                     return onFailure();
                 }
             });
@@ -193,16 +193,16 @@ public class VoteRewardsCommand extends Command {
     @Syntax("restore <filename>")
     public void restore(final CommandSender sender, final String fileName) {
         if (fileName == null) {
-            MinecraftUtils.msg(sender, "&c&l(!)&c /vr restore <file name>");
-            MinecraftUtils.msg(sender, "&c&l(!)&c Do not include file extension!");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!)&c /vr restore <file name>");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!)&c Do not include file extension!");
             return;
         }
-        MinecraftUtils.kickAll(voteReward.getPlugin(), "Restore started!");
-        MinecraftUtils.disallowLogin(true, "Restore ongoing!");
+        BukkitMinecraftUtils.kickAll(voteReward.getPlugin(), "Restore started!");
+        BukkitMinecraftUtils.disallowLogin(true, "Restore ongoing!");
         new Backup(fileName + ".yml").restore(new Callback<>() {
             @Override
             public Boolean onSuccess() {
-                MinecraftUtils.disallowLogin(false, "");
+                BukkitMinecraftUtils.disallowLogin(false, "");
                 return true;
             }
 
@@ -214,7 +214,7 @@ public class VoteRewardsCommand extends Command {
             @Override
             public Boolean onFailure(Throwable throwable) {
                 throwable.printStackTrace();
-                MinecraftUtils.disallowLogin(false, "");
+                BukkitMinecraftUtils.disallowLogin(false, "");
                 return onFailure();
             }
         });
@@ -231,7 +231,7 @@ public class VoteRewardsCommand extends Command {
         fm.getVoteTopInventory().reloadFile();
         fm.getDiscord().reloadFile();
         MessagesUtil.repairPaths(fm.getMessages());
-        MinecraftUtils.msg(sender, "&a&l(!) &aPlugin reloaded!");
+        BukkitMinecraftUtils.msg(sender, "&a&l(!) &aPlugin reloaded!");
     }
 
     @Subcommand("region")
@@ -241,13 +241,13 @@ public class VoteRewardsCommand extends Command {
     @Syntax("region add|remove <regionName>")
     public void region(final CommandSender sender, final String @NotNull [] args) {
         if (args.length == 0) {
-            MinecraftUtils.msg(sender, "&c&l(!)&c /vr region <add/remove> <name>");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!)&c /vr region <add/remove> <name>");
             return;
         }
 
         if (args[0].equalsIgnoreCase("add")) {
             if (args.length == 1) {
-                MinecraftUtils.msg(sender, "&c&l(!)&c /vr region add <name>");
+                BukkitMinecraftUtils.msg(sender, "&c&l(!)&c /vr region add <name>");
                 return;
             }
 
@@ -258,15 +258,15 @@ public class VoteRewardsCommand extends Command {
             WorldGuardWrapper worldGuardWrapper = WorldGuardWrapper.getInstance();
             Optional<ISelection> iSelection = worldGuardWrapper.getPlayerSelection(player);
             if (iSelection.isEmpty()) {
-                MinecraftUtils.msg(player, "&c&l(!)&c Selection is empty");
+                BukkitMinecraftUtils.msg(player, "&c&l(!)&c Selection is empty");
                 return;
             }
             ICuboidSelection selection = (ICuboidSelection) iSelection.get();
-            MinecraftUtils.SerializableLocation a = new MinecraftUtils.SerializableLocation(selection.getMinimumPoint());
-            MinecraftUtils.SerializableLocation b = new MinecraftUtils.SerializableLocation(selection.getMaximumPoint());
+            BukkitMinecraftUtils.SerializableLocation a = new BukkitMinecraftUtils.SerializableLocation(selection.getMinimumPoint());
+            BukkitMinecraftUtils.SerializableLocation b = new BukkitMinecraftUtils.SerializableLocation(selection.getMaximumPoint());
             String regionName = args[1];
             if (a == null || b == null) {
-                MinecraftUtils.msg(sender, "&c&l(!)&c Please make a selection first!");
+                BukkitMinecraftUtils.msg(sender, "&c&l(!)&c Please make a selection first!");
                 return;
             }
             CFG cfg = FileManager.getInstance().getData();
@@ -274,12 +274,12 @@ public class VoteRewardsCommand extends Command {
             data.set("Regions." + regionName + ".minimumPos", a);
             data.set("Regions." + regionName + ".maximumPos", b);
             cfg.saveFile();
-            MinecraftUtils.msg(sender, "&a&l(!) &aAdded Location \na: " + a.getLocation().getX() + "," + a.getLocation().getY() + "," + a.getLocation().getZ()
+            BukkitMinecraftUtils.msg(sender, "&a&l(!) &aAdded Location \na: " + a.getLocation().getX() + "," + a.getLocation().getY() + "," + a.getLocation().getZ()
                     + "\nb: " + b.getLocation().getX() + "," + b.getLocation().getY() + "," + b.getLocation().getZ());
         }
         if (args[0].equalsIgnoreCase("remove")) {
             if (args.length == 1) {
-                MinecraftUtils.msg(sender, "&c&l(!)&c /vr region remove <name>");
+                BukkitMinecraftUtils.msg(sender, "&c&l(!)&c /vr region remove <name>");
                 return;
             }
 
@@ -290,7 +290,7 @@ public class VoteRewardsCommand extends Command {
             data.set("Regions." + regionName, null);
             cfg.saveFile();
 
-            MinecraftUtils.msg(sender, "&c&l(!)&c Location " + regionName + " removed!");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!)&c Location " + regionName + " removed!");
         }
     }
 

@@ -1,7 +1,7 @@
 package com.georgev22.voterewards.hooks;
 
 import com.georgev22.library.maps.HashObjectMap;
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.library.utilities.Utils;
 import com.georgev22.voterewards.VoteReward;
 import com.georgev22.voterewards.utilities.MessagesUtil;
@@ -80,11 +80,11 @@ public class PAPI extends PlaceholderExpansion {
         }
 
         if (identifier.equalsIgnoreCase("voteparty_votes_full")) {
-            return OptionsUtil.VOTEPARTY_PLAYERS.getBooleanValue() & VotePartyUtils.isWaitingForPlayers() ? MinecraftUtils.colorize(Utils.placeHolder(
+            return OptionsUtil.VOTEPARTY_PLAYERS.getBooleanValue() & VotePartyUtils.isWaitingForPlayers() ? BukkitMinecraftUtils.colorize(Utils.placeHolder(
                     MessagesUtil.VOTEPARTY_WAITING_FOR_MORE_PLAYERS_PLACEHOLDER.getMessages()[0],
                     new HashObjectMap<String, String>()
                             .append("%online%", String.valueOf(Bukkit.getOnlinePlayers().size()))
-                            .append("%need%", String.valueOf(OptionsUtil.VOTEPARTY_PLAYERS_NEED.getIntValue())), true)) : MinecraftUtils.colorize(Utils.placeHolder(
+                            .append("%need%", String.valueOf(OptionsUtil.VOTEPARTY_PLAYERS_NEED.getIntValue())), true)) : BukkitMinecraftUtils.colorize(Utils.placeHolder(
                     MessagesUtil.VOTEPARTY_PLAYERS_FULL_PLACEHOLDER.getMessages()[0],
                     new HashObjectMap<String, String>()
                             .append("%until%", String.valueOf(OptionsUtil.VOTEPARTY_VOTES.getIntValue()
@@ -94,7 +94,7 @@ public class PAPI extends PlaceholderExpansion {
         }
 
         if (identifier.equalsIgnoreCase("voteparty_bar")) {
-            return MinecraftUtils.getProgressBar(
+            return BukkitMinecraftUtils.getProgressBar(
                     fm.getData().getFileConfiguration().getInt("VoteParty-Votes"),
                     OptionsUtil.VOTEPARTY_VOTES.getIntValue(),
                     OptionsUtil.VOTEPARTY_BARS.getIntValue(),

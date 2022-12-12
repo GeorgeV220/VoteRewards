@@ -11,7 +11,7 @@ import com.georgev22.library.database.mongo.MongoDB;
 import com.georgev22.library.extensions.Extension;
 import com.georgev22.library.maps.HashObjectMap;
 import com.georgev22.library.maps.ObjectMap;
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.library.minecraft.inventory.PagedInventoryAPI;
 import com.georgev22.library.scheduler.SchedulerManager;
 import com.georgev22.library.utilities.Utils;
@@ -137,9 +137,9 @@ public class VoteReward {
 
     public void onLoad() throws UnknownDependencyException, InvalidDependencyException {
         instance = this;
-        if (MinecraftUtils.MinecraftVersion.getCurrentVersion().isBelow(MinecraftUtils.MinecraftVersion.V1_16_R1))
+        if (BukkitMinecraftUtils.MinecraftVersion.getCurrentVersion().isBelow(BukkitMinecraftUtils.MinecraftVersion.V1_16_R1))
             new LibraryLoader(this.getClass(), this.getDataFolder()).loadAll();
-        ConfigurationSerialization.registerClass(MinecraftUtils.SerializableLocation.class);
+        ConfigurationSerialization.registerClass(BukkitMinecraftUtils.SerializableLocation.class);
     }
 
     public void onEnable() throws Exception {
@@ -150,7 +150,7 @@ public class VoteReward {
         MessagesUtil.repairPaths(fileManager.getMessages());
 
         if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
-            MinecraftUtils.debug(getName(), getVersion(), "onEnable() Thread ID: " + Thread.currentThread().getId());
+            BukkitMinecraftUtils.debug(getName(), getVersion(), "onEnable() Thread ID: " + Thread.currentThread().getId());
         logger.info("""
 
                  __     __             __                _______                                                     __          \s
@@ -168,7 +168,7 @@ public class VoteReward {
         CFG dataCFG = fileManager.getData();
         FileConfiguration data = dataCFG.getFileConfiguration();
         if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
-            MinecraftUtils.debug(getName(), getVersion(), "onEnable() Thread ID: " + Thread.currentThread().getId());
+            BukkitMinecraftUtils.debug(getName(), getVersion(), "onEnable() Thread ID: " + Thread.currentThread().getId());
         if (data.get("month") == null) {
             data.set("month", Calendar.getInstance().getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().getMonthValue());
             dataCFG.saveFile();
@@ -176,14 +176,14 @@ public class VoteReward {
         if (getMain().endsWith("VoteRewardPlugin")) {
             Bukkit.getScheduler().runTaskTimer(plugin, () -> SchedulerManager.getScheduler().mainThreadHeartbeat(Bukkit.getServer().getCurrentTick()), 0L, 1L);
         }
-        MinecraftUtils.registerListeners(plugin, new VotifierListener(), new PlayerListeners(), new DeveloperInformListener());
+        BukkitMinecraftUtils.registerListeners(plugin, new VotifierListener(), new PlayerListeners(), new DeveloperInformListener());
         pagedInventoryAPI = new PagedInventoryAPI(plugin);
         commandManager = new PaperCommandManager(plugin);
 
-        if (!MinecraftUtils.MinecraftVersion.getCurrentVersion().isAboveOrEqual(MinecraftUtils.MinecraftVersion.UNKNOWN)) {
+        if (!BukkitMinecraftUtils.MinecraftVersion.getCurrentVersion().isAboveOrEqual(BukkitMinecraftUtils.MinecraftVersion.UNKNOWN)) {
             if (YamlConfiguration.loadConfiguration(new File(new File(this.getDataFolder().getParentFile(), "bStats"), "config.yml")).getBoolean("enabled", true) & OptionsUtil.METRICS.getBooleanValue()) {
                 new Metrics(plugin, 3179);
-                MinecraftUtils.debug(getName(), getVersion(), "Metrics are enabled!");
+                BukkitMinecraftUtils.debug(getName(), getVersion(), "Metrics are enabled!");
             }
         }
 
@@ -192,15 +192,15 @@ public class VoteReward {
         }
 
 
-        if (MinecraftUtils.MinecraftVersion.getCurrentVersion().isBelow(MinecraftUtils.MinecraftVersion.V1_12_R1)) {
-            MinecraftUtils.debug(getName(), getVersion(), "This version of Minecraft is extremely outdated and support for it has reached its end of life. You will still be able to run VoteRewards on this Minecraft version(" + MinecraftUtils.MinecraftVersion.getCurrentVersionNameVtoLowerCase() + "). Please consider updating to give your players a better experience and to avoid issues that have long been fixed.");
+        if (BukkitMinecraftUtils.MinecraftVersion.getCurrentVersion().isBelow(BukkitMinecraftUtils.MinecraftVersion.V1_12_R1)) {
+            BukkitMinecraftUtils.debug(getName(), getVersion(), "This version of Minecraft is extremely outdated and support for it has reached its end of life. You will still be able to run VoteRewards on this Minecraft version(" + BukkitMinecraftUtils.MinecraftVersion.getCurrentVersionNameVtoLowerCase() + "). Please consider updating to give your players a better experience and to avoid issues that have long been fixed.");
         }
 
         SchedulerManager.getScheduler().runTaskLater(this.getClass(), () -> {
             if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
                 placeholdersAPI = new PAPI();
                 if (placeholdersAPI.register())
-                    MinecraftUtils.debug(getName(), getVersion(), "Hooked into PlaceholderAPI!");
+                    BukkitMinecraftUtils.debug(getName(), getVersion(), "Hooked into PlaceholderAPI!");
             }
 
             if (OptionsUtil.HOLOGRAMS_ENABLED.getBooleanValue()) {
@@ -226,20 +226,20 @@ public class VoteReward {
                 if (holograms.isHooked()) {
                     if (data.get("Holograms") != null) {
                         Objects.requireNonNull(data.getConfigurationSection("Holograms")).getKeys(false)
-                                .forEach(s -> holograms.create(s, data.getSerializable("Holograms." + s + ".location", MinecraftUtils.SerializableLocation.class),
+                                .forEach(s -> holograms.create(s, data.getSerializable("Holograms." + s + ".location", BukkitMinecraftUtils.SerializableLocation.class),
                                         data.getString("Holograms." + s + ".type"), false));
                     }
-                    MinecraftUtils.debug(getName(), getVersion(), holograms.getClass().getName() + " hooked - Holograms enabled!");
+                    BukkitMinecraftUtils.debug(getName(), getVersion(), holograms.getClass().getName() + " hooked - Holograms enabled!");
                 }
             }
             if (Bukkit.getPluginManager().isPluginEnabled("AuthMeReloaded")) {
                 Bukkit.getPluginManager().registerEvents(new AuthMe(), plugin);
-                MinecraftUtils.debug(getName(), getVersion(), "Hooked into AuthMeReloaded!");
+                BukkitMinecraftUtils.debug(getName(), getVersion(), "Hooked into AuthMeReloaded!");
             }
             if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
                 noPlayerCharacterAPI = new NoPlayerCharacterAPI();
                 noPlayerCharacterAPI.setHook(true);
-                MinecraftUtils.debug(getName(), getVersion(), "ProtocolLib installed - NPCs enabled!");
+                BukkitMinecraftUtils.debug(getName(), getVersion(), "ProtocolLib installed - NPCs enabled!");
             }
             try {
                 setupDatabase();
@@ -253,7 +253,7 @@ public class VoteReward {
 
     public void onDisable() {
         if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
-            MinecraftUtils.debug(getName(), getVersion(), "onDisable() Thread ID: " + Thread.currentThread().getId());
+            BukkitMinecraftUtils.debug(getName(), getVersion(), "onDisable() Thread ID: " + Thread.currentThread().getId());
         if (holograms.isHooked() && !holograms.getHologramMap().isEmpty())
             holograms.getHologramMap().forEach((name, hologram) -> holograms.remove(name, false));
         if (noPlayerCharacterAPI.isHooked() && !noPlayerCharacterAPI.getNPCMap().isEmpty())
@@ -264,7 +264,7 @@ public class VoteReward {
                 @Override
                 public Boolean onSuccess() {
                     if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
-                        MinecraftUtils.debug(getName(), getVersion(),
+                        BukkitMinecraftUtils.debug(getName(), getVersion(),
                                 VoteUtils.debugUserMessage(userVoteData.user(), "saved", true));
                     }
                     return true;
@@ -285,7 +285,7 @@ public class VoteReward {
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             if (placeholdersAPI.isRegistered()) {
                 if (placeholdersAPI.unregister()) {
-                    MinecraftUtils.debug(getName(), getVersion(), "Unhooked from PlaceholderAPI!");
+                    BukkitMinecraftUtils.debug(getName(), getVersion(), "Unhooked from PlaceholderAPI!");
                 }
             }
         }
@@ -312,7 +312,7 @@ public class VoteReward {
      */
     private void setupDatabase() throws Exception {
         if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
-            MinecraftUtils.debug(getName(), getVersion(), "setupDatabase() Thread ID: " + Thread.currentThread().getId());
+            BukkitMinecraftUtils.debug(getName(), getVersion(), "setupDatabase() Thread ID: " + Thread.currentThread().getId());
         ObjectMap<String, ObjectMap.Pair<String, String>> map = new HashObjectMap<String, ObjectMap.Pair<String, String>>()
                 .append("uuid", ObjectMap.Pair.create("VARCHAR(38)", "NULL"))
                 .append("name", ObjectMap.Pair.create("VARCHAR(18)", "NULL"))
@@ -335,7 +335,7 @@ public class VoteReward {
                     connection = databaseWrapper.connect().getSQLConnection();
                     databaseWrapper.getSQLDatabase().createTable(OptionsUtil.DATABASE_TABLE_NAME.getStringValue(), map);
                     iDatabaseType = new UserVoteData.SQLUserUtils();
-                    MinecraftUtils.debug(getName(), getVersion(), "Database: MySQL");
+                    BukkitMinecraftUtils.debug(getName(), getVersion(), "Database: MySQL");
                 }
             }
             case "PostgreSQL" -> {
@@ -349,7 +349,7 @@ public class VoteReward {
                     connection = databaseWrapper.connect().getSQLConnection();
                     databaseWrapper.getSQLDatabase().createTable(OptionsUtil.DATABASE_TABLE_NAME.getStringValue(), map);
                     iDatabaseType = new UserVoteData.SQLUserUtils();
-                    MinecraftUtils.debug(getName(), getVersion(), "Database: PostgreSQL");
+                    BukkitMinecraftUtils.debug(getName(), getVersion(), "Database: PostgreSQL");
                 }
             }
             case "SQLite" -> {
@@ -358,7 +358,7 @@ public class VoteReward {
                     connection = databaseWrapper.connect().getSQLConnection();
                     databaseWrapper.getSQLDatabase().createTable(OptionsUtil.DATABASE_TABLE_NAME.getStringValue(), map);
                     iDatabaseType = new UserVoteData.SQLUserUtils();
-                    MinecraftUtils.debug(getName(), getVersion(), "Database: SQLite");
+                    BukkitMinecraftUtils.debug(getName(), getVersion(), "Database: SQLite");
                 }
             }
             case "MongoDB" -> {
@@ -370,12 +370,12 @@ public class VoteReward {
                         OptionsUtil.DATABASE_MONGO_DATABASE.getStringValue());
                 iDatabaseType = new UserVoteData.MongoDBUtils();
                 mongoClient = databaseWrapper.connect().getMongoClient();
-                MinecraftUtils.debug(getName(), getVersion(), "Database: MongoDB");
+                BukkitMinecraftUtils.debug(getName(), getVersion(), "Database: MongoDB");
             }
             case "File" -> {
                 databaseWrapper = null;
                 iDatabaseType = new UserVoteData.FileUserUtils();
-                MinecraftUtils.debug(getName(), getVersion(), "Database: File");
+                BukkitMinecraftUtils.debug(getName(), getVersion(), "Database: File");
             }
             default -> {
                 setEnabled(false);
@@ -393,7 +393,7 @@ public class VoteReward {
                     public Boolean onSuccess() {
                         UserVoteData.getAllUsersMap().append(userVoteData.user().getUniqueId(), userVoteData.user());
                         if (OptionsUtil.DEBUG_LOAD.getBooleanValue())
-                            MinecraftUtils.debug(getName(), getVersion(), "Successfully loaded user " + userVoteData.user().getOfflinePlayer().getName());
+                            BukkitMinecraftUtils.debug(getName(), getVersion(), "Successfully loaded user " + userVoteData.user().getOfflinePlayer().getName());
                         return true;
                     }
 
@@ -520,7 +520,7 @@ public class VoteReward {
             commandManager.getLocales().loadYamlLanguageFile(new File(getDataFolder(), "lang_en.yaml"), Locale.ENGLISH);
             commandManager.usePerIssuerLocale(true);
         } catch (IOException | InvalidConfigurationException e) {
-            MinecraftUtils.debug(getName(), getVersion(), "Failed to load language config 'lang_en.yaml': " + e.getMessage());
+            BukkitMinecraftUtils.debug(getName(), getVersion(), "Failed to load language config 'lang_en.yaml': " + e.getMessage());
             e.printStackTrace();
         }
     }

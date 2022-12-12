@@ -1,7 +1,7 @@
 package com.georgev22.voterewards.commands;
 
 import co.aikar.commands.annotation.*;
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.library.utilities.Utils;
 import com.georgev22.voterewards.utilities.MessagesUtil;
 import com.georgev22.voterewards.utilities.OptionsUtil;
@@ -45,7 +45,7 @@ public class VotePartyCommand extends Command {
     public void give(final CommandSender sender, final String[] args) {
         if (!(sender instanceof Player)) {
             if (args.length < 1) {
-                MinecraftUtils.msg(sender, "&c&l(!) &c/vp give <player>");
+                BukkitMinecraftUtils.msg(sender, "&c&l(!) &c/vp give <player>");
                 return;
             }
             final Player target = Bukkit.getPlayerExact(args[0]);
@@ -61,7 +61,7 @@ public class VotePartyCommand extends Command {
                 return;
             }
             if (!Utils.isInt(args[1])) {
-                MinecraftUtils.msg(sender, "&c&l(!) &cEnter a valid number");
+                BukkitMinecraftUtils.msg(sender, "&c&l(!) &cEnter a valid number");
                 return;
             }
             return;
@@ -86,7 +86,7 @@ public class VotePartyCommand extends Command {
             return;
         }
         if (!Utils.isInt(args[1])) {
-            MinecraftUtils.msg(sender, "&c&l(!) &cEnter a valid number");
+            BukkitMinecraftUtils.msg(sender, "&c&l(!) &cEnter a valid number");
             return;
         }
         ((Player) sender).getInventory().addItem(VotePartyUtils.crate(Integer.parseInt(args[1])));

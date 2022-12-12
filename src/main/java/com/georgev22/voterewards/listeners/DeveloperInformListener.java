@@ -2,7 +2,7 @@ package com.georgev22.voterewards.listeners;
 
 import com.georgev22.library.maps.HashObjectMap;
 import com.georgev22.library.maps.ObjectMap;
-import com.georgev22.library.minecraft.MinecraftUtils;
+import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.library.scheduler.SchedulerManager;
 import com.georgev22.voterewards.VoteReward;
 import com.georgev22.voterewards.utilities.OptionsUtil;
@@ -56,7 +56,7 @@ public class DeveloperInformListener implements Listener {
                 return;
             }
 
-            MinecraftUtils.msg(Objects.requireNonNull(player.getPlayer()), joinMessage, new HashObjectMap<String, String>()
+            BukkitMinecraftUtils.msg(Objects.requireNonNull(player.getPlayer()), joinMessage, new HashObjectMap<String, String>()
                     .append("%player%", player.getName())
                     .append("%version%", voteReward.getVersion())
                     .append("%package%", voteReward.getClass().getPackage().getName())
@@ -64,7 +64,7 @@ public class DeveloperInformListener implements Listener {
                     .append("%author%", String.join(", ", voteReward.getAuthors()))
                     .append("%main%", voteReward.getMain())
                     .append("%javaversion%", System.getProperty("java.version"))
-                    .append("%serverversion%", MinecraftUtils.MinecraftVersion.getCurrentVersion().name()), false);
+                    .append("%serverversion%", BukkitMinecraftUtils.MinecraftVersion.getCurrentVersion().name()), false);
         }, 20L * 10L);
 
     }
