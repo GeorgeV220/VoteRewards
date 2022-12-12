@@ -1,3 +1,15 @@
+# [8.2.0](https://github.com/GeorgeV220/VoteRewards/compare/v8.1.0...v8.2.0) (2022-12-12)
+
+
+### Bug Fixes
+
+* **Metrics:** Added config value for metrics ([74f2615](https://github.com/GeorgeV220/VoteRewards/commit/74f2615578f708cab6d74737a9f4a58f9c61325f))
+
+
+### Features
+
+* **1_19_R2:** Added 1.19.3(v1_19_R2) support ([92497f3](https://github.com/GeorgeV220/VoteRewards/commit/92497f38bbc3c7cf5e781f806fcecefac182b8dc))
+
 # [8.1.0](https://github.com/GeorgeV220/VoteRewards/compare/v8.0.2...v8.1.0) (2022-11-28)
 
 
