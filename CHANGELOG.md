@@ -1,3 +1,10 @@
+## [8.2.1](https://github.com/GeorgeV220/VoteRewards/compare/v8.2.0...v8.2.1) (2022-12-14)
+
+
+### Bug Fixes
+
+* **Updater:** Fixed updater message. ([006303f](https://github.com/GeorgeV220/VoteRewards/commit/006303fd9267406e83750a43fc1fdb2c7eb44894))
+
 # [8.2.0](https://github.com/GeorgeV220/VoteRewards/compare/v8.1.0...v8.2.0) (2022-12-12)
 
 
