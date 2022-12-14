@@ -47,7 +47,7 @@ public class Updater {
                 BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
                         "New stable version available!",
                         "Version: " + onlineVersion + ". You are running version: " + localVersion,
-                        OptionsUtil.UPDATER_DOWNLOAD.getBooleanValue() ? "Update at: https://github.com/GeorgeV220/VoteRewards/releases/" : "The new update will be automatically downloaded!!");
+                        OptionsUtil.UPDATER_DOWNLOAD.getBooleanValue() ? "The new update will be automatically downloaded!!" : "Update at: https://github.com/GeorgeV220/VoteRewards/releases/");
                 if (OptionsUtil.UPDATER_DOWNLOAD.getBooleanValue()) {
                     downloadLatest(null);
                 }
@@ -70,7 +70,7 @@ public class Updater {
                         "&e&lVoteRewards Updater &8» &6New version available!");
                 BukkitMinecraftUtils.msg(player, "&e&lVoteRewards Updater &8» &6Version: &c"
                         + onlineVersion + ". &6You are running version: &c" + localVersion);
-                BukkitMinecraftUtils.msg(player, OptionsUtil.UPDATER_DOWNLOAD.getBooleanValue() ? "&e&lVoteRewards Updater &8» &6Update at: https://github.com/GeorgeV220/VoteRewards/releases/" : "&e&lVoteRewards Updater &8» &6The new update will be automatically downloaded!!");
+                BukkitMinecraftUtils.msg(player, OptionsUtil.UPDATER_DOWNLOAD.getBooleanValue() ? "&e&lVoteRewards Updater &8» &6The new update will be automatically downloaded!!" : "&e&lVoteRewards Updater &8» &6Update at: https://github.com/GeorgeV220/VoteRewards/releases/");
                 if (OptionsUtil.UPDATER_DOWNLOAD.getBooleanValue()) {
                     downloadLatest(player);
                 }
