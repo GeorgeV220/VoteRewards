@@ -1,7 +1,7 @@
 # VoteRewards
-[![](https://img.shields.io/github/v/release/Project-Alterra/VoteRewards?label=LATEST%20VERSION&style=for-the-badge)](https://github.com/Project-Alterra/VoteRewards/releases/latest)
-[![](https://img.shields.io/github/downloads/Project-Alterra/VoteRewards/total?style=for-the-badge)](https://github.com/Project-Alterra/VoteRewards/releases)
-[![](https://img.shields.io/github/workflow/status/Project-Alterra/VoteRewards/Build?style=for-the-badge&color=65C0A3)](https://github.com/Project-Alterra/VoteRewards/actions)
+[![](https://img.shields.io/github/v/release/GeorgeV220/VoteRewards?label=LATEST%20VERSION&style=for-the-badge)](https://github.com/GeorgeV220/VoteRewards/releases/latest)
+[![](https://img.shields.io/github/downloads/GeorgeV220/VoteRewards/total?style=for-the-badge)](https://github.com/GeorgeV220/VoteRewards/releases)
+[![](https://img.shields.io/github/actions/workflow/status/GeorgeV220/VoteRewards/gradle.yml?style=for-the-badge&color=65C0A3)](https://github.com/GeorgeV220/VoteRewards/actions)
 
 Vote Rewards is a simple plugin to reward your players when they vote for your server. Vote Rewards contains many
 features like daily vote rewards and voteparty. I promise that the Vote Rewards will not cause problems to your server
@@ -23,16 +23,17 @@ You can have your project depend on VoteRewards as a dependency through the foll
 <project>
     <repositories>
         <repository>
-            <id>JitPack</id>
-            <url>https://jitpack.io</url>
+            <id>reposilite-repository</id>
+            <name>GeorgeV22 Repository</name>
+            <url>https://repo.georgev22.com/releases</url>
         </repository>
     </repositories>
 
     <dependencies>
         <dependency>
-            <groupId>com.github.GeorgeV220</groupId>
+            <groupId>com.georgev22</groupId>
             <artifactId>voterewards</artifactId>
-            <version>7.7.1</version>
+            <version>8.2.2</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -46,23 +47,33 @@ You can include VoteRewards into your gradle project using the following lines:
 ```groovy
 repositories {
     maven {
-        url 'https://jitpack.io'
+        url "https://repo.georgev22.com/releases"
     }
 }
 
 dependencies {
-    compileOnly "com.github.GeorgeV220:voterewards:7.7.1"
+    compileOnly "com.github.GeorgeV220:voterewards:8.2.2"
 }
 ```
 
 # Building VoteRewards
 
+### Maven
 VoteRewards can be built by running the following: `mvn package`. The resultant jar is built and written
 to `target/voterewards-{version}.jar`.
 
 The build directories can be cleaned instead using the `mvn clean` command.
 
 If you want to clean (install) and build the plugin use `mvn clean package` (or `mvn clean install package`) command.
+
+### Gradle
+VoteRewards can be built by running the following: `gradle clean build shadowJar`. The resultant jar is built and written
+to `build/libs/voterewards-{version}.jar`.
+
+The build directories can be cleaned instead using the `gradle clean` command.
+
+If you want to clean (install) and build the plugin use `gradle clean build shadowJar publishShadowPublicationToMavenLocal` command.
+
 
 # Contributing
 
