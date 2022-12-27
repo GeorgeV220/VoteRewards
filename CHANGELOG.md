@@ -1,3 +1,10 @@
+## [8.2.2](https://github.com/GeorgeV220/VoteRewards/compare/v8.2.1...v8.2.2) (2022-12-27)
+
+
+### Bug Fixes
+
+* update-versions.sh ([f60699a](https://github.com/GeorgeV220/VoteRewards/commit/f60699aeab7cc30caf71d58b24f67b9e573438f2))
+
 ## [8.2.1](https://github.com/GeorgeV220/VoteRewards/compare/v8.2.0...v8.2.1) (2022-12-14)
 
 
