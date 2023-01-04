@@ -62,11 +62,6 @@ public class VoteRewardPlugin extends JavaPlugin implements VoteRewardImpl {
     }
 
 
-    public void setEnabled0(boolean enabled) {
-        setEnabled(enabled);
-    }
-
-
     @Override
     public Description getDesc() {
         return description;
@@ -76,5 +71,9 @@ public class VoteRewardPlugin extends JavaPlugin implements VoteRewardImpl {
     public boolean setEnable(boolean enabled) {
         setEnabled(enabled);
         return isEnabled();
+    }
+
+    public static VoteReward getVoteRewardInstance() {
+        return voteRewardInstance;
     }
 }
