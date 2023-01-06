@@ -104,7 +104,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.1'
     testImplementation 'org.mockito:mockito-core:4.11.0'
     testImplementation 'com.github.seeseemelk:MockBukkit-v1.19:2.143.0'
-    testImplementation 'org.assertj:assertj-core:3.23.1'
+    testImplementation 'org.assertj:assertj-core:3.24.0'
 }
 
 shadowJar {
