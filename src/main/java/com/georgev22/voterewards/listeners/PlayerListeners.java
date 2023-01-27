@@ -50,6 +50,7 @@ public class PlayerListeners implements Listener {
             userVoteData.load(new Callback<>() {
                 @Override
                 public Boolean onSuccess() {
+                    userVoteData.setName(event.getPlayer().getName());
                     //OFFLINE VOTING
                     if (OptionsUtil.OFFLINE.getBooleanValue() && !Bukkit.getPluginManager().isPluginEnabled("AuthMeReloaded")) {
                         for (String serviceName : userVoteData.getOfflineServices()) {

@@ -47,13 +47,6 @@ spigot {
                    'HolographicDisplays']
 }
 
-compileJava {
-    options.encoding = 'UTF-8'
-    options.compilerArgs += ["-parameters"]
-    options.fork = true
-    options.forkOptions.executable = 'javac'
-}
-
 javadoc {
     options.encoding = 'UTF-8'
 }
