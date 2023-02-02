@@ -84,7 +84,7 @@ dependencies {
     implementation 'com.github.GeorgeV220:Hologram-Lib:1.3.0-G'
     implementation 'org.codemc.worldguardwrapper:worldguardwrapper:1.2.0-SNAPSHOT'
 
-    compileOnly 'com.georgev22:martexlibrary:8.10.1'
+    compileOnly 'com.georgev22:martexlibrary:8.15.0'
     compileOnly 'me.clip:placeholderapi:2.11.2'
     compileOnly 'fr.xephi:authme:5.6.0-SNAPSHOT'
     compileOnly 'com.github.NuVotifier.NuVotifier:nuvotifier-api:2.7.2'
@@ -96,7 +96,7 @@ dependencies {
     compileOnly 'org.mongodb:mongo-java-driver:3.12.11'
     compileOnly 'org.jetbrains:annotations:24.0.0'
 
-    testImplementation 'com.georgev22:martexlibrary:8.4.0'
+    testImplementation 'com.georgev22:martexlibrary:8.15.0'
     testImplementation 'com.github.NuVotifier.NuVotifier:nuvotifier-api:2.7.2'
     testImplementation 'com.github.NuVotifier.NuVotifier:nuvotifier-bukkit:2.7.2'
     testImplementation 'commons-io:commons-io:2.11.0'
