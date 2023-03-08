@@ -94,7 +94,7 @@ dependencies {
     compileOnly 'commons-lang:commons-lang:2.6'
     compileOnly 'com.google.guava:guava:31.1-jre'
     compileOnly 'org.mongodb:mongo-java-driver:3.12.12'
-    compileOnly 'org.jetbrains:annotations:24.0.0'
+    compileOnly 'org.jetbrains:annotations:24.0.1'
 
     testImplementation 'com.georgev22:martexlibrary:8.15.0'
     testImplementation 'com.github.NuVotifier.NuVotifier:nuvotifier-api:2.7.2'
