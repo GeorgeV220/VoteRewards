@@ -36,7 +36,7 @@ public class VoteRewardPlugin extends JavaPlugin implements VoteRewardImpl {
     public void onLoad() {
         instance = this;
         try {
-            new LibraryLoader(this.getClass(), this.getDataFolder()).loadAll();
+            new LibraryLoader(this.getClass(), this.getDataFolder()).loadAll(true);
             description = new Description(getDescription());
             voteRewardInstance = new VoteReward(this);
             voteRewardInstance.onLoad();

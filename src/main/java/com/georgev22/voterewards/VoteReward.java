@@ -138,7 +138,7 @@ public class VoteReward {
     public void onLoad() throws UnknownDependencyException, InvalidDependencyException {
         instance = this;
         if (BukkitMinecraftUtils.MinecraftVersion.getCurrentVersion().isBelow(BukkitMinecraftUtils.MinecraftVersion.V1_16_R1))
-            new LibraryLoader(this.getClass(), this.getDataFolder()).loadAll();
+            new LibraryLoader(this.getClass(), this.getDataFolder()).loadAll(true);
         ConfigurationSerialization.registerClass(BukkitMinecraftUtils.SerializableLocation.class);
     }
 
