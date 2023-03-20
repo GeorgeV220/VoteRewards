@@ -78,7 +78,7 @@ dependencies {
     implementation 'org.codemc.worldguardwrapper:worldguardwrapper:1.2.0-SNAPSHOT'
 
     compileOnly 'com.georgev22:martexlibrary:8.15.0'
-    compileOnly 'me.clip:placeholderapi:2.11.2'
+    compileOnly 'me.clip:placeholderapi:2.11.3'
     compileOnly 'fr.xephi:authme:5.6.0-SNAPSHOT'
     compileOnly 'com.github.NuVotifier.NuVotifier:nuvotifier-api:2.7.2'
     compileOnly 'com.github.NuVotifier.NuVotifier:nuvotifier-bukkit:2.7.2'
