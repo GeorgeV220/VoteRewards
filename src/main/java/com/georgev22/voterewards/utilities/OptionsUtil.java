@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.*;
 
@@ -306,7 +307,7 @@ public enum OptionsUtil {
      */
     public @NotNull String getPath() {
         if (mainPlugin.getConfig().get("Options." + getDefaultPath()) == null) {
-            if (getOldPaths().length > 0) {
+            if (getOldPaths().size() > 0) {
                 for (Optional<String> path : getOldPaths()) {
                     if (path.isPresent()) {
                         if (mainPlugin.getConfig().get("Options." + path.get()) != null) {
@@ -334,8 +335,9 @@ public enum OptionsUtil {
      *
      * @return the old path if it exists.
      */
-    public Optional<String>[] getOldPaths() {
-        return oldPaths;
+    @UnmodifiableView
+    public List<Optional<String>> getOldPaths() {
+        return Arrays.stream(oldPaths).toList();
     }
 
     /**
