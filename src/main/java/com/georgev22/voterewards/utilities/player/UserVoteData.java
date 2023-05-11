@@ -281,8 +281,9 @@ public record UserVoteData(User user) {
      */
     public void runCommands(@NotNull List<String> s) {
         BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "RUNNING COMMANDS FOR PLAYER: " + user.getName());
+        ObjectMap<String, String> objectMap = new HashObjectMap<String, String>().append("%player%", user.getName());
         for (String b : s) {
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), b.replace("%player%", Objects.requireNonNull(user.getName())));
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), BukkitMinecraftUtils.placeholderAPI(user.getPlayer(), b, objectMap, true));
         }
     }
 
