@@ -113,17 +113,19 @@ public class VoteReward {
     private FileManager fileManager;
 
     @Getter
-    private Logger logger;
+    private final Logger logger;
 
     @Getter
-    private File dataFolder;
+    private final File dataFolder;
 
-    private VoteRewardImpl voteReward;
+    private final VoteRewardImpl voteReward;
 
     private PaperCommandManager commandManager;
 
     @Getter
     private PagedInventoryAPI pagedInventoryAPI = null;
+
+    private int tick = 0;
 
     public static VoteReward getInstance() {
         return instance;
@@ -174,7 +176,10 @@ public class VoteReward {
             dataCFG.saveFile();
         }
         if (getMain().endsWith("VoteRewardPlugin")) {
-            Bukkit.getScheduler().runTaskTimer(plugin, () -> SchedulerManager.getScheduler().mainThreadHeartbeat(Bukkit.getServer().getCurrentTick()), 0L, 1L);
+            Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+                tick++;
+                SchedulerManager.getScheduler().mainThreadHeartbeat(tick);
+            }, 0, 1L);
         }
         BukkitMinecraftUtils.registerListeners(plugin, new VotifierListener(), new PlayerListeners(), new DeveloperInformListener());
         pagedInventoryAPI = new PagedInventoryAPI(plugin);
@@ -256,7 +261,7 @@ public class VoteReward {
             BukkitMinecraftUtils.debug(getName(), getVersion(), "onDisable() Thread ID: " + Thread.currentThread().getId());
         if (holograms.isHooked() && !holograms.getHologramMap().isEmpty())
             holograms.getHologramMap().forEach((name, hologram) -> holograms.remove(name, false));
-        if (noPlayerCharacterAPI.isHooked() && !noPlayerCharacterAPI.getNPCMap().isEmpty())
+        if (noPlayerCharacterAPI != null && noPlayerCharacterAPI.isHooked() && !noPlayerCharacterAPI.getNPCMap().isEmpty())
             noPlayerCharacterAPI.getNPCMap().forEach((name, npcIntegerPair) -> noPlayerCharacterAPI.remove(name, false));
         Bukkit.getOnlinePlayers().forEach(player -> {
             UserVoteData userVoteData = UserVoteData.getUser(player.getUniqueId());
@@ -416,7 +421,7 @@ public class VoteReward {
         if (holograms.isHooked())
             holograms.updateAll();
 
-        if (noPlayerCharacterAPI.isHooked())
+        if (noPlayerCharacterAPI != null && noPlayerCharacterAPI.isHooked())
             noPlayerCharacterAPI.updateAll();
 
         if (OptionsUtil.PURGE_ENABLED.getBooleanValue())

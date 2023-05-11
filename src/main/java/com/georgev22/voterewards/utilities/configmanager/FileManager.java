@@ -14,7 +14,7 @@ public final class FileManager {
         return instance == null ? instance = new FileManager() : instance;
     }
 
-    private VoteReward voteReward = VoteReward.getInstance();
+    private final VoteReward voteReward = VoteReward.getInstance();
 
     private CFG config;
     private CFG data;
@@ -27,12 +27,16 @@ public final class FileManager {
     }
 
     public void loadFiles(Logger logger, Class<?> clazz) throws Exception {
-        this.messages = new CFG("messages", voteReward.getDataFolder(), false, logger, clazz);
-        this.config = new CFG("config", voteReward.getDataFolder(), true, logger, clazz);
-        this.data = new CFG("data", voteReward.getDataFolder(), true, logger, clazz);
-        this.voteInventory = new CFG("vote", new File(voteReward.getDataFolder(), "inventories"), true, logger, clazz);
-        this.voteTopInventory = new CFG("votetop", new File(voteReward.getDataFolder(), "inventories"), true, logger, clazz);
-        this.discord = new CFG("discord", voteReward.getDataFolder(), true, logger, clazz);
+        this.messages = new CFG("messages", voteReward.getDataFolder(), false, false, logger, clazz);
+        this.config = new CFG("config", voteReward.getDataFolder(), true, true, logger, clazz);
+        this.data = new CFG("data", voteReward.getDataFolder(), true, false, logger, clazz);
+        this.discord = new CFG("discord", voteReward.getDataFolder(), true, true, logger, clazz);
+        File inventoryFolder = new File(voteReward.getDataFolder(), "inventories");
+        if (inventoryFolder.exists()) {
+            inventoryFolder.mkdirs();
+        }
+        this.voteInventory = new CFG("vote", inventoryFolder, true, true, logger, clazz);
+        this.voteTopInventory = new CFG("votetop", inventoryFolder, true, true, logger, clazz);
     }
 
     public CFG getMessages() {
