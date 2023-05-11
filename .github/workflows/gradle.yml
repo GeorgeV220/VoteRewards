@@ -39,7 +39,7 @@ jobs:
 
   test:
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Set up JDK 17
@@ -84,7 +84,7 @@ jobs:
     needs: [build, test]
     if: github.ref == 'refs/heads/master' || 'refs/heads/beta' || github.ref == 'refs/heads/alpha'
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Set up JDK 17
