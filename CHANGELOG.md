@@ -1,3 +1,18 @@
+# [8.3.0](https://github.com/GeorgeV220/VoteRewards/compare/v8.2.2...v8.3.0) (2023-05-11)
+
+
+### Bug Fixes
+
+* Build tests ([be41aae](https://github.com/GeorgeV220/VoteRewards/commit/be41aae4dfc064b94acaa5c52ccc9f0adaf750c9))
+* gradle.yml setup java nodejs version ([c1211e6](https://github.com/GeorgeV220/VoteRewards/commit/c1211e68fd489dae0754b0ad9eed6bf291578fee))
+* Make OptionsUtil.getOldPaths unmodifiable ([556593f](https://github.com/GeorgeV220/VoteRewards/commit/556593fafe41fd5d621afb3dd5790e17fb727bf9))
+* Player name ([e433ccb](https://github.com/GeorgeV220/VoteRewards/commit/e433ccb8ba7c0d469d405e8383669fceb11ab692))
+
+
+### Features
+
+* PlaceholderAPI support to the reward system. ([#126](https://github.com/GeorgeV220/VoteRewards/issues/126)) ([5f766e3](https://github.com/GeorgeV220/VoteRewards/commit/5f766e363fd42b8ebf7550a4fa509161bf391b0a))
+
 ## [8.2.2](https://github.com/GeorgeV220/VoteRewards/compare/v8.2.1...v8.2.2) (2022-12-27)
 
 
