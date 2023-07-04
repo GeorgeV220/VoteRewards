@@ -24,8 +24,8 @@ public class User extends EntityManager.Entity {
         this.addCustomDataIfNotExists("last", 0L);
         this.addCustomDataIfNotExists("voteparty", 0);
         this.addCustomDataIfNotExists("totalvotes", 0);
-        this.addCustomDataIfNotExists("servicesLastVote", new HashObjectMap<String, Long>());
         this.addCustomDataIfNotExists("services", new ArrayList<String>());
+        this.addCustomDataIfNotExists("servicesLastVote", new HashObjectMap<String, Long>());
     }
 
     public String name() {
