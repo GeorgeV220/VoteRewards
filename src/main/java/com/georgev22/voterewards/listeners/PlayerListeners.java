@@ -1,12 +1,11 @@
 package com.georgev22.voterewards.listeners;
 
+import com.cryptomorin.xseries.XMaterial;
+import com.cryptomorin.xseries.XSound;
 import com.georgev22.library.minecraft.BukkitMinecraftUtils;
-import com.georgev22.library.minecraft.xseries.XMaterial;
-import com.georgev22.library.minecraft.xseries.XSound;
 import com.georgev22.voterewards.VoteReward;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.georgev22.voterewards.utilities.Updater;
-import com.georgev22.voterewards.utilities.player.UserVoteData;
 import com.georgev22.voterewards.utilities.player.VotePartyUtils;
 import com.georgev22.voterewards.utilities.player.VoteUtils;
 import com.google.common.base.Stopwatch;
@@ -29,72 +28,64 @@ import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
-import static com.georgev22.library.utilities.Utils.Callback;
+import java.util.logging.Level;
 
 public class PlayerListeners implements Listener {
 
-    private VoteReward voteReward = VoteReward.getInstance();
+    private final VoteReward voteReward = VoteReward.getInstance();
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPreLogin(AsyncPlayerPreLoginEvent event) {
-        if (BukkitMinecraftUtils.isLoginDisallowed())
+        if (BukkitMinecraftUtils.isLoginDisallowed()) {
+            //noinspection deprecation
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, BukkitMinecraftUtils.colorize(BukkitMinecraftUtils.getDisallowLoginMessage()));
+        }
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        UserVoteData userVoteData = UserVoteData.getUser(event.getPlayer().getUniqueId());
-        final Stopwatch sw = Stopwatch.createStarted();
-        try {
-            userVoteData.load(new Callback<>() {
-                @Override
-                public Boolean onSuccess() {
-                    userVoteData.setName(event.getPlayer().getName());
-                    //OFFLINE VOTING
-                    if (OptionsUtil.OFFLINE.getBooleanValue() && !Bukkit.getPluginManager().isPluginEnabled("AuthMeReloaded")) {
-                        for (String serviceName : userVoteData.getOfflineServices()) {
-                            try {
-                                new VoteUtils(userVoteData.user()).processVote(serviceName, false);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        userVoteData.setOfflineServices(Lists.newArrayList());
+        voteReward.getPlayerDataManager().getEntity(event.getPlayer().getUniqueId()).handle((user, throwable) -> {
+            if (throwable != null) {
+                voteReward.getLogger().log(Level.SEVERE, "Error while trying to get " + event.getPlayer().getName() + " entity", throwable);
+                return null;
+            }
+            return user;
+        }).thenAccept(user -> {
+            final Stopwatch sw = Stopwatch.createStarted();
+            user.name(event.getPlayer().getName());
+            //OFFLINE VOTING
+            if (OptionsUtil.OFFLINE.getBooleanValue() && !Bukkit.getPluginManager().isPluginEnabled("AuthMeReloaded")) {
+                for (String serviceName : user.services()) {
+                    try {
+                        new VoteUtils(user).processVote(serviceName, false);
+                    } catch (IOException e) {
+                        voteReward.getLogger().log(Level.SEVERE, "Error while trying to process " + event.getPlayer().getName(), e);
                     }
-
-                    UserVoteData.getAllUsersMap().append(userVoteData.user().getUniqueId(), userVoteData.user());
-                    //HOLOGRAMS
-                    if (voteReward.getHolograms().isHooked()) {
-                        if (!voteReward.getHolograms().getHolograms().isEmpty()) {
-                            for (Object hologram : voteReward.getHolograms().getHolograms()) {
-                                voteReward.getHolograms().show(hologram, event.getPlayer());
-                            }
-
-                            voteReward.getHolograms().updateAll();
-                        }
-                    }
-                    return true;
                 }
+                user.services(Lists.newArrayList());
+            }
 
-                @Override
-                public Boolean onFailure() {
-                    return false;
-                }
-
-                @Override
-                public Boolean onFailure(Throwable throwable) {
-                    throwable.printStackTrace();
-                    return onFailure();
+            voteReward.getPlayerDataManager().save(user).thenAccept(unused -> {
+                if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
+                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
+                            VoteUtils.debugUserMessage(user, "saved", true));
                 }
             });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        final long elapsedMillis = sw.elapsed(TimeUnit.MILLISECONDS);
-        if (OptionsUtil.DEBUG_LOAD.getBooleanValue()) {
-            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Elapsed time to load user data: " + elapsedMillis);
-        }
+            //HOLOGRAMS
+            if (voteReward.getHolograms().isHooked()) {
+                if (!voteReward.getHolograms().getHolograms().isEmpty()) {
+                    for (Object hologram : voteReward.getHolograms().getHolograms()) {
+                        voteReward.getHolograms().show(hologram, event.getPlayer());
+                    }
+
+                    voteReward.getHolograms().updateAll();
+                }
+            }
+            final long elapsedMillis = sw.elapsed(TimeUnit.MILLISECONDS);
+            if (OptionsUtil.DEBUG_LOAD.getBooleanValue()) {
+                BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Elapsed time to load user data: " + elapsedMillis);
+            }
+        });
 
         //UPDATER
         if (OptionsUtil.UPDATER.getBooleanValue()) {
@@ -109,32 +100,24 @@ public class PlayerListeners implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        UserVoteData userVoteData = UserVoteData.getUser(event.getPlayer().getUniqueId());
-        userVoteData.save(true, new Callback<>() {
-            @Override
-            public Boolean onSuccess() {
-                UserVoteData.getAllUsersMap().append(userVoteData.user().getUniqueId(), userVoteData.user());
-                if (OptionsUtil.REMINDER.getBooleanValue())
-                    VoteUtils.reminderMap.remove(event.getPlayer());
-                if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
-                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
-                            VoteUtils.debugUserMessage(userVoteData.user(), "saved", true));
-                }
-                return true;
+        voteReward.getPlayerDataManager().getEntity(event.getPlayer().getUniqueId()).handle((user, throwable) -> {
+            if (throwable != null) {
+                voteReward.getLogger().log(Level.SEVERE, "Error while trying to save " + event.getPlayer().getName(), throwable);
+                return null;
             }
-
-            @Override
-            public Boolean onFailure() {
-                return false;
-            }
-
-            @Override
-            public Boolean onFailure(Throwable throwable) {
-                throwable.printStackTrace();
-                return onFailure();
+            return user;
+        }).thenAccept(user -> {
+            if (user != null) {
+                voteReward.getPlayerDataManager().save(user).thenAccept(unused -> {
+                    if (OptionsUtil.REMINDER.getBooleanValue())
+                        VoteUtils.reminderMap.remove(event.getPlayer());
+                    if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
+                        BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
+                                VoteUtils.debugUserMessage(user, "saved", true));
+                    }
+                });
             }
         });
-
     }
 
 
@@ -148,10 +131,11 @@ public class PlayerListeners implements Listener {
         }
 
         final Player player = event.getPlayer();
-
+        //noinspection deprecation
         final ItemStack item = player.getInventory().getItemInHand();
 
-        if (item.getType() != XMaterial.matchXMaterial(Objects.requireNonNull(OptionsUtil.VOTEPARTY_CRATE_ITEM.getStringValue())).get()
+        if (item.getType() != XMaterial.matchXMaterial(Objects.requireNonNull(OptionsUtil.VOTEPARTY_CRATE_ITEM.getStringValue()))
+                .orElseThrow()
                 .parseMaterial()) {
             return;
         }
@@ -166,7 +150,7 @@ public class PlayerListeners implements Listener {
         if (itemName == null) {
             return;
         }
-
+        //noinspection deprecation
         if (!meta.getDisplayName().equals(BukkitMinecraftUtils.colorize(itemName))) {
             return;
         }
@@ -184,7 +168,7 @@ public class PlayerListeners implements Listener {
         if (OptionsUtil.VOTEPARTY_SOUND_CRATE.getBooleanValue()) {
             if (BukkitMinecraftUtils.MinecraftVersion.getCurrentVersion().isBelow(BukkitMinecraftUtils.MinecraftVersion.V1_12_R1)) {
                 Objects.requireNonNull(player.getPlayer()).playSound(player.getPlayer().getLocation(), Objects.requireNonNull(XSound
-                                .matchXSound(OptionsUtil.SOUND_CRATE_OPEN.getStringValue()).get().parseSound()),
+                                .matchXSound(OptionsUtil.SOUND_CRATE_OPEN.getStringValue()).orElseThrow().parseSound()),
                         1000, 1);
                 if (OptionsUtil.DEBUG_OTHER.getBooleanValue()) {
                     BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
@@ -194,7 +178,7 @@ public class PlayerListeners implements Listener {
                 }
             } else {
                 Objects.requireNonNull(player.getPlayer()).playSound(player.getPlayer().getLocation(), Objects.requireNonNull(XSound
-                                .matchXSound(OptionsUtil.SOUND_CRATE_OPEN.getStringValue()).get().parseSound()),
+                                .matchXSound(OptionsUtil.SOUND_CRATE_OPEN.getStringValue()).orElseThrow().parseSound()),
                         org.bukkit.SoundCategory.valueOf(OptionsUtil.SOUND_CRATE_OPEN_CHANNEL.getStringValue()),
                         1000, 1);
             }
