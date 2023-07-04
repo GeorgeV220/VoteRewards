@@ -22,13 +22,14 @@ public class VoteRewardPlugin extends JavaPlugin implements VoteRewardImpl {
     public void onLoad() {
         instance = this;
         try {
-            description = new Description(
+            this.description = new Description(
                     getDescription().getName(),
                     getDescription().getVersion(),
                     getDescription().getMain(),
                     getDescription().getAuthors()
             );
             voteRewardInstance = new VoteReward(this);
+            voteRewardInstance.setPlugin(this);
             voteRewardInstance.onLoad();
         } catch (UnknownDependencyException | InvalidDependencyException e) {
             getLogger().log(Level.SEVERE, "Error: ", e);
@@ -38,7 +39,6 @@ public class VoteRewardPlugin extends JavaPlugin implements VoteRewardImpl {
     @Override
     public void onEnable() {
         try {
-            voteRewardInstance.setPlugin(this);
             voteRewardInstance.onEnable();
         } catch (Exception e) {
             getLogger().log(Level.SEVERE, "Error: ", e);
