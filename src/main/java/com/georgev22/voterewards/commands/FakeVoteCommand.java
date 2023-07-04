@@ -1,11 +1,11 @@
 package com.georgev22.voterewards.commands;
 
+import co.aikar.commands.CommandIssuer;
 import co.aikar.commands.annotation.*;
 import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.model.VotifierEvent;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,13 +17,13 @@ public class FakeVoteCommand extends Command {
     @CommandCompletion("@players")
     @Syntax("<player> [servicename]")
     @CommandPermission("voterewards.fakevote")
-    public void execute(@NotNull CommandSender sender, String @NotNull [] args) {
+    public void execute(@NotNull CommandIssuer commandIssuer, String @NotNull [] args) {
         if (args.length == 0) {
-            if (!(sender instanceof Player)) {
-                BukkitMinecraftUtils.msg(sender, "&c&l(!) &cNot enough arguments");
+            if (!commandIssuer.isPlayer()) {
+                BukkitMinecraftUtils.msg(commandIssuer.getIssuer(), "&c&l(!) &cNot enough arguments");
                 return;
             }
-            process(sender.getName(), "fakeVote");
+            process(((Player) commandIssuer.getIssuer()).getName(), "fakeVote");
         } else if (args.length == 1) {
             process(args[0], "fakeVote");
         } else {

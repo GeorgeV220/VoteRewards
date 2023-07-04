@@ -1,13 +1,12 @@
 package com.georgev22.voterewards.commands;
 
+import co.aikar.commands.CommandIssuer;
 import co.aikar.commands.annotation.*;
 import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.voterewards.utilities.MessagesUtil;
-import com.georgev22.voterewards.utilities.player.UserVoteData;
+import com.georgev22.voterewards.utilities.player.User;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 @CommandAlias("votes|vrvotes|vvotes")
@@ -18,18 +17,25 @@ public class VotesCommand extends Command {
     @CommandCompletion("@players")
     @Syntax("<player>")
     @CommandPermission("voterewards.votes")
-    public void execute(@NotNull final CommandSender sender, final String @NotNull [] args) {
+    public void execute(@NotNull CommandIssuer commandIssuer, final String @NotNull [] args) {
         if (args.length == 0) {
-            if (!(sender instanceof Player)) {
-                BukkitMinecraftUtils.msg(sender, "/votes <player>");
+            if (!commandIssuer.isPlayer()) {
+                BukkitMinecraftUtils.msg(commandIssuer.getIssuer(), "/votes <player>");
                 return;
             }
-            UserVoteData userVoteData = UserVoteData.getUser((OfflinePlayer) sender);
-            MessagesUtil.VOTES.msg(sender, userVoteData.user().placeholders(), true);
+            voteReward.getPlayerDataManager().getEntity(commandIssuer.getUniqueId()).thenAccept(userData ->
+                    MessagesUtil.VOTES.msg(commandIssuer.getIssuer(), User.placeholders(userData), true));
+
             return;
         }
         OfflinePlayer target = Bukkit.getOfflinePlayer(args[0]);
-        UserVoteData userVoteData = UserVoteData.getUser(target);
-        MessagesUtil.VOTES.msg(sender, userVoteData.user().placeholders(), true);
+        voteReward.getPlayerDataManager().exists(target.getUniqueId()).thenAccept(aBoolean -> {
+            if (aBoolean) {
+                voteReward.getPlayerDataManager().getEntity(target.getUniqueId()).thenAccept(userData ->
+                        MessagesUtil.VOTES.msg(commandIssuer.getIssuer(), User.placeholders(userData), true));
+            } else {
+                BukkitMinecraftUtils.msg(commandIssuer.getIssuer(), "&c&l(!)&c Player " + target.getName() + " doesn't exist");
+            }
+        });
     }
 }
