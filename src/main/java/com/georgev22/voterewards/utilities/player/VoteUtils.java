@@ -1,14 +1,15 @@
 package com.georgev22.voterewards.utilities.player;
 
+import com.cryptomorin.xseries.XSound;
+import com.cryptomorin.xseries.messages.Titles;
 import com.georgev22.library.maps.ConcurrentObjectMap;
 import com.georgev22.library.maps.HashObjectMap;
 import com.georgev22.library.maps.LinkedObjectMap;
 import com.georgev22.library.maps.ObjectMap;
 import com.georgev22.library.minecraft.BukkitMinecraftUtils;
-import com.georgev22.library.minecraft.xseries.XSound;
-import com.georgev22.library.minecraft.xseries.messages.Titles;
 import com.georgev22.library.scheduler.SchedulerManager;
 import com.georgev22.library.utilities.Utils;
+import com.georgev22.library.yaml.ConfigurationSection;
 import com.georgev22.library.yaml.configmanager.CFG;
 import com.georgev22.library.yaml.file.FileConfiguration;
 import com.georgev22.voterewards.VoteReward;
@@ -16,8 +17,8 @@ import com.georgev22.voterewards.utilities.MessagesUtil;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.georgev22.voterewards.utilities.configmanager.FileManager;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -26,13 +27,12 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
-
-import static com.georgev22.library.utilities.Utils.Callback;
 
 public record VoteUtils(User user) {
 
-    private static VoteReward voteReward = VoteReward.getInstance();
+    private static final VoteReward voteReward = VoteReward.getInstance();
 
     private static final FileManager fileManager = FileManager.getInstance();
 
@@ -54,43 +54,54 @@ public record VoteUtils(User user) {
      */
     public void processVote(String serviceName, boolean addVoteParty) throws IOException {
         if (OptionsUtil.DEBUG_VOTES_REGULAR.getBooleanValue())
-            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "VOTE OF: " + user.getName());
-        UserVoteData userVoteData = UserVoteData.getUser(user.getUniqueId());
-        userVoteData.setVotes(userVoteData.getVotes() + 1);
-        userVoteData.setLastVoted(System.currentTimeMillis());
-        userVoteData.appendServiceLastVote(serviceName);
-        BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), userVoteData.getServicesLastVote().toString());
+            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "VOTE OF: " + user.name());
+        user.votes(user.votes() + 1);
+        user.lastVote(System.currentTimeMillis());
+        user.addServicesLastVote(serviceName);
+        BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), user.servicesLastVote().toString());
 
-        userVoteData.setAllTimeVotes(userVoteData.getAllTimeVotes() + 1);
-        userVoteData.setDailyVotes(userVoteData.getDailyVotes() + 1);
-        UserVoteData.getAllUsersMap().append(user.getUniqueId(), UserVoteData.getUser(user.getUniqueId()).user());
+        user.totalVotes(user.totalVotes() + 1);
+        user.dailyVotes(user.dailyVotes() + 1);
+        voteReward.getPlayerDataManager().save(user);
+
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(user.getId());
+
+        if (!offlinePlayer.isOnline()) {
+            return;
+        }
+
+        if (offlinePlayer.getPlayer() == null) {
+            return;
+        }
+
+        Player player = offlinePlayer.getPlayer();
 
         if (OptionsUtil.VOTE_TITLE.getBooleanValue()) {
-            Titles.sendTitle(user.getPlayer(),
-                    BukkitMinecraftUtils.colorize(MessagesUtil.VOTE_TITLE.getMessages()[0]).replace("%player%", user.getName()),
-                    BukkitMinecraftUtils.colorize(MessagesUtil.VOTE_SUBTITLE.getMessages()[0]).replace("%player%", user.getName()));
+            Titles.sendTitle(player,
+                    BukkitMinecraftUtils.colorize(MessagesUtil.VOTE_TITLE.getMessages()[0]).replace("%player%", user.name()),
+                    BukkitMinecraftUtils.colorize(MessagesUtil.VOTE_SUBTITLE.getMessages()[0]).replace("%player%", user.name()));
         }
 
         // WORLD REWARDS (WITH SERVICES)
         if (OptionsUtil.WORLD.getBooleanValue()) {
             if (OptionsUtil.DEBUG_VOTES_WORLD.getBooleanValue())
-                BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Vote of " + user.getName() + " for world " + user.getPlayer().getWorld());
-            if (voteReward.getConfig().getString("Rewards.Worlds." + user.getPlayer().getWorld() + "." + serviceName) != null && OptionsUtil.WORLD_SERVICES.getBooleanValue()) {
-                userVoteData.runCommands(voteReward.getConfig()
-                        .getStringList("Rewards.Worlds." + user.getPlayer().getWorld().getName() + "." + serviceName));
+                BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Vote of " + user.name() + " for world " + player.getWorld());
+            if (voteReward.getConfig().getString("Rewards.Worlds." + player.getWorld() + "." + serviceName) != null && OptionsUtil.WORLD_SERVICES.getBooleanValue()) {
+                runCommands(player, voteReward.getConfig()
+                        .getStringList("Rewards.Worlds." + player.getWorld().getName() + "." + serviceName));
             } else {
-                userVoteData.runCommands(voteReward.getConfig()
-                        .getStringList("Rewards.Worlds." + user.getPlayer().getWorld().getName() + ".default"));
+                runCommands(player, voteReward.getConfig()
+                        .getStringList("Rewards.Worlds." + player.getWorld().getName() + ".default"));
             }
         }
 
         // SERVICE REWARDS
         if (OptionsUtil.SERVICES.getBooleanValue()) {
             if (voteReward.getConfig().getString("Rewards.Services." + serviceName) != null) {
-                userVoteData.runCommands(voteReward.getConfig()
+                runCommands(player, voteReward.getConfig()
                         .getStringList("Rewards.Services." + serviceName + ".commands"));
             } else {
-                userVoteData.runCommands(voteReward.getConfig()
+                runCommands(player, voteReward.getConfig()
                         .getStringList("Rewards.Services.default.commands"));
             }
         }
@@ -99,36 +110,43 @@ public record VoteUtils(User user) {
         if (OptionsUtil.LUCKY.getBooleanValue()) {
             ThreadLocalRandom random = ThreadLocalRandom.current();
             int i = random.nextInt(OptionsUtil.LUCKY_NUMBERS.getIntValue() + 1);
-            for (String s2 : voteReward.getConfig().getConfigurationSection("Rewards.Lucky")
-                    .getKeys(false)) {
-                if (Integer.valueOf(s2).equals(i)) {
-                    userVoteData.runCommands(voteReward.getConfig()
-                            .getStringList("Rewards.Lucky." + s2 + ".commands"));
+            ConfigurationSection configurationSection = voteReward.getConfig().getConfigurationSection("Rewards.Lucky");
+            if (configurationSection != null) {
+                for (String s2 : configurationSection.getKeys(false)) {
+                    if (Integer.valueOf(s2).equals(i)) {
+                        runCommands(player, voteReward.getConfig()
+                                .getStringList("Rewards.Lucky." + s2 + ".commands"));
+                    }
                 }
             }
         }
 
         // PERMISSIONS REWARDS
         if (OptionsUtil.PERMISSIONS.getBooleanValue()) {
-            for (String s2 : voteReward.getConfig().getConfigurationSection("Rewards.Permission").getKeys(false)) {
-                if (user.getPlayer().hasPermission("voterewards.permission." + s2)) {
-                    if (OptionsUtil.DEBUG_VOTES_PERMISSIONS.getBooleanValue())
-                        BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Vote of " + user.getName() + " with permission " + "voterewards.permission." + s2);
-                    userVoteData.runCommands(voteReward.getConfig()
-                            .getStringList("Rewards.Permission." + s2 + ".commands"));
+            ConfigurationSection configurationSection = voteReward.getConfig().getConfigurationSection("Rewards.Permission");
+            if (configurationSection != null) {
+                for (String s2 : configurationSection.getKeys(false)) {
+                    if (player.hasPermission("voterewards.permission." + s2)) {
+                        if (OptionsUtil.DEBUG_VOTES_PERMISSIONS.getBooleanValue())
+                            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Vote of " + user.name() + " with permission " + "voterewards.permission." + s2);
+                        runCommands(player, voteReward.getConfig()
+                                .getStringList("Rewards.Permission." + s2 + ".commands"));
+                    }
                 }
             }
         }
 
         // CUMULATIVE REWARDS
         if (OptionsUtil.CUMULATIVE.getBooleanValue()) {
-            for (String s2 : voteReward.getConfig().getConfigurationSection("Rewards.Cumulative")
-                    .getKeys(false)) {
-                if (Integer.valueOf(s2).equals(userVoteData.getVotes())) {
-                    if (OptionsUtil.DEBUG_VOTES_CUMULATIVE.getBooleanValue())
-                        BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Vote of " + user.getName() + " with cumulative number " + s2);
-                    userVoteData.runCommands(voteReward.getConfig()
-                            .getStringList("Rewards.Cumulative." + s2 + ".commands"));
+            ConfigurationSection configurationSection = voteReward.getConfig().getConfigurationSection("Rewards.Cumulative");
+            if (configurationSection != null) {
+                for (String s2 : configurationSection.getKeys(false)) {
+                    if (Integer.valueOf(s2).equals(user.votes())) {
+                        if (OptionsUtil.DEBUG_VOTES_CUMULATIVE.getBooleanValue())
+                            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Vote of " + user.name() + " with cumulative number " + s2);
+                        runCommands(player, voteReward.getConfig()
+                                .getStringList("Rewards.Cumulative." + s2 + ".commands"));
+                    }
                 }
             }
         }
@@ -136,8 +154,11 @@ public record VoteUtils(User user) {
         // PLAY SOUND
         if (OptionsUtil.SOUND.getBooleanValue()) {
             if (BukkitMinecraftUtils.MinecraftVersion.getCurrentVersion().isBelow(BukkitMinecraftUtils.MinecraftVersion.V1_12_R1)) {
-                user.getPlayer().playSound(user.getPlayer().getLocation(), XSound
-                                .matchXSound(OptionsUtil.SOUND_VOTE.getStringValue()).get().parseSound(),
+                player.playSound(
+                        player.getLocation(),
+                        Objects.requireNonNull(XSound.matchXSound(
+                                OptionsUtil.SOUND_VOTE.getStringValue()
+                        ).orElseThrow().parseSound()),
                         1000, 1);
                 if (OptionsUtil.DEBUG_OTHER.getBooleanValue()) {
                     BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
@@ -146,27 +167,32 @@ public record VoteUtils(User user) {
                     BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
                 }
             } else {
-                user.getPlayer().playSound(user.getPlayer().getLocation(), XSound
-                                .matchXSound(OptionsUtil.SOUND_VOTE.getStringValue()).get().parseSound(),
+                player.playSound(
+                        player.getLocation(),
+                        Objects.requireNonNull(XSound.matchXSound(
+                                OptionsUtil.SOUND_VOTE.getStringValue()
+                        ).orElseThrow().parseSound()),
                         org.bukkit.SoundCategory.valueOf(OptionsUtil.SOUND_VOTE_CHANNEL.getStringValue()),
                         1000, 1);
             }
         }
 
         if (OptionsUtil.DAILY.getBooleanValue()) {
-            int votes = userVoteData.getDailyVotes();
-            for (String s2 : voteReward.getConfig().getConfigurationSection("Rewards.Daily")
-                    .getKeys(false)) {
-                if (Integer.valueOf(s2).equals(votes)) {
-                    userVoteData.runCommands(voteReward.getConfig()
-                            .getStringList("Rewards.Daily." + s2 + ".commands"));
+            int votes = user.dailyVotes();
+            ConfigurationSection configurationSection = voteReward.getConfig().getConfigurationSection("Rewards.daily");
+            if (configurationSection != null) {
+                for (String s2 : configurationSection.getKeys(false)) {
+                    if (Integer.valueOf(s2).equals(votes)) {
+                        runCommands(player, voteReward.getConfig()
+                                .getStringList("Rewards.Daily." + s2 + ".commands"));
+                    }
                 }
             }
         }
 
         // VOTE PARTY
         if (addVoteParty)
-            VotePartyUtils.voteParty(user.getOfflinePlayer(), false);
+            VotePartyUtils.voteParty(offlinePlayer, false);
 
         // NPC/HOLOGRAM UPDATE
         if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
@@ -179,7 +205,7 @@ public record VoteUtils(User user) {
         // DISCORD WEBHOOK
         if (OptionsUtil.DISCORD.getBooleanValue() & OptionsUtil.EXPERIMENTAL_FEATURES.getBooleanValue()) {
             FileConfiguration discordFileConfiguration = fileManager.getDiscord().getFileConfiguration();
-            BukkitMinecraftUtils.buildDiscordWebHookFromConfig(discordFileConfiguration, "vote", user.placeholders(), user.placeholders()).execute();
+            BukkitMinecraftUtils.buildDiscordWebHookFromConfig(discordFileConfiguration, "vote", User.placeholders(user), User.placeholders(user)).execute();
         }
 
         // DEBUG
@@ -195,54 +221,15 @@ public record VoteUtils(User user) {
      * Process player offline vote
      *
      * @param serviceName service name (dah)
-     * @throws Exception When something goes wrong
      */
-    public void processOfflineVote(final String serviceName) throws Exception {
-        UserVoteData userVoteData = UserVoteData.getUser(user.getUniqueId());
-        userVoteData.load(new Callback<>() {
-            @Override
-            public Boolean onSuccess() {
-                List<String> services = userVoteData.getOfflineServices();
-                services.add(serviceName);
-                userVoteData.setOfflineServices(services);
-                userVoteData.save(true, new Callback<>() {
-                    @Override
-                    public Boolean onSuccess() {
-                        if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
-                            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
-                                    debugUserMessage(user, "saved", true));
-                        }
-                        return true;
-                    }
-
-                    @Contract(pure = true)
-                    @Override
-                    public @NotNull Boolean onFailure() {
-                        return false;
-                    }
-
-                    @Override
-                    public @NotNull Boolean onFailure(@NotNull Throwable throwable) {
-                        throwable.printStackTrace();
-                        return onFailure();
-                    }
-                });
-                VotePartyUtils.voteParty(user.getOfflinePlayer(), false);
-                return true;
-            }
-
-            @Contract(pure = true)
-            @Override
-            public @NotNull Boolean onFailure() {
-                return true;
-            }
-
-            @Override
-            public @NotNull Boolean onFailure(@NotNull Throwable throwable) {
-                throwable.printStackTrace();
-                return onFailure();
-            }
-        });
+    public void processOfflineVote(final String serviceName) {
+        user.addServices(serviceName);
+        voteReward.getPlayerDataManager().save(user);
+        if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
+            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
+                    debugUserMessage(user, "saved", true));
+        }
+        VotePartyUtils.voteParty(Bukkit.getOfflinePlayer(user.name()), false);
     }
 
     /**
@@ -256,18 +243,20 @@ public record VoteUtils(User user) {
                 BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "monthlyReset0() Thread ID: " + Thread.currentThread().getId());
             CFG cfg = fileManager.getData();
             FileConfiguration dataConfiguration = cfg.getFileConfiguration();
-            if (OptionsUtil.MONTHLY_REWARDS.getBooleanValue())
+            if (OptionsUtil.MONTHLY_REWARDS.getBooleanValue()) {
                 for (int i = 0; i < OptionsUtil.MONTHLY_REWARDS_TO_TOP.getIntValue(); i++) {
                     String player = getTopPlayer(i);
-                    UserVoteData userVoteData = UserVoteData.getUser(UserVoteData.getAllUsersMapWithName().entrySet().stream().filter(stringUserEntry -> stringUserEntry.getKey().equals(player)).findFirst().get().getValue().getOfflinePlayer());
-                    userVoteData.runCommands(voteReward.getConfig().getStringList("Rewards.monthly." + i));
+                    OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(player);
+                    if (!offlinePlayer.hasPlayedBefore()) {
+                        return;
+                    }
+
+                    runCommands(offlinePlayer, voteReward.getConfig().getStringList("Rewards.monthly." + i));
                 }
+            }
             if (dataConfiguration.getInt("month") != Calendar.getInstance().getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().getMonthValue()) {
-                ObjectMap<UUID, User> objectMap = UserVoteData.getAllUsersMap();
-                objectMap.forEach((uuid, user) -> {
-                    UserVoteData userVoteData = UserVoteData.getUser(uuid);
-                    userVoteData.reset(false);
-                });
+                ObjectMap<UUID, User> objectMap = voteReward.getPlayerDataManager().getLoadedEntities();
+                objectMap.forEach((uuid, user) -> User.reset(user, false));
                 dataConfiguration.set("month", Calendar.getInstance().getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().getMonthValue());
                 cfg.saveFile();
             }
@@ -286,16 +275,15 @@ public record VoteUtils(User user) {
     private static void purgeData0() {
         if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
             BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "purgeData0() Thread ID: " + Thread.currentThread().getId());
-        ObjectMap<UUID, User> objectMap = UserVoteData.getAllUsersMap();
+        ObjectMap<UUID, User> objectMap = voteReward.getPlayerDataManager().getLoadedEntities();
         objectMap.forEach((uuid, user) -> {
-            UserVoteData userVoteData = UserVoteData.getUser(uuid);
-            long time = userVoteData.getLastVote() + (OptionsUtil.PURGE_DAYS.getLongValue() * 86400000);
+            long time = user.lastVote() + (OptionsUtil.PURGE_DAYS.getLongValue() * 86400000);
             if (OptionsUtil.DEBUG_OTHER.getBooleanValue()) {
-                BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), Instant.ofEpochMilli(userVoteData.getLastVote()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
+                BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), Instant.ofEpochMilli(user.lastVote()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
                 BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), Instant.ofEpochMilli(time).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
             }
             if (time <= System.currentTimeMillis()) {
-                userVoteData.delete();
+                voteReward.getPlayerDataManager().delete(user);
             }
 
         });
@@ -313,42 +301,18 @@ public record VoteUtils(User user) {
     private static void dailyReset0() {
         if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
             BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "dailyReset0() Thread ID: " + Thread.currentThread().getId());
-        ObjectMap<UUID, User> objectMap = UserVoteData.getAllUsersMap();
+        ObjectMap<UUID, User> objectMap = voteReward.getPlayerDataManager().getLoadedEntities();
         objectMap.forEach((uuid, user) -> {
-            UserVoteData userVoteData = UserVoteData.getUser(uuid);
-            long time = userVoteData.getLastVote() + (OptionsUtil.DAILY_HOURS.getIntValue() * 60 * 60 * 1000);
+            long time = user.lastVote() + (OptionsUtil.DAILY_HOURS.getIntValue() * 60 * 60 * 1000);
             if (OptionsUtil.DEBUG_OTHER.getBooleanValue()) {
-                BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), Instant.ofEpochMilli(userVoteData.getLastVote()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
+                BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), Instant.ofEpochMilli(user.lastVote()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
                 BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), Instant.ofEpochMilli(time).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())).toString());
             }
 
             if (time <= System.currentTimeMillis()) {
-                if (userVoteData.getDailyVotes() > 0) {
-                    userVoteData.setDailyVotes(0);
-                    if (user.getOfflinePlayer().isOnline()) {
-                        objectMap.append(uuid, userVoteData.user());
-                    } else {
-                        userVoteData.save(true, new Callback<>() {
-                            @Override
-                            public Boolean onSuccess() {
-                                if (OptionsUtil.DEBUG_VOTES_DAILY.getBooleanValue()) {
-                                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Daily vote reset!");
-                                }
-                                return true;
-                            }
-
-                            @Override
-                            public Boolean onFailure() {
-                                return true;
-                            }
-
-                            @Override
-                            public Boolean onFailure(Throwable throwable) {
-                                throwable.printStackTrace();
-                                return onFailure();
-                            }
-                        });
-                    }
+                if (user.dailyVotes() > 0) {
+                    user.dailyVotes(0);
+                    voteReward.getPlayerDataManager().save(user);
                 }
             }
         });
@@ -361,8 +325,8 @@ public record VoteUtils(User user) {
     public static LinkedObjectMap<String, Integer> getTopPlayers(int limit) {
         ObjectMap<String, Integer> objectMap = new LinkedObjectMap<>();
 
-        for (Map.Entry<UUID, User> entry : UserVoteData.getAllUsersMap().entrySet()) {
-            objectMap.append(entry.getValue().getString("name"), entry.getValue().getInteger("votes"));
+        for (Map.Entry<UUID, User> entry : voteReward.getPlayerDataManager().getLoadedEntities().entrySet()) {
+            objectMap.append(entry.getValue().name(), entry.getValue().votes());
         }
 
         return objectMap.entrySet().stream()
@@ -377,8 +341,8 @@ public record VoteUtils(User user) {
     public static LinkedObjectMap<String, Integer> getPlayersByVotes() {
         ObjectMap<String, Integer> objectMap = new LinkedObjectMap<>();
 
-        for (Map.Entry<UUID, User> entry : UserVoteData.getAllUsersMap().entrySet()) {
-            objectMap.append(entry.getValue().getString("name"), entry.getValue().getInteger("votes"));
+        for (Map.Entry<UUID, User> entry : voteReward.getPlayerDataManager().getLoadedEntities().entrySet()) {
+            objectMap.append(entry.getValue().name(), entry.getValue().votes());
         }
 
         return objectMap.entrySet().stream()
@@ -393,8 +357,8 @@ public record VoteUtils(User user) {
     public static LinkedObjectMap<String, Integer> getAllTimeTopPlayers(int limit) {
         ObjectMap<String, Integer> objectMap = new LinkedObjectMap<>();
 
-        for (Map.Entry<UUID, User> entry : UserVoteData.getAllUsersMap().entrySet()) {
-            objectMap.append(entry.getValue().getString("name"), entry.getValue().getInteger("totalvotes"));
+        for (Map.Entry<UUID, User> entry : voteReward.getPlayerDataManager().getLoadedEntities().entrySet()) {
+            objectMap.append(entry.getValue().name(), entry.getValue().totalVotes());
         }
 
         return objectMap.entrySet().stream()
@@ -409,8 +373,8 @@ public record VoteUtils(User user) {
     public static LinkedObjectMap<String, Integer> getPlayersByAllTimeVotes() {
         ObjectMap<String, Integer> objectMap = new LinkedObjectMap<>();
 
-        for (Map.Entry<UUID, User> entry : UserVoteData.getAllUsersMap().entrySet()) {
-            objectMap.append(entry.getValue().getString("name"), entry.getValue().getInteger("totalvotes"));
+        for (Map.Entry<UUID, User> entry : voteReward.getPlayerDataManager().getLoadedEntities().entrySet()) {
+            objectMap.append(entry.getValue().name(), entry.getValue().totalVotes());
         }
 
         return objectMap.entrySet().stream()
@@ -438,13 +402,28 @@ public record VoteUtils(User user) {
 
     private static void reminder0(Player key, Long value) {
         if (value <= System.currentTimeMillis()) {
-            UserVoteData userVoteData = UserVoteData.getUser(key.getUniqueId());
-            if (System.currentTimeMillis() >= userVoteData.getLastVote() + (24 * 60 * 60 * 1000)) {
-                ObjectMap<String, String> placeholders = new HashObjectMap<>();
-                placeholders.append("%player%", key.getName());
-                MessagesUtil.REMINDER.msg(key, placeholders, true);
-            }
-            reminderMap.replace(key, System.currentTimeMillis() + (OptionsUtil.REMINDER_SEC.getIntValue() * 1000));
+            voteReward.getPlayerDataManager().getEntity(key.getUniqueId()).handle((userData, throwable) -> {
+                if (throwable != null) {
+                    voteReward.getLogger().log(Level.SEVERE, "Error while trying to remind player to vote", throwable);
+                    return null;
+                }
+                return userData;
+            }).thenAccept(userData -> {
+                if (userData != null) {
+                    if (System.currentTimeMillis() >= userData.lastVote() + (24 * 60 * 60 * 1000)) {
+                        ObjectMap<String, String> placeholders = new HashObjectMap<>();
+                        placeholders.append("%player%", key.getName());
+                        MessagesUtil.REMINDER.msg(key, placeholders, true);
+                    }
+                    reminderMap.append(key, System.currentTimeMillis() + (OptionsUtil.REMINDER_SEC.getIntValue() * 1000));
+                }
+            }).handle((unused, throwable) -> {
+                if (throwable != null) {
+                    voteReward.getLogger().log(Level.SEVERE, "Error while trying to remind player to vote", throwable);
+                    return unused;
+                }
+                return unused;
+            });
         }
     }
 
@@ -500,14 +479,22 @@ public record VoteUtils(User user) {
     }
 
     public static String @NotNull [] debugUserMessage(@NotNull User user, String b, boolean c) {
-        return new String[]{c ? "User " + user.getName() + " successfully " + b + "!" : "User: " + user.getName(),
-                "Votes: " + user.getVotes(),
-                "Daily Votes: " + user.getDailyVotes(),
-                "Last Voted: " + Instant.ofEpochMilli(user.getLastVoted()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())) + user.getLastVoted(),
-                "Services: " + user.getServices(),
-                "Services Last Vote: " + user.getServicesLastVote().entrySet().stream().toList(),
-                "Vote Parties: " + user.getVoteParties(),
-                "All time votes: " + user.getAllTimeVotes()};
+        return new String[]{c ? "User " + user.name() + " successfully " + b + "!" : "User: " + user.name(),
+                "Votes: " + user.votes(),
+                "Daily Votes: " + user.dailyVotes(),
+                "Last Voted: " + Instant.ofEpochMilli(user.lastVote()).atZone(ZoneOffset.systemDefault().getRules().getOffset(Instant.now())) + user.lastVote(),
+                "Services: " + user.services(),
+                "Services Last Vote: " + user.servicesLastVote().entrySet().stream().toList(),
+                "Vote Parties: " + user.voteparty(),
+                "All time votes: " + user.totalVotes()};
+    }
+
+    public static void runCommands(@NotNull OfflinePlayer offlinePlayer, @NotNull List<String> s) {
+        BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "RUNNING COMMANDS FOR PLAYER: " + offlinePlayer.getName());
+        ObjectMap<String, String> objectMap = new HashObjectMap<String, String>().append("%player%", offlinePlayer.getName());
+        for (String b : s) {
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), BukkitMinecraftUtils.placeholderAPI(offlinePlayer, b, objectMap, true));
+        }
     }
 
 }
