@@ -1,145 +1,132 @@
 package com.georgev22.voterewards.utilities.player;
 
-import com.georgev22.library.maps.ConcurrentObjectMap;
 import com.georgev22.library.maps.HashObjectMap;
 import com.georgev22.library.maps.ObjectMap;
+import com.georgev22.library.utilities.EntityManager;
+import com.georgev22.voterewards.VoteReward;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+import java.io.Serial;
+import java.util.ArrayList;
 import java.util.UUID;
 
-public class User extends ConcurrentObjectMap<String, Object> {
+public class User extends EntityManager.Entity {
 
-    private final UUID uuid;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-    /**
-     * Creates a User instance.
-     *
-     * @param uuid Player Unique identifier
-     */
     public User(UUID uuid) {
-        this.uuid = uuid;
-        append("uuid", uuid);
+        super(uuid);
+        this.addCustomDataIfNotExists("name", Bukkit.getOfflinePlayer(uuid).getName());
+        this.addCustomDataIfNotExists("votes", 0);
+        this.addCustomDataIfNotExists("daily", 0);
+        this.addCustomDataIfNotExists("last", 0L);
+        this.addCustomDataIfNotExists("voteparty", 0);
+        this.addCustomDataIfNotExists("totalvotes", 0);
+        this.addCustomDataIfNotExists("servicesLastVote", new HashObjectMap<String, Long>());
+        this.addCustomDataIfNotExists("services", new ArrayList<String>());
     }
 
-    /**
-     * Creates a User instance initialized with the given map.
-     *
-     * @param uuid User Unique ID
-     * @param map  initial map
-     * @see User#User(UUID)
-     */
-    public User(UUID uuid, final @NotNull ObjectMap<String, Object> map) {
-        super(map.append("uuid", uuid));
-        this.uuid = uuid;
+    public String name() {
+        return this.getCustomData("name");
     }
 
-    /**
-     * Returns User's Unique ID
-     *
-     * @return User's Unique ID
-     */
-    public UUID getUniqueId() {
-        return uuid;
+    public void name(String name) {
+        this.addCustomData("name", name);
     }
 
-    /**
-     * Gets the player, regardless if they are offline or
-     * online.
-     * <p>
-     * This will return an object even if the player does not exist. To this
-     * method, all players will exist.
-     *
-     * @return an offline player
-     */
-    @NotNull
-    public OfflinePlayer getOfflinePlayer() {
-        return Bukkit.getOfflinePlayer(getUniqueId());
+    public int votes() {
+        return this.getCustomData("votes");
     }
 
-    public Player getPlayer() {
-        return getOfflinePlayer().getPlayer();
+    public void votes(int votes) {
+        this.addCustomData("votes", votes);
     }
 
-    /**
-     * Returns the name of this player
-     *
-     * @return Player name or null
-     */
-    @Nullable
-    public String getName() {
-        return getString("name", getOfflinePlayer().getName());
+    public int dailyVotes() {
+        return this.getCustomData("daily");
     }
 
-    /**
-     * Get user total votes
-     *
-     * @return user total votes
-     */
-    public int getVotes() {
-        return getInteger("votes", 0);
+    public void dailyVotes(int dailyVotes) {
+        this.addCustomData("daily", dailyVotes);
     }
 
-    /**
-     * Get user daily votes
-     *
-     * @return user daily votes
-     */
-    public int getDailyVotes() {
-        return getInteger("daily", 0);
+    public long lastVote() {
+        return this.getCustomData("last");
     }
 
-    /**
-     * Get the last time when the user voted
-     *
-     * @return the last time when the user voted
-     */
-    public long getLastVoted() {
-        return getLong("last", 0L);
+    public void lastVote(long lastVote) {
+        this.addCustomData("last", lastVote);
     }
 
-    /**
-     * Get user virtual crates
-     *
-     * @return user virtual crates
-     */
-    public int getVoteParties() {
-        return getInteger("voteparty", 0);
+    public int voteparty() {
+        return this.getCustomData("voteparty");
     }
 
-    /**
-     * Get user all time votes
-     *
-     * @return user all time votes
-     */
-    public int getAllTimeVotes() {
-        return getInteger("totalvotes", 0);
+    public void voteparty(int voteparty) {
+        this.addCustomData("voteparty", voteparty);
     }
 
-    public ObjectMap<String, Long> getServicesLastVote() {
-        return get("servicesLastVote", new HashObjectMap<>());
+    public int totalVotes() {
+        return this.getCustomData("totalvotes");
     }
 
-    /**
-     * Get all services that the user have voted
-     * when he was offline
-     *
-     * @return services
-     */
-    public List<String> getServices() {
-        return getList("services", String.class);
+    public void totalVotes(int totalVotes) {
+        this.addCustomData("totalvotes", totalVotes);
     }
 
-    public ObjectMap<String, String> placeholders() {
+    public ObjectMap<String, Long> servicesLastVote() {
+        return this.getCustomData("servicesLastVote");
+    }
+
+    public void servicesLastVote(ObjectMap<String, Long> servicesLastVote) {
+        this.addCustomData("servicesLastVote", servicesLastVote);
+    }
+
+    public void addServicesLastVote(String serviceName) {
+        if (servicesLastVote() != null) {
+            servicesLastVote(servicesLastVote().append(serviceName, System.currentTimeMillis()));
+        }
+    }
+
+    public ArrayList<String> services() {
+        return this.getCustomData("services");
+    }
+
+    public void addServices(String serviceName) {
+        if (services() != null) {
+            ArrayList<String> services = services();
+            services.add(serviceName);
+            services(services);
+        }
+    }
+
+    public void services(ArrayList<String> services) {
+        this.addCustomData("services", services);
+    }
+
+    public static ObjectMap<String, String> placeholders(@NotNull User user) {
         return new HashObjectMap<String, String>()
-                .append("%player%", getName())
-                .append("%votes%", String.valueOf(getVotes()))
-                .append("%totalVotes%", String.valueOf(getAllTimeVotes()))
-                .append("%daily%", String.valueOf(getDailyVotes()))
-                .append("%voteparties%", String.valueOf(getVoteParties()));
+                .append("%player%", user.name())
+                .append("%votes%", String.valueOf(user.votes()))
+                .append("%totalVotes%", String.valueOf(user.totalVotes()))
+                .append("%daily%", String.valueOf(user.dailyVotes()))
+                .append("%voteparties%", String.valueOf(user.voteparty()));
     }
+
+    public static void reset(@NotNull User user, boolean allTime) {
+        user.addCustomData("name", Bukkit.getOfflinePlayer(user.getId()).getName());
+        user.addCustomData("votes", 0);
+        user.addCustomData("daily", 0);
+        user.addCustomData("last", 0L);
+        user.addCustomData("voteparty", 0);
+        if (allTime) {
+            user.addCustomData("totalvotes", 0);
+        }
+        user.addCustomData("servicesLastVote", new HashObjectMap<String, Long>());
+        user.addCustomData("services", new ArrayList<String>());
+        VoteReward.getInstance().getPlayerDataManager().save(user);
+    }
+
 }
