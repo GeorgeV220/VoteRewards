@@ -1,0 +1,26 @@
+main: com.georgev22.voterewards.votereward.VoteRewardPlugin
+name: VoteRewards
+version: ${version}
+authors:
+  - GeorgeV22
+  - Shin1gamiX
+  - Antares (GalaxyEaterGR)
+api-version: 1.13
+load: POSTWORLD
+depend:
+  - Votifier
+softdepend:
+  - PlaceholderAPI
+  - ProtocolLib
+  - AuthMeReloaded
+  - WorldEdit
+  - WorldGuard
+  - HolographicDisplays
+libraries:
+  - org.mongodb:mongo-java-driver:3.12.12
+  - mysql:mysql-connector-java:8.0.32
+  - org.xerial:sqlite-jdbc:3.41.0.0
+  - com.google.guava:guava:31.1-jre
+  - org.postgresql:postgresql:42.5.4
+  - commons-io:commons-io:2.11.0
+  - commons-codec:commons-codec:1.15
