@@ -19,12 +19,12 @@ public class VoteTopCommand extends Command {
     @CommandPermission("voterewards.votetop")
     public void execute(@NotNull CommandIssuer commandIssuer, final String[] args) {
         if (!commandIssuer.isPlayer()) {
-            sendMsg(commandIssuer.getIssuer());
+            sendMsg(commandIssuer);
         } else {
             if (OptionsUtil.EXPERIMENTAL_FEATURES.getBooleanValue() && OptionsUtil.VOTETOP_GUI.getBooleanValue()) {
                 new VoteTopInventory().openTopPlayersInventory(commandIssuer.getIssuer(), !OptionsUtil.VOTETOP_GUI_TYPE.getStringValue().equalsIgnoreCase("monthly"));
             } else {
-                sendMsg(commandIssuer.getIssuer());
+                sendMsg(commandIssuer);
             }
         }
     }
