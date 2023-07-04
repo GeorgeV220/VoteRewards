@@ -8,13 +8,13 @@ import com.georgev22.api.libraryloader.exceptions.UnknownDependencyException;
 import com.georgev22.library.database.DatabaseType;
 import com.georgev22.library.database.DatabaseWrapper;
 import com.georgev22.library.database.mongo.MongoDB;
-import com.georgev22.library.extensions.Extension;
 import com.georgev22.library.maps.HashObjectMap;
 import com.georgev22.library.maps.ObjectMap;
 import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.library.minecraft.inventory.PagedInventoryAPI;
 import com.georgev22.library.scheduler.SchedulerManager;
 import com.georgev22.library.utilities.Utils;
+import com.georgev22.library.yaml.InvalidConfigurationException;
 import com.georgev22.library.yaml.configmanager.CFG;
 import com.georgev22.library.yaml.file.FileConfiguration;
 import com.georgev22.library.yaml.file.YamlConfiguration;
@@ -33,13 +33,11 @@ import com.georgev22.voterewards.utilities.interfaces.IDatabaseType;
 import com.georgev22.voterewards.utilities.player.UserVoteData;
 import com.georgev22.voterewards.utilities.player.VoteUtils;
 import com.georgev22.voterewards.votereward.VoteRewardImpl;
-import com.google.common.collect.Lists;
 import com.mongodb.client.MongoClient;
 import lombok.Getter;
 import lombok.Setter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -63,8 +61,6 @@ import java.util.logging.Logger;
 @MavenLibrary(groupId = "commons-io", artifactId = "commons-io", version = "2.11.0")
 @MavenLibrary(groupId = "commons-codec", artifactId = "commons-codec", version = "1.15")
 public class VoteReward {
-
-    private final List<Extension> extensionList = Lists.newArrayList();
 
     private PAPI placeholdersAPI = null;
 

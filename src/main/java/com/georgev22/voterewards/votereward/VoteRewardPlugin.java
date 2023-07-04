@@ -1,20 +1,14 @@
 package com.georgev22.voterewards.votereward;
 
-import com.georgev22.api.libraryloader.LibraryLoader;
-import com.georgev22.api.libraryloader.annotations.MavenLibrary;
 import com.georgev22.api.libraryloader.exceptions.InvalidDependencyException;
 import com.georgev22.api.libraryloader.exceptions.UnknownDependencyException;
 import com.georgev22.voterewards.VoteReward;
 import lombok.Getter;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.plugin.java.JavaPluginLoader;
 
-import java.io.File;
 import java.util.logging.Level;
 
-@MavenLibrary(value = "com.georgev22.library:martexlibrary:10.1.1:https://repo.georgev22.com/releases")
 public class VoteRewardPlugin extends JavaPlugin implements VoteRewardImpl {
 
     @Getter
@@ -24,20 +18,16 @@ public class VoteRewardPlugin extends JavaPlugin implements VoteRewardImpl {
 
     private Description description;
 
-    public VoteRewardPlugin() {
-        super();
-    }
-
-    protected VoteRewardPlugin(JavaPluginLoader loader, PluginDescriptionFile description, File dataFolder, File file) {
-        super(loader, description, dataFolder, file);
-    }
-
     @Override
     public void onLoad() {
         instance = this;
         try {
-            new LibraryLoader(this.getClass(), this.getDataFolder()).loadAll(true);
-            description = new Description(getDescription());
+            description = new Description(
+                    getDescription().getName(),
+                    getDescription().getVersion(),
+                    getDescription().getMain(),
+                    getDescription().getAuthors()
+            );
             voteRewardInstance = new VoteReward(this);
             voteRewardInstance.onLoad();
         } catch (UnknownDependencyException | InvalidDependencyException e) {
@@ -68,9 +58,8 @@ public class VoteRewardPlugin extends JavaPlugin implements VoteRewardImpl {
     }
 
     @Override
-    public boolean setEnable(boolean enabled) {
+    public void setEnable(boolean enabled) {
         setEnabled(enabled);
-        return isEnabled();
     }
 
     public static VoteReward getVoteRewardInstance() {

@@ -1,7 +1,5 @@
 package com.georgev22.voterewards.votereward;
 
-import com.georgev22.library.extensions.ExtensionDescriptionFile;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -16,7 +14,7 @@ public interface VoteRewardImpl {
 
     Description getDesc();
 
-    boolean setEnable(boolean enabled);
+    void setEnable(boolean enabled);
 
     boolean isEnabled();
 
@@ -24,32 +22,30 @@ public interface VoteRewardImpl {
 
     final class Description {
 
-        private PluginDescriptionFile pluginDescriptionFile;
+        private final String name, version, main;
+        private final List<String> authors;
 
-        private ExtensionDescriptionFile extensionDescriptionFile;
-
-        Description(PluginDescriptionFile pluginDescriptionFile) {
-            this.pluginDescriptionFile = pluginDescriptionFile;
-        }
-
-        Description(ExtensionDescriptionFile extensionDescriptionFile) {
-            this.extensionDescriptionFile = extensionDescriptionFile;
+        Description(String name, String version, String main, List<String> authors) {
+            this.name = name;
+            this.version = version;
+            this.main = main;
+            this.authors = authors;
         }
 
         public String getName() {
-            return pluginDescriptionFile == null ? extensionDescriptionFile.getName() : pluginDescriptionFile.getName();
+            return this.name;
         }
 
         public String getVersion() {
-            return pluginDescriptionFile == null ? extensionDescriptionFile.getVersion() : pluginDescriptionFile.getVersion();
+            return this.version;
         }
 
         public String getMain() {
-            return pluginDescriptionFile == null ? extensionDescriptionFile.getMain() : pluginDescriptionFile.getMain();
+            return this.main;
         }
 
         public @NotNull List<String> getAuthors() {
-            return pluginDescriptionFile == null ? extensionDescriptionFile.getAuthors() : pluginDescriptionFile.getAuthors();
+            return this.authors;
         }
     }
 
