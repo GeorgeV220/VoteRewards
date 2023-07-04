@@ -7,13 +7,11 @@ import com.georgev22.api.libraryloader.exceptions.InvalidDependencyException;
 import com.georgev22.api.libraryloader.exceptions.UnknownDependencyException;
 import com.georgev22.library.database.DatabaseType;
 import com.georgev22.library.database.DatabaseWrapper;
-import com.georgev22.library.database.mongo.MongoDB;
 import com.georgev22.library.maps.HashObjectMap;
 import com.georgev22.library.maps.ObjectMap;
 import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.library.minecraft.inventory.PagedInventoryAPI;
 import com.georgev22.library.scheduler.SchedulerManager;
-import com.georgev22.library.utilities.Utils;
 import com.georgev22.library.yaml.InvalidConfigurationException;
 import com.georgev22.library.yaml.configmanager.CFG;
 import com.georgev22.library.yaml.file.FileConfiguration;
@@ -29,28 +27,25 @@ import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.georgev22.voterewards.utilities.Updater;
 import com.georgev22.voterewards.utilities.configmanager.FileManager;
 import com.georgev22.voterewards.utilities.interfaces.Holograms;
-import com.georgev22.voterewards.utilities.interfaces.IDatabaseType;
-import com.georgev22.voterewards.utilities.player.UserVoteData;
+import com.georgev22.voterewards.utilities.player.PlayerDataManager;
 import com.georgev22.voterewards.utilities.player.VoteUtils;
 import com.georgev22.voterewards.votereward.VoteRewardImpl;
-import com.mongodb.client.MongoClient;
 import lombok.Getter;
 import lombok.Setter;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @MavenLibrary(groupId = "org.mongodb", artifactId = "mongo-java-driver", version = "3.12.7")
@@ -67,38 +62,16 @@ public class VoteReward {
     @Getter
     private DatabaseWrapper databaseWrapper = null;
 
-    /**
-     * Return Database Type
-     *
-     * @return Database Type
-     */
-    @Getter
-    private IDatabaseType iDatabaseType = null;
 
-    /**
-     * Get Database open connection
-     *
-     * @return connection
-     */
     @Getter
-    private Connection connection = null;
-
-    /**
-     * Return MongoDB instance when MongoDB is in use.
-     * <p>
-     * Returns null if MongoDB is not in use
-     *
-     * @return {@link MongoDB} instance
-     */
-    @Getter
-    private @Nullable MongoClient mongoClient = null;
+    private PlayerDataManager playerDataManager;
 
     @Getter
     private Holograms holograms = new Holograms.HologramsNoop();
 
     @Getter
     @Setter
-    private Plugin plugin = null;
+    private JavaPlugin plugin = null;
 
     @Getter
     private NoPlayerCharacterAPI noPlayerCharacterAPI = null;
@@ -121,6 +94,8 @@ public class VoteReward {
     @Getter
     private PagedInventoryAPI pagedInventoryAPI = null;
 
+    private LibraryLoader libraryLoader;
+
     private int tick = 0;
 
     public static VoteReward getInstance() {
@@ -135,8 +110,10 @@ public class VoteReward {
 
     public void onLoad() throws UnknownDependencyException, InvalidDependencyException {
         instance = this;
-        if (BukkitMinecraftUtils.MinecraftVersion.getCurrentVersion().isBelow(BukkitMinecraftUtils.MinecraftVersion.V1_16_R1))
-            new LibraryLoader(this.getClass(), this.getDataFolder()).loadAll(true);
+        if (BukkitMinecraftUtils.MinecraftVersion.getCurrentVersion().isBelow(BukkitMinecraftUtils.MinecraftVersion.V1_16_R1)) {
+            this.libraryLoader = new LibraryLoader(this.getClass().getClassLoader(), this.getDataFolder(), this.getLogger());
+            this.libraryLoader.loadAll(this.getClass(), true);
+        }
         ConfigurationSerialization.registerClass(BukkitMinecraftUtils.SerializableLocation.class);
     }
 
@@ -260,27 +237,26 @@ public class VoteReward {
         if (noPlayerCharacterAPI != null && noPlayerCharacterAPI.isHooked() && !noPlayerCharacterAPI.getNPCMap().isEmpty())
             noPlayerCharacterAPI.getNPCMap().forEach((name, npcIntegerPair) -> noPlayerCharacterAPI.remove(name, false));
         Bukkit.getOnlinePlayers().forEach(player -> {
-            UserVoteData userVoteData = UserVoteData.getUser(player.getUniqueId());
-            userVoteData.save(false, new Utils.Callback<>() {
-                @Override
-                public Boolean onSuccess() {
+            playerDataManager.getEntity(player.getUniqueId()).handle((userData, throwable) -> {
+                if (throwable != null) {
+                    this.getLogger().log(Level.SEVERE, "Error while disabling the plugin:", throwable);
+                    return null;
+                }
+                return userData;
+            }).thenAccept(userData -> {
+                if (userData != null) {
+                    playerDataManager.save(userData);
                     if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
                         BukkitMinecraftUtils.debug(getName(), getVersion(),
-                                VoteUtils.debugUserMessage(userVoteData.user(), "saved", true));
+                                VoteUtils.debugUserMessage(userData, "saved", true));
                     }
-                    return true;
                 }
-
-                @Override
-                public Boolean onFailure() {
-                    return false;
+            }).handle((unused, throwable) -> {
+                if (throwable != null) {
+                    this.getLogger().log(Level.SEVERE, "Error while disabling the plugin:", throwable);
+                    return unused;
                 }
-
-                @Override
-                public Boolean onFailure(Throwable throwable) {
-                    throwable.printStackTrace();
-                    return onFailure();
-                }
+                return unused;
             });
         });
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
@@ -290,18 +266,18 @@ public class VoteReward {
                 }
             }
         }
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        if (mongoClient != null) {
-            mongoClient.close();
+        if (databaseWrapper != null && databaseWrapper.isConnected()) {
+            databaseWrapper.disconnect();
         }
         unregisterCommands();
         SchedulerManager.getScheduler().cancelTasks(this.getClass());
+        if (this.libraryLoader != null) {
+            try {
+                this.libraryLoader.unloadAll();
+            } catch (InvalidDependencyException e) {
+                this.getLogger().log(Level.SEVERE, "Error:", e);
+            }
+        }
     }
 
 
@@ -326,56 +302,59 @@ public class VoteReward {
                 .append("totalvotes", ObjectMap.Pair.create("INT(10)", "0"));
         switch (OptionsUtil.DATABASE_TYPE.getStringValue()) {
             case "MySQL" -> {
-                if (connection == null || connection.isClosed()) {
+                if (databaseWrapper == null || !databaseWrapper.isConnected()) {
                     databaseWrapper = new DatabaseWrapper(DatabaseType.MYSQL,
                             OptionsUtil.DATABASE_HOST.getStringValue(),
-                            OptionsUtil.DATABASE_PORT.getStringValue(),
+                            OptionsUtil.DATABASE_PORT.getIntValue(),
                             OptionsUtil.DATABASE_USER.getStringValue(),
                             OptionsUtil.DATABASE_PASSWORD.getStringValue(),
-                            OptionsUtil.DATABASE_DATABASE.getStringValue());
-                    connection = databaseWrapper.connect().getSQLConnection();
-                    databaseWrapper.getSQLDatabase().createTable(OptionsUtil.DATABASE_TABLE_NAME.getStringValue(), map);
-                    iDatabaseType = new UserVoteData.SQLUserUtils();
+                            OptionsUtil.DATABASE_DATABASE.getStringValue(),
+                            this.getLogger());
+                    this.sqlConnect(map);
                     BukkitMinecraftUtils.debug(getName(), getVersion(), "Database: MySQL");
                 }
             }
             case "PostgreSQL" -> {
-                if (connection == null || connection.isClosed()) {
+                if (databaseWrapper == null || !databaseWrapper.isConnected()) {
                     databaseWrapper = new DatabaseWrapper(DatabaseType.POSTGRESQL,
                             OptionsUtil.DATABASE_HOST.getStringValue(),
-                            OptionsUtil.DATABASE_PORT.getStringValue(),
+                            OptionsUtil.DATABASE_PORT.getIntValue(),
                             OptionsUtil.DATABASE_USER.getStringValue(),
                             OptionsUtil.DATABASE_PASSWORD.getStringValue(),
-                            OptionsUtil.DATABASE_DATABASE.getStringValue());
-                    connection = databaseWrapper.connect().getSQLConnection();
-                    databaseWrapper.getSQLDatabase().createTable(OptionsUtil.DATABASE_TABLE_NAME.getStringValue(), map);
-                    iDatabaseType = new UserVoteData.SQLUserUtils();
+                            OptionsUtil.DATABASE_DATABASE.getStringValue(),
+                            this.getLogger());
+                    this.sqlConnect(map);
                     BukkitMinecraftUtils.debug(getName(), getVersion(), "Database: PostgreSQL");
                 }
             }
             case "SQLite" -> {
-                if (connection == null || connection.isClosed()) {
-                    databaseWrapper = new DatabaseWrapper(DatabaseType.SQLITE, getDataFolder().getAbsolutePath(), OptionsUtil.DATABASE_SQLITE.getStringValue());
-                    connection = databaseWrapper.connect().getSQLConnection();
-                    databaseWrapper.getSQLDatabase().createTable(OptionsUtil.DATABASE_TABLE_NAME.getStringValue(), map);
-                    iDatabaseType = new UserVoteData.SQLUserUtils();
+                if (this.databaseWrapper == null || !this.databaseWrapper.isConnected()) {
+                    this.databaseWrapper = new DatabaseWrapper(DatabaseType.SQLITE,
+                            getDataFolder().getAbsolutePath(),
+                            0,
+                            "",
+                            "",
+                            OptionsUtil.DATABASE_SQLITE.getStringValue(),
+                            this.getLogger());
+                    this.sqlConnect(map);
                     BukkitMinecraftUtils.debug(getName(), getVersion(), "Database: SQLite");
                 }
             }
             case "MongoDB" -> {
                 databaseWrapper = new DatabaseWrapper(DatabaseType.MONGO,
                         OptionsUtil.DATABASE_MONGO_HOST.getStringValue(),
-                        OptionsUtil.DATABASE_MONGO_PORT.getStringValue(),
+                        OptionsUtil.DATABASE_MONGO_PORT.getIntValue(),
                         OptionsUtil.DATABASE_MONGO_USER.getStringValue(),
                         OptionsUtil.DATABASE_MONGO_PASSWORD.getStringValue(),
-                        OptionsUtil.DATABASE_MONGO_DATABASE.getStringValue());
-                iDatabaseType = new UserVoteData.MongoDBUtils();
-                mongoClient = databaseWrapper.connect().getMongoClient();
+                        OptionsUtil.DATABASE_MONGO_DATABASE.getStringValue(),
+                        this.getLogger());
+                this.databaseWrapper.connect();
+                playerDataManager = new PlayerDataManager(databaseWrapper, OptionsUtil.DATABASE_DATABASE.getStringValue());
                 BukkitMinecraftUtils.debug(getName(), getVersion(), "Database: MongoDB");
             }
             case "File" -> {
-                databaseWrapper = null;
-                iDatabaseType = new UserVoteData.FileUserUtils();
+                this.databaseWrapper = null;
+                this.playerDataManager = new PlayerDataManager(new File(this.getDataFolder(), "userdata"), null);
                 BukkitMinecraftUtils.debug(getName(), getVersion(), "Database: File");
             }
             default -> {
@@ -384,34 +363,20 @@ public class VoteReward {
             }
         }
 
-        UserVoteData.loadAllUsers();
+        this.playerDataManager.loadAll();
 
         Bukkit.getOnlinePlayers().forEach(player -> {
-            UserVoteData userVoteData = UserVoteData.getUser(player.getUniqueId());
-            try {
-                userVoteData.load(new Utils.Callback<>() {
-                    @Override
-                    public Boolean onSuccess() {
-                        UserVoteData.getAllUsersMap().append(userVoteData.user().getUniqueId(), userVoteData.user());
-                        if (OptionsUtil.DEBUG_LOAD.getBooleanValue())
-                            BukkitMinecraftUtils.debug(getName(), getVersion(), "Successfully loaded user " + userVoteData.user().getOfflinePlayer().getName());
-                        return true;
-                    }
-
-                    @Override
-                    public Boolean onFailure() {
-                        return false;
-                    }
-
-                    @Override
-                    public Boolean onFailure(Throwable throwable) {
-                        throwable.printStackTrace();
-                        return onFailure();
-                    }
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            this.playerDataManager.getEntity(player.getUniqueId()).handle((user, throwable) -> {
+                if (throwable != null) {
+                    voteReward.getLogger().log(Level.SEVERE, "Error while trying to get " + player.getName(), throwable);
+                    return null;
+                }
+                return user;
+            }).thenAccept(user -> {
+                if (OptionsUtil.DEBUG_LOAD.getBooleanValue()) {
+                    BukkitMinecraftUtils.debug(getName(), getVersion(), "Successfully loaded user " + player.getName());
+                }
+            });
         });
 
         if (holograms.isHooked())
@@ -524,6 +489,12 @@ public class VoteReward {
             BukkitMinecraftUtils.debug(getName(), getVersion(), "Failed to load language config 'lang_en.yaml': " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private void sqlConnect(ObjectMap<String, ObjectMap.Pair<String, String>> map) throws SQLException, ClassNotFoundException {
+        this.databaseWrapper.connect();
+        Objects.requireNonNull(this.databaseWrapper.getSQLDatabase()).createTable(OptionsUtil.DATABASE_TABLE_NAME.getStringValue(), map);
+        playerDataManager = new PlayerDataManager(databaseWrapper, OptionsUtil.DATABASE_DATABASE.getStringValue());
     }
 
 }
