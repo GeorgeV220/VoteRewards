@@ -1,16 +1,18 @@
 package com.georgev22.voterewards.utilities.player;
 
+import com.cryptomorin.xseries.XMaterial;
+import com.cryptomorin.xseries.XSound;
 import com.georgev22.library.maps.HashObjectMap;
 import com.georgev22.library.maps.ObjectMap;
 import com.georgev22.library.minecraft.BukkitMinecraftUtils;
-import com.georgev22.library.minecraft.xseries.XMaterial;
-import com.georgev22.library.minecraft.xseries.XSound;
 import com.georgev22.library.scheduler.SchedulerManager;
 import com.georgev22.library.utilities.Utils;
 import com.georgev22.library.yaml.configmanager.CFG;
 import com.georgev22.library.yaml.file.FileConfiguration;
 import com.georgev22.voterewards.VoteReward;
-import com.georgev22.voterewards.utilities.*;
+import com.georgev22.voterewards.utilities.MessagesUtil;
+import com.georgev22.voterewards.utilities.OptionsUtil;
+import com.georgev22.voterewards.utilities.Regions;
 import com.georgev22.voterewards.utilities.configmanager.FileManager;
 import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
@@ -25,6 +27,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 public class VotePartyUtils {
 
@@ -122,8 +125,13 @@ public class VotePartyUtils {
             }
 
             //REWARD
-            players.forEach(player -> {
-                UserVoteData userVoteData = UserVoteData.getUser(player);
+            players.forEach(player -> voteReward.getPlayerDataManager().getEntity(player.getUniqueId()).handle((userData, throwable) -> {
+                if (throwable != null) {
+                    voteReward.getLogger().log(Level.SEVERE, "Error while trying to start voteparty", throwable);
+                    return null;
+                }
+                return userData;
+            }).thenAccept(userData -> {
                 if (OptionsUtil.VOTEPARTY_CRATE.getBooleanValue()) {
                     if (player.isOnline()) {
                         if (OptionsUtil.VOTEPARTY_SOUND_START.getBooleanValue()) {
@@ -135,28 +143,28 @@ public class VotePartyUtils {
                                     BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "========================================================");
                                 }
                                 Objects.requireNonNull(player.getPlayer()).playSound(player.getPlayer().getLocation(), Objects.requireNonNull(XSound
-                                                .matchXSound(OptionsUtil.SOUND_VOTEPARTY_START.getStringValue()).get().parseSound()),
+                                                .matchXSound(OptionsUtil.SOUND_VOTEPARTY_START.getStringValue()).orElseThrow().parseSound()),
                                         1000, 1);
                             } else {
                                 Objects.requireNonNull(player.getPlayer()).playSound(player.getPlayer().getLocation(), Objects.requireNonNull(XSound
-                                                .matchXSound(OptionsUtil.SOUND_VOTEPARTY_START.getStringValue()).get().parseSound()),
+                                                .matchXSound(OptionsUtil.SOUND_VOTEPARTY_START.getStringValue()).orElseThrow().parseSound()),
                                         org.bukkit.SoundCategory.valueOf(OptionsUtil.SOUND_VOTEPARTY_START_CHANNEL.getStringValue()),
                                         1000, 1);
                             }
                         }
                         if (isInLocation(Objects.requireNonNull(player.getPlayer()).getLocation())) {
-                            userVoteData.setVoteParties(userVoteData.getVoteParty() + 1);
+                            userData.voteparty(userData.voteparty() + 1);
                             MessagesUtil.VOTEPARTY_UNCLAIMED.msg(player.getPlayer());
                         } else {
                             player.getPlayer().getInventory().addItem(crate(1));
                         }
                     } else {
-                        userVoteData.setVoteParties(userVoteData.getVoteParty() + 1);
+                        userData.voteparty(userData.voteparty() + 1);
                     }
                 } else {
                     chooseRandom(player, OptionsUtil.VOTEPARTY_RANDOM.getBooleanValue());
                 }
-            });
+            }));
 
             placeholders.clear();
             players.clear();
@@ -216,9 +224,11 @@ public class VotePartyUtils {
         ItemStack itemStack = new ItemStack(
                 Objects.requireNonNull(
                         XMaterial.matchXMaterial(
-                                Objects.requireNonNull(OptionsUtil.VOTEPARTY_CRATE_ITEM.getStringValue())).get().parseMaterial()));
+                                Objects.requireNonNull(OptionsUtil.VOTEPARTY_CRATE_ITEM.getStringValue())).orElseThrow().parseMaterial()));
         ItemMeta itemMeta = itemStack.getItemMeta();
+        //noinspection deprecation
         itemMeta.setDisplayName(BukkitMinecraftUtils.colorize(OptionsUtil.VOTEPARTY_CRATE_NAME.getStringValue()));
+        //noinspection deprecation
         itemMeta.setLore(BukkitMinecraftUtils.colorize(OptionsUtil.VOTEPARTY_CRATE_LORES.getStringList()));
         itemStack.setItemMeta(itemMeta);
         itemStack.setAmount(amount);
