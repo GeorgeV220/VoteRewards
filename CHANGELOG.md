@@ -1,3 +1,33 @@
+# [9.0.0](https://github.com/GeorgeV220/VoteRewards/compare/v8.3.0...v9.0.0) (2023-07-04)
+
+
+### Bug Fixes
+
+* Fix issue with sending message to commandIssuer ([820ea17](https://github.com/GeorgeV220/VoteRewards/commit/820ea17480b4bdaa6d2fee384d8dae9473a55430))
+* Handle exception and log warning message when failed to check for an update ([14894b8](https://github.com/GeorgeV220/VoteRewards/commit/14894b817b21b42c6c07fbb0d8ed60750a05730b))
+* **player:** fix method calls and record field access ([98416cd](https://github.com/GeorgeV220/VoteRewards/commit/98416cd9ca55d5b704580a8314c895d3eca206e9))
+
+
+### Features
+
+* 1.20 support. ([ef01f4f](https://github.com/GeorgeV220/VoteRewards/commit/ef01f4fcd2f2574ad23145ef3ffd662219207ae9))
+* add plugin.yml ([1f3289e](https://github.com/GeorgeV220/VoteRewards/commit/1f3289e938c87b74ff8b514a593f8c2b9d6f111e))
+* **commands:** Update Commands to use new User class and changed CommandExecutor to CommandIssuer ([2d53b60](https://github.com/GeorgeV220/VoteRewards/commit/2d53b60000843e3d6087a0715b1148809b5b90b8))
+* **player:** Add PlayerDataManager class and User class modifications ([3abcbcc](https://github.com/GeorgeV220/VoteRewards/commit/3abcbcc23baa7463e157442a3be4bccfaabae2e0))
+* Refactor AuthMe and PAPI hooks to use VoteReward instance and PlayerDataManager ([d34410e](https://github.com/GeorgeV220/VoteRewards/commit/d34410ea1421b6a2251890be3ca28be930fe4307))
+* Refactor VoteReward class and improve database handling ([b958149](https://github.com/GeorgeV220/VoteRewards/commit/b958149c9d9b8f53e5195cb902494d9785561647))
+* Remove unused IDatabaseType interface and UserVoteData class ([ea3ed58](https://github.com/GeorgeV220/VoteRewards/commit/ea3ed5810eb9f3b80bfb230f7b7663d7c82feddd))
+* Remove VoteRewardExtension, extension.yml, and VoteRewardTest ([bfa10bd](https://github.com/GeorgeV220/VoteRewards/commit/bfa10bd6a80509d173e7b1811d56cb5eca9f4fc8))
+
+
+### BREAKING CHANGES
+
+* Numerous internal changes have been made. Player data
+from version 8.x is no longer supported. To proceed, it is necessary to
+create a backup using the command "voterewards backup", remove the old
+data, install the new version, and finally perform a restoration using
+the command "voterewards restore <restore file name>".
+
 # [8.3.0](https://github.com/GeorgeV220/VoteRewards/compare/v8.2.2...v8.3.0) (2023-05-11)
 
 
