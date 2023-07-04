@@ -25,16 +25,13 @@ public class Updater {
 
     private final VoteReward voteReward = VoteReward.getInstance();
     private final String localVersion = voteReward.getVersion();
-    private final String onlineVersion;
+    private String onlineVersion;
 
     {
         try {
             onlineVersion = getOnlineVersion();
         } catch (IOException e) {
-            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "Failed to check for an update on Git.", "Either Git or you are offline or are slow to respond.");
-
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            voteReward.getLogger().warning("Failed to check for an update on GitHub. Either GitHub is offline or has rejected the request due to rate limiting, or you are experiencing slow response times.");
         }
     }
 
@@ -108,6 +105,8 @@ public class Updater {
     }
 
     private @NotNull String getOnlineVersion() throws IOException {
+        if (!OptionsUtil.UPDATER.getBooleanValue())
+            return voteReward.getVersion();
         System.setProperty("http.agent", "Chrome");
         HttpsURLConnection con = (HttpsURLConnection) new URL("https://api.github.com/repos/GeorgeV220/VoteRewards/tags").openConnection();
 
