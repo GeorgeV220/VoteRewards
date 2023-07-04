@@ -7,7 +7,6 @@ import com.georgev22.voterewards.VoteReward;
 import com.georgev22.voterewards.utilities.MessagesUtil;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.georgev22.voterewards.utilities.configmanager.FileManager;
-import com.georgev22.voterewards.utilities.player.UserVoteData;
 import com.georgev22.voterewards.utilities.player.VotePartyUtils;
 import com.georgev22.voterewards.utilities.player.VoteUtils;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -16,9 +15,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+import java.util.UUID;
+
 public class PAPI extends PlaceholderExpansion {
 
-    VoteReward plugin = VoteReward.getInstance();
+    private final VoteReward voteReward = VoteReward.getInstance();
 
     @Override
     public @NotNull String getIdentifier() {
@@ -32,12 +34,12 @@ public class PAPI extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getAuthor() {
-        return "GeorgeV22, Shin1gamiX";
+        return "GeorgeV22, Shin1gamiX, Antares (GalaxyEaterGR)";
     }
 
     @Override
     public @NotNull String getVersion() {
-        return plugin.getVersion();
+        return voteReward.getVersion();
     }
 
     @Override
@@ -57,14 +59,33 @@ public class PAPI extends PlaceholderExpansion {
         }
 
         if (StringUtils.startsWithIgnoreCase(identifier, "top_playerVotes_")) {
-            return String.valueOf(UserVoteData.getUser(Bukkit.getOfflinePlayer(VoteUtils.getTopPlayer(Integer.parseInt(identifier.split("_")[2]) - 1))).user().getVotes());
+            UUID targetUUID = Bukkit.getOfflinePlayer(VoteUtils.getTopPlayer(Integer.parseInt(identifier.split("_")[2]) - 1)).getUniqueId();
+            return String.valueOf(
+                    voteReward.getPlayerDataManager().getLoadedEntities().entrySet().stream()
+                            .filter(uuidUserEntry -> uuidUserEntry.getKey().equals(targetUUID))
+                            .map(Map.Entry::getValue)
+                            .findFirst().orElse(voteReward.getPlayerDataManager().getEntity(targetUUID).join())
+                            .votes()
+            );
         }
 
         if (identifier.equalsIgnoreCase("player_votes")) {
-            return String.valueOf(UserVoteData.getUser(offlinePlayer.getUniqueId()).getVotes());
+            return String.valueOf(
+                    voteReward.getPlayerDataManager().getLoadedEntities().entrySet().stream()
+                            .filter(uuidUserEntry -> uuidUserEntry.getKey().equals(offlinePlayer.getUniqueId()))
+                            .map(Map.Entry::getValue)
+                            .findFirst().orElse(voteReward.getPlayerDataManager().getEntity(offlinePlayer.getUniqueId()).join())
+                            .votes()
+            );
         }
         if (identifier.equalsIgnoreCase("player_all_time_votes")) {
-            return String.valueOf(UserVoteData.getUser(offlinePlayer.getUniqueId()).getAllTimeVotes());
+            return String.valueOf(
+                    voteReward.getPlayerDataManager().getLoadedEntities().entrySet().stream()
+                            .filter(uuidUserEntry -> uuidUserEntry.getKey().equals(offlinePlayer.getUniqueId()))
+                            .map(Map.Entry::getValue)
+                            .findFirst().orElse(voteReward.getPlayerDataManager().getEntity(offlinePlayer.getUniqueId()).join())
+                            .totalVotes()
+            );
         }
         final FileManager fm = FileManager.getInstance();
         if (identifier.equalsIgnoreCase("voteparty_total_votes")) {
