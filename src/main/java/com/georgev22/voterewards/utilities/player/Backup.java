@@ -1,10 +1,11 @@
 package com.georgev22.voterewards.utilities.player;
 
 import com.georgev22.library.minecraft.BukkitMinecraftUtils;
+import com.georgev22.library.yaml.ConfigurationSection;
+import com.georgev22.library.yaml.file.YamlConfiguration;
 import com.georgev22.voterewards.VoteReward;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.google.common.annotations.Beta;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -75,50 +76,41 @@ public class Backup {
     public void restore() {
         BukkitMinecraftUtils.disallowLogin(true, "Restore ongoing!");
         File file = new File(getBackupFolder(), fileName);
+        if (!file.exists()) {
+            return;
+        }
         YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(file);
-        int total = Objects.requireNonNull(yamlConfiguration.getConfigurationSection("")).getKeys(false).size();
+        ConfigurationSection configurationSection = yamlConfiguration.getConfigurationSection("");
+        if (configurationSection == null) {
+            return;
+        }
+        int total = configurationSection.getKeys(false).size();
         final int[] progress = {0};
-        for (String b : Objects.requireNonNull(yamlConfiguration.getConfigurationSection("")).getKeys(false)) {
-            voteReward.getPlayerDataManager().getEntity(UUID.fromString(Objects.requireNonNull(yamlConfiguration.getString(b + ".uuid")))).handle((userData, throwable) -> {
-                if (throwable != null) {
-                    voteReward.getLogger().log(Level.SEVERE, "Error while trying to restore player data " + b, throwable);
-                    return null;
+        for (String b : configurationSection.getKeys(false)) {
+            UUID uuid = UUID.fromString(Objects.requireNonNull(yamlConfiguration.getString(b + ".uuid")));
+            User user = new User(uuid);
+            user.addCustomDataIfNotExists("entity_id", uuid);
+            user.name(yamlConfiguration.getString(b + ".last-name"));
+            user.votes(yamlConfiguration.getInt(b + ".votes"));
+            user.totalVotes(yamlConfiguration.getInt(b + ".all-time-votes"));
+            user.dailyVotes(yamlConfiguration.getInt(b + ".daily-votes"));
+            user.voteparty(yamlConfiguration.getInt(b + ".voteparty"));
+            user.lastVote(yamlConfiguration.getLong(b + ".last-vote"));
+            user.services(new ArrayList<>(yamlConfiguration.getStringList(b + ".services")));
+            yamlConfiguration.set(b + ".restored", true);
+            progress[0] += 1;
+            voteReward.getLogger().info("Restore progress: " + progress[0] * 100 / total);
+            try {
+                yamlConfiguration.save(file);
+                voteReward.getPlayerDataManager().save(user);
+                if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
+                    BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
+                            VoteUtils.debugUserMessage(user, "saved", true));
                 }
-                return userData;
-            }).thenApply(userData -> {
-                if (userData != null) {
-                    userData.name(yamlConfiguration.getString(b + ".last-name"));
-                    userData.votes(yamlConfiguration.getInt(b + ".votes"));
-                    userData.totalVotes(yamlConfiguration.getInt(b + ".all-time-votes"));
-                    userData.dailyVotes(yamlConfiguration.getInt(b + ".daily-votes"));
-                    userData.voteparty(yamlConfiguration.getInt(b + ".voteparty"));
-                    userData.lastVote(yamlConfiguration.getLong(b + ".last-vote"));
-                    userData.services(new ArrayList<>(yamlConfiguration.getStringList(b + ".services")));
-                    return userData;
-                }
-                return null;
-            }).handle((userData, throwable) -> {
-                if (throwable != null) {
-                    voteReward.getLogger().log(Level.SEVERE, "Error while trying to restore player data " + b, throwable);
-                    return null;
-                }
-                if (userData != null) {
-                    yamlConfiguration.set(b + ".restored", true);
-                    if (OptionsUtil.DEBUG_SAVE.getBooleanValue()) {
-                        BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
-                                VoteUtils.debugUserMessage(userData, "saved", true));
-                    }
-                    progress[0] += 1;
-                    voteReward.getLogger().info("Restore progress: " + progress[0] * 100 / total);
-                    try {
-                        yamlConfiguration.save(file);
-                    } catch (IOException exception) {
-                        voteReward.getLogger().log(Level.SEVERE, "Error while trying to restore player data " + b, exception);
-                        return null;
-                    }
-                }
-                return null;
-            });
+            } catch (IOException exception) {
+                voteReward.getLogger().log(Level.SEVERE, "Error while trying to restore player data " + b, exception);
+                break;
+            }
         }
         BukkitMinecraftUtils.disallowLogin(false, "");
     }
