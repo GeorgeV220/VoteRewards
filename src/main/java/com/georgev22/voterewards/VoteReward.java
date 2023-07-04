@@ -291,15 +291,15 @@ public class VoteReward {
         if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
             BukkitMinecraftUtils.debug(getName(), getVersion(), "setupDatabase() Thread ID: " + Thread.currentThread().getId());
         ObjectMap<String, ObjectMap.Pair<String, String>> map = new HashObjectMap<String, ObjectMap.Pair<String, String>>()
-                .append("uuid", ObjectMap.Pair.create("VARCHAR(38)", "NULL"))
+                .append("entity_id", ObjectMap.Pair.create("VARCHAR(38)", "NULL"))
                 .append("name", ObjectMap.Pair.create("VARCHAR(18)", "NULL"))
                 .append("votes", ObjectMap.Pair.create("INT(10)", "0"))
-                .append("time", ObjectMap.Pair.create("BIGINT(30)", "0"))
-                .append("voteparty", ObjectMap.Pair.create("INT(10)", "0"))
                 .append("daily", ObjectMap.Pair.create("INT(10)", "0"))
-                .append("services", ObjectMap.Pair.create("TEXT", "NULL"))
-                .append("servicesLastVote", ObjectMap.Pair.create("TEXT", "NULL"))
-                .append("totalvotes", ObjectMap.Pair.create("INT(10)", "0"));
+                .append("last", ObjectMap.Pair.create("BIGINT(30)", "0"))
+                .append("voteparty", ObjectMap.Pair.create("INT(10)", "0"))
+                .append("totalvotes", ObjectMap.Pair.create("INT(10)", "0"))
+                .append("services", ObjectMap.Pair.create("BLOB", "NULL"))
+                .append("servicesLastVote", ObjectMap.Pair.create("BLOB", "NULL"));
         switch (OptionsUtil.DATABASE_TYPE.getStringValue()) {
             case "MySQL" -> {
                 if (databaseWrapper == null || !databaseWrapper.isConnected()) {
@@ -349,7 +349,7 @@ public class VoteReward {
                         OptionsUtil.DATABASE_MONGO_DATABASE.getStringValue(),
                         this.getLogger());
                 this.databaseWrapper.connect();
-                playerDataManager = new PlayerDataManager(databaseWrapper, OptionsUtil.DATABASE_DATABASE.getStringValue());
+                playerDataManager = new PlayerDataManager(databaseWrapper, OptionsUtil.DATABASE_MONGO_COLLECTION.getStringValue());
                 BukkitMinecraftUtils.debug(getName(), getVersion(), "Database: MongoDB");
             }
             case "File" -> {
@@ -494,7 +494,7 @@ public class VoteReward {
     private void sqlConnect(ObjectMap<String, ObjectMap.Pair<String, String>> map) throws SQLException, ClassNotFoundException {
         this.databaseWrapper.connect();
         Objects.requireNonNull(this.databaseWrapper.getSQLDatabase()).createTable(OptionsUtil.DATABASE_TABLE_NAME.getStringValue(), map);
-        playerDataManager = new PlayerDataManager(databaseWrapper, OptionsUtil.DATABASE_DATABASE.getStringValue());
+        playerDataManager = new PlayerDataManager(databaseWrapper,OptionsUtil.DATABASE_TABLE_NAME.getStringValue());
     }
 
 }
