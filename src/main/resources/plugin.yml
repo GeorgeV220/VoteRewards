@@ -7,9 +7,9 @@ authors:
   - Antares (GalaxyEaterGR)
 api-version: 1.13
 load: POSTWORLD
-depend:
-  - Votifier
 softdepend:
+  - Votifier
+  - VotifierPlus
   - PlaceholderAPI
   - ProtocolLib
   - AuthMeReloaded

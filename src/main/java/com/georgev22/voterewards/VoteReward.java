@@ -148,12 +148,18 @@ public class VoteReward {
             data.set("month", Calendar.getInstance().getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().getMonthValue());
             dataCFG.saveFile();
         }
-        if (getMain().endsWith("VoteRewardPlugin")) {
-            Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-                tick++;
-                SchedulerManager.getScheduler().mainThreadHeartbeat(tick);
-            }, 0, 1L);
+
+        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            tick++;
+            SchedulerManager.getScheduler().mainThreadHeartbeat(tick);
+        }, 0, 1L);
+
+        if (!Bukkit.getPluginManager().isPluginEnabled("Votifier") && !Bukkit.getPluginManager().isPluginEnabled("VotifierPlus")) {
+            if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
+                BukkitMinecraftUtils.debug(getName(), getVersion(), "Neither Votifier nor VotifierPlus is enabled.");
+            return;
         }
+
         BukkitMinecraftUtils.registerListeners(plugin, new VotifierListener(), new PlayerListeners(), new DeveloperInformListener());
         pagedInventoryAPI = new PagedInventoryAPI(plugin);
         commandManager = new PaperCommandManager(plugin);
@@ -494,7 +500,7 @@ public class VoteReward {
     private void sqlConnect(ObjectMap<String, ObjectMap.Pair<String, String>> map) throws SQLException, ClassNotFoundException {
         this.databaseWrapper.connect();
         Objects.requireNonNull(this.databaseWrapper.getSQLDatabase()).createTable(OptionsUtil.DATABASE_TABLE_NAME.getStringValue(), map);
-        playerDataManager = new PlayerDataManager(databaseWrapper,OptionsUtil.DATABASE_TABLE_NAME.getStringValue());
+        playerDataManager = new PlayerDataManager(databaseWrapper, OptionsUtil.DATABASE_TABLE_NAME.getStringValue());
     }
 
 }
