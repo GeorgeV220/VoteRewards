@@ -1,3 +1,10 @@
+# [9.1.0](https://github.com/GeorgeV220/VoteRewards/compare/v9.0.0...v9.1.0) (2023-10-27)
+
+
+### Features
+
+* Add support for VotifierPlus ([267decc](https://github.com/GeorgeV220/VoteRewards/commit/267deccd6feb8f5838e762be29fa83c4d4f5a687)), closes [#131](https://github.com/GeorgeV220/VoteRewards/issues/131)
+
 # [9.0.0](https://github.com/GeorgeV220/VoteRewards/compare/v8.3.0...v9.0.0) (2023-07-04)
 
 
