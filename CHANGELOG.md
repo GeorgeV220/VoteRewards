@@ -1,3 +1,10 @@
+## [9.1.1](https://github.com/GeorgeV220/VoteRewards/compare/v9.1.0...v9.1.1) (2023-11-14)
+
+
+### Bug Fixes
+
+* Fixed commands in 1.20.2 ([0afb4cd](https://github.com/GeorgeV220/VoteRewards/commit/0afb4cd153adbf662f5f62bc665b3e860b5084b1))
+
 # [9.1.0](https://github.com/GeorgeV220/VoteRewards/compare/v9.0.0...v9.1.0) (2023-10-27)
 
 

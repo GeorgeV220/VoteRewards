@@ -33,7 +33,7 @@ You can have your project depend on VoteRewards as a dependency through the foll
         <dependency>
             <groupId>com.georgev22</groupId>
             <artifactId>voterewards</artifactId>
-            <version>9.1.0</version>
+            <version>9.1.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -52,7 +52,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly "com.github.GeorgeV220:voterewards:9.1.0"
+    compileOnly "com.github.GeorgeV220:voterewards:9.1.1"
 }
 ```
 
