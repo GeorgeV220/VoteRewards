@@ -14,6 +14,7 @@ public class VoteRewardPlugin extends JavaPlugin implements VoteRewardImpl {
     @Getter
     private static VoteRewardPlugin instance = null;
 
+    @Getter
     private static VoteReward voteRewardInstance = null;
 
     private Description description;
@@ -62,7 +63,4 @@ public class VoteRewardPlugin extends JavaPlugin implements VoteRewardImpl {
         setEnabled(enabled);
     }
 
-    public static VoteReward getVoteRewardInstance() {
-        return voteRewardInstance;
-    }
 }
