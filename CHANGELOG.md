@@ -1,3 +1,20 @@
+# [10.0.0](https://github.com/GeorgeV220/VoteRewards/compare/v9.1.1...v10.0.0) (2024-02-16)
+
+
+### Features
+
+* add animation option to paged inventories ([98b88a1](https://github.com/GeorgeV220/VoteRewards/commit/98b88a138afa4bee092e9515987464e36d0ee855))
+* add Gson and UserTypeAdapter for User serialization (main) ([184f485](https://github.com/GeorgeV220/VoteRewards/commit/184f485f7cc8d1ca74b989889a6ad2f333cefc75))
+* add gson dependency and relocate it ([c46f6c0](https://github.com/GeorgeV220/VoteRewards/commit/c46f6c067b6743fc115291a0d70cbddb12008116))
+* add UserTypeAdapter class for User serialization and deserialization ([811bdd0](https://github.com/GeorgeV220/VoteRewards/commit/811bdd02d14383144d585ccb78919518c4ab7291))
+* Refactor the entire database system to use GSON instead, ([7a499d0](https://github.com/GeorgeV220/VoteRewards/commit/7a499d01628432ec434eb230d85cc00042a81945))
+* **VoteRewardPlugin:** add getter for voteRewardInstance ([1224a22](https://github.com/GeorgeV220/VoteRewards/commit/1224a22602a2a10bb28152627724098c4dbdfda2))
+
+
+### BREAKING CHANGES
+
+* Database schema has been changed
+
 ## [9.1.1](https://github.com/GeorgeV220/VoteRewards/compare/v9.1.0...v9.1.1) (2023-11-14)
 
 
