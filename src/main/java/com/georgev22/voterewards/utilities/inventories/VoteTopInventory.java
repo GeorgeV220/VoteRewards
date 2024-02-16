@@ -90,7 +90,9 @@ public class VoteTopInventory {
                                                 ).build(),
                                                 fileManager.getVoteInventory().getFileConfiguration().getInt("navigation.cancel.slot", 4)
                                         ),
-                                        navigationItemList.toArray(new NavigationItem[0])));
+                                        navigationItemList.toArray(new NavigationItem[0])),
+                                fileManager.getVoteInventory().getFileConfiguration().getBoolean("animation.enabled")
+                        );
 
                 List<Inventory> inventoryList = Lists.newArrayList();
 
@@ -150,7 +152,7 @@ public class VoteTopInventory {
                     i++;
                 }
                 inventoryList.forEach(pagedInventory::addPage);
-                pagedInventory.open(player, 0, fileManager.getVoteTopInventory().getFileConfiguration().getBoolean("animation.enabled"));
+                pagedInventory.open(player, 0);
             }
         }));
     }

@@ -129,7 +129,9 @@ public class VoteInventory {
                                                 ).build(),
                                                 fileManager.getVoteInventory().getFileConfiguration().getInt("navigation.cancel.slot", 4)
                                         ),
-                                        navigationItemList.toArray(new NavigationItem[0])));
+                                        navigationItemList.toArray(new NavigationItem[0])),
+                                fileManager.getVoteInventory().getFileConfiguration().getBoolean("animation.enabled")
+                        );
 
                 CustomItemInventory customItemInventory = new CustomItemInventory(
                         BukkitMinecraftUtils.colorize(
@@ -144,7 +146,7 @@ public class VoteInventory {
 
                 pagedInventory.addPage(inventory);
 
-                pagedInventory.open(player, 0, fileManager.getVoteInventory().getFileConfiguration().getBoolean("animation.enabled"));
+                pagedInventory.open(player, 0);
             }
         }));
     }
