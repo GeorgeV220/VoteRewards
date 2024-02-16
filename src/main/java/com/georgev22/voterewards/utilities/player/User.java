@@ -1,23 +1,26 @@
 package com.georgev22.voterewards.utilities.player;
 
+import com.georgev22.library.maps.ConcurrentObjectMap;
 import com.georgev22.library.maps.HashObjectMap;
 import com.georgev22.library.maps.ObjectMap;
-import com.georgev22.library.utilities.EntityManager;
 import com.georgev22.voterewards.VoteReward;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class User extends EntityManager.Entity {
+@SuppressWarnings({"UnusedReturnValue", "unchecked"})
+public class User {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+    private final UUID entityId;
+    @Getter
+    private final ConcurrentObjectMap<String, Object> customData;
 
     public User(UUID uuid) {
-        super(uuid);
+        this.entityId = uuid;
+        this.customData = new ConcurrentObjectMap<>();
         this.addCustomDataIfNotExists("name", Bukkit.getOfflinePlayer(uuid).getName());
         this.addCustomDataIfNotExists("votes", 0);
         this.addCustomDataIfNotExists("daily", 0);
@@ -127,6 +130,38 @@ public class User extends EntityManager.Entity {
         user.addCustomData("servicesLastVote", new HashObjectMap<String, Long>());
         user.addCustomData("services", new ArrayList<String>());
         VoteReward.getInstance().getPlayerDataManager().save(user);
+    }
+
+    public UUID getId() {
+        return this.entityId;
+    }
+
+    public User addCustomData(String key, Object value) {
+        this.getCustomData().append(key, value);
+        return this;
+    }
+
+    /**
+     * Adds custom data to the User with the specified key and value if the key does not already exist.
+     *
+     * @param key   the key of the custom data
+     * @param value the value of the custom data
+     * @return the updated User with the added custom data (if the key did not already exist)
+     */
+    public User addCustomDataIfNotExists(String key, Object value) {
+        this.getCustomData().appendIfTrue(key, value, !this.getCustomData().containsKey(key));
+        return this;
+    }
+
+    /**
+     * Retrieves the value of the custom data associated with the specified key.
+     *
+     * @param key the key of the custom data
+     * @param <T> the type of the value to retrieve
+     * @return the value associated with the specified key, or {@code null} if the key does not exist
+     */
+    public <T> T getCustomData(String key) {
+        return (T) getCustomData().get(key);
     }
 
 }
