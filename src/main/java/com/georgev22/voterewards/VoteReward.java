@@ -28,8 +28,12 @@ import com.georgev22.voterewards.utilities.Updater;
 import com.georgev22.voterewards.utilities.configmanager.FileManager;
 import com.georgev22.voterewards.utilities.interfaces.Holograms;
 import com.georgev22.voterewards.utilities.player.PlayerDataManager;
+import com.georgev22.voterewards.utilities.player.User;
+import com.georgev22.voterewards.utilities.player.UserTypeAdapter;
 import com.georgev22.voterewards.utilities.player.VoteUtils;
 import com.georgev22.voterewards.votereward.VoteRewardImpl;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.Setter;
 import org.bstats.bukkit.Metrics;
@@ -76,6 +80,7 @@ public class VoteReward {
     @Getter
     private NoPlayerCharacterAPI noPlayerCharacterAPI = null;
 
+    @Getter
     private static VoteReward instance = null;
 
     @Getter
@@ -97,10 +102,8 @@ public class VoteReward {
     private LibraryLoader libraryLoader;
 
     private int tick = 0;
-
-    public static VoteReward getInstance() {
-        return instance;
-    }
+    @Getter
+    private Gson gson;
 
     public VoteReward(@NotNull VoteRewardImpl voteReward) {
         this.voteReward = voteReward;
@@ -118,6 +121,10 @@ public class VoteReward {
     }
 
     public void onEnable() throws Exception {
+        this.gson = new GsonBuilder()
+                .registerTypeAdapter(User.class, new UserTypeAdapter())
+                //.setPrettyPrinting()
+                .create();
         fileManager = FileManager.getInstance();
 
         fileManager.loadFiles(this.logger, this.getClass());
@@ -228,7 +235,7 @@ public class VoteReward {
             try {
                 setupDatabase();
             } catch (Exception throwable) {
-                throwable.printStackTrace();
+                this.getLogger().log(Level.SEVERE, "Error while setting up the database:", throwable);
             }
         }, 1L);
 
@@ -298,14 +305,7 @@ public class VoteReward {
             BukkitMinecraftUtils.debug(getName(), getVersion(), "setupDatabase() Thread ID: " + Thread.currentThread().getId());
         ObjectMap<String, ObjectMap.Pair<String, String>> map = new HashObjectMap<String, ObjectMap.Pair<String, String>>()
                 .append("entity_id", ObjectMap.Pair.create("VARCHAR(38)", "NULL"))
-                .append("name", ObjectMap.Pair.create("VARCHAR(18)", "NULL"))
-                .append("votes", ObjectMap.Pair.create("INT(10)", "0"))
-                .append("daily", ObjectMap.Pair.create("INT(10)", "0"))
-                .append("last", ObjectMap.Pair.create("BIGINT(30)", "0"))
-                .append("voteparty", ObjectMap.Pair.create("INT(10)", "0"))
-                .append("totalvotes", ObjectMap.Pair.create("INT(10)", "0"))
-                .append("services", ObjectMap.Pair.create("BLOB", "NULL"))
-                .append("servicesLastVote", ObjectMap.Pair.create("BLOB", "NULL"));
+                .append("data", ObjectMap.Pair.create("LONGTEXT", "NULL"));
         switch (OptionsUtil.DATABASE_TYPE.getStringValue()) {
             case "MySQL" -> {
                 if (databaseWrapper == null || !databaseWrapper.isConnected()) {
@@ -492,8 +492,7 @@ public class VoteReward {
             commandManager.getLocales().loadYamlLanguageFile(new File(getDataFolder(), "lang_en.yaml"), Locale.ENGLISH);
             commandManager.usePerIssuerLocale(true);
         } catch (IOException | InvalidConfigurationException e) {
-            BukkitMinecraftUtils.debug(getName(), getVersion(), "Failed to load language config 'lang_en.yaml': " + e.getMessage());
-            e.printStackTrace();
+            this.getLogger().log(Level.SEVERE, "Error while trying to load command locales", e);
         }
     }
 
