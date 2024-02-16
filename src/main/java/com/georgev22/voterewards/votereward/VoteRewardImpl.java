@@ -1,5 +1,6 @@
 package com.georgev22.voterewards.votereward;
 
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -20,6 +21,7 @@ public interface VoteRewardImpl {
 
     void saveResource(@NotNull String resourcePath, boolean replace);
 
+    @Getter
     final class Description {
 
         private final String name, version, main;
@@ -30,22 +32,6 @@ public interface VoteRewardImpl {
             this.version = version;
             this.main = main;
             this.authors = authors;
-        }
-
-        public String getName() {
-            return this.name;
-        }
-
-        public String getVersion() {
-            return this.version;
-        }
-
-        public String getMain() {
-            return this.main;
-        }
-
-        public @NotNull List<String> getAuthors() {
-            return this.authors;
         }
     }
 
