@@ -53,12 +53,14 @@ dependencies {
     implementation "org.bstats:bstats-bukkit:${bstatsVersion}"
     implementation "co.aikar:acf-paper:${acfVersion}"
 
-    implementation "com.georgev22.library:database:${libraryVersion}:all"
-    implementation "com.georgev22.library:maps:${libraryVersion}:all"
-    implementation "com.georgev22.library:scheduler:${libraryVersion}:all"
-    implementation "com.georgev22.library:utilities:${libraryVersion}:all"
+    implementation "com.georgev22.library:database:${libraryVersion}"
+    implementation "com.georgev22.library:maps:${libraryVersion}"
+    implementation "com.georgev22.library:scheduler:${libraryVersion}"
+    implementation "com.georgev22.library:utilities:${libraryVersion}"
     implementation "com.georgev22.library:yaml:${libraryVersion}"
     implementation "com.georgev22.library:minecraft:${libraryVersion}"
+
+    implementation "com.google.code.gson:gson:${gsonVersion}"
 
     implementation "com.georgev22.api:libraryloader:${libraryLoaderVersion}"
 
@@ -88,6 +90,7 @@ dependencies {
 
 shadowJar {
     archiveClassifier.set('')
+    relocate 'com.google.gson', "${packageName}.gson"
     relocate 'io.papermc.lib', "${packageName}.paperlib"
     relocate 'co.aikar.commands', "${packageName}.commands.acf"
     relocate 'co.aikar.locales', "${packageName}.commands.acf.locales"
