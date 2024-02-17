@@ -12,6 +12,12 @@ I uploaded the source code so that everyone can make their own modifications
 You can use the source code to do whatever you want but do not upload sell it or upload it without my permission (except
 github)
 
+[![JetBrains](https://www.jetbrains.com/company/brand/img/jetbrains_logo.png)](https://jb.gg/OpenSourceSupport)
+
+JetBrains supports this open source project by providing their tools and resources.
+
+Visit [JetBrains](https://jb.gg/OpenSourceSupport) for more information.
+
 # Adding VoteRewards as a dependency to your build system
 
 ### Maven
