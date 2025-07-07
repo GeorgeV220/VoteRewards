@@ -1,3 +1,15 @@
+# [10.1.0](https://github.com/GeorgeV220/VoteRewards/compare/v10.0.0...v10.1.0) (2025-07-07)
+
+
+### Bug Fixes
+
+* adjust debug logging conditions and add null safety ([f3d37ee](https://github.com/GeorgeV220/VoteRewards/commit/f3d37eecb36bc75f7e98e45dcef4190953d16845))
+
+
+### Features
+
+* Rework commands ([ee9c6d1](https://github.com/GeorgeV220/VoteRewards/commit/ee9c6d1184847289e9eb7e55b2c86624a42ff0d0))
+
 # [10.0.0](https://github.com/GeorgeV220/VoteRewards/compare/v9.1.1...v10.0.0) (2024-02-16)
 
 
