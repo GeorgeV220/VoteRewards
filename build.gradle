@@ -5,8 +5,8 @@ buildscript {
 }
 
 plugins {
-    id 'com.github.johnrengelman.shadow' version '8.1.0'
-    id 'io.freefair.lombok' version '6.6.3'
+    id "com.gradleup.shadow" version "9.0.0-rc1"
+    id 'io.freefair.lombok' version '8.14'
     id 'java'
     id 'jacoco'
     id 'idea'
@@ -51,7 +51,6 @@ dependencies {
     implementation "io.papermc:paperlib:${paperlibVersion}"
 
     implementation "org.bstats:bstats-bukkit:${bstatsVersion}"
-    implementation "co.aikar:acf-paper:${acfVersion}"
 
     implementation "com.georgev22.library:database:${libraryVersion}"
     implementation "com.georgev22.library:maps:${libraryVersion}"
@@ -76,7 +75,7 @@ dependencies {
     implementation 'com.github.GeorgeV220:Hologram-Lib:1.3.0-G'
     implementation 'org.codemc.worldguardwrapper:worldguardwrapper:1.2.0-SNAPSHOT'
 
-    compileOnly 'me.clip:placeholderapi:2.11.2'
+    compileOnly 'me.clip:placeholderapi:2.11.6'
     compileOnly 'fr.xephi:authme:5.6.0-SNAPSHOT'
     compileOnly 'com.github.NuVotifier.NuVotifier:nuvotifier-api:2.7.2'
     compileOnly 'com.github.NuVotifier.NuVotifier:nuvotifier-bukkit:2.7.2'
@@ -90,6 +89,19 @@ dependencies {
 
 shadowJar {
     archiveClassifier.set('')
+    dependencies {
+        exclude("META-INF/maven/**")
+        exclude("META-INF/coverage/**")
+        exclude("META-INF/versions/**")
+        exclude("META-INF/proguard/**")
+        exclude("license/**")
+        exclude("META-INF/LICENSE.md")
+        exclude("META-INF/LICENSE.txt")
+        exclude("META-INF/LICENSE")
+        exclude("META-INF/NOTICE")
+        exclude("META-INF/NOTICE.md")
+        exclude("META-INF/NOTICE.txt")
+    }
     relocate 'com.google.gson', "${packageName}.gson"
     relocate 'io.papermc.lib', "${packageName}.paperlib"
     relocate 'co.aikar.commands', "${packageName}.commands.acf"
