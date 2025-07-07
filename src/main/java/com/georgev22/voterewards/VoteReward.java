@@ -1,6 +1,5 @@
 package com.georgev22.voterewards;
 
-import co.aikar.commands.PaperCommandManager;
 import com.georgev22.api.libraryloader.LibraryLoader;
 import com.georgev22.api.libraryloader.annotations.MavenLibrary;
 import com.georgev22.api.libraryloader.exceptions.InvalidDependencyException;
@@ -12,12 +11,14 @@ import com.georgev22.library.maps.ObjectMap;
 import com.georgev22.library.minecraft.BukkitMinecraftUtils;
 import com.georgev22.library.minecraft.inventory.PagedInventoryAPI;
 import com.georgev22.library.scheduler.SchedulerManager;
-import com.georgev22.library.yaml.InvalidConfigurationException;
 import com.georgev22.library.yaml.configmanager.CFG;
 import com.georgev22.library.yaml.file.FileConfiguration;
 import com.georgev22.library.yaml.file.YamlConfiguration;
 import com.georgev22.library.yaml.serialization.ConfigurationSerialization;
-import com.georgev22.voterewards.commands.*;
+import com.georgev22.voterewards.command.CommandManager;
+import com.georgev22.voterewards.command.commands.*;
+import com.georgev22.voterewards.command.resolvers.PlayersResolver;
+import com.georgev22.voterewards.command.resolvers.RangeResolver;
 import com.georgev22.voterewards.hooks.*;
 import com.georgev22.voterewards.listeners.DeveloperInformListener;
 import com.georgev22.voterewards.listeners.PlayerListeners;
@@ -42,12 +43,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -94,8 +93,6 @@ public class VoteReward {
 
     private final VoteRewardImpl voteReward;
 
-    private PaperCommandManager commandManager;
-
     @Getter
     private PagedInventoryAPI pagedInventoryAPI = null;
 
@@ -134,7 +131,7 @@ public class VoteReward {
         if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
             BukkitMinecraftUtils.debug(getName(), getVersion(), "onEnable() Thread ID: " + Thread.currentThread().getId());
         logger.info("""
-
+                
                  __     __             __                _______                                                     __          \s
                 |  \\   |  \\           |  \\              |       \\                                                   |  \\         \s
                 | $$   | $$  ______  _| $$_     ______  | $$$$$$$\\  ______   __   __   __   ______    ______    ____| $$  _______\s
@@ -169,7 +166,6 @@ public class VoteReward {
 
         BukkitMinecraftUtils.registerListeners(plugin, new VotifierListener(), new PlayerListeners(), new DeveloperInformListener());
         pagedInventoryAPI = new PagedInventoryAPI(plugin);
-        commandManager = new PaperCommandManager(plugin);
 
         if (!BukkitMinecraftUtils.MinecraftVersion.getCurrentVersion().isAboveOrEqual(BukkitMinecraftUtils.MinecraftVersion.UNKNOWN)) {
             if (YamlConfiguration.loadConfiguration(new File(new File(this.getDataFolder().getParentFile(), "bStats"), "config.yml")).getBoolean("enabled", true) & OptionsUtil.METRICS.getBooleanValue()) {
@@ -282,7 +278,6 @@ public class VoteReward {
         if (databaseWrapper != null && databaseWrapper.isConnected()) {
             databaseWrapper.disconnect();
         }
-        unregisterCommands();
         SchedulerManager.getScheduler().cancelTasks(this.getClass());
         if (this.libraryLoader != null) {
             try {
@@ -440,60 +435,31 @@ public class VoteReward {
     }
 
     private void setupCommands() {
-        commandManager.enableUnstableAPI("help");
+        BukkitMinecraftUtils.debug(getName(), getVersion(), "Setting up commands");
+        CommandManager manager = CommandManager.getInstance();
 
-        loadCommandLocales(commandManager);
+        manager.addResolver("players", new PlayersResolver());
+
+        manager.addResolver("range", new RangeResolver());
 
         if (OptionsUtil.COMMAND_FAKEVOTE.getBooleanValue())
-            commandManager.registerCommand(new FakeVoteCommand());
+            manager.registerCommand(new FakeVoteCommand());
         if (OptionsUtil.COMMAND_HOLOGRAM.getBooleanValue())
-            commandManager.registerCommand(new HologramCommand());
+            manager.registerCommand(new HologramCommand());
         if (OptionsUtil.COMMAND_VOTE.getBooleanValue())
-            commandManager.registerCommand(new VoteCommand());
+            manager.registerCommand(new VoteCommand());
         if (OptionsUtil.COMMAND_VOTEREWARDS.getBooleanValue())
-            commandManager.registerCommand(new VoteRewardsCommand());
+            manager.registerCommand(new VoteRewardsCommand());
         if (OptionsUtil.COMMAND_VOTES.getBooleanValue())
-            commandManager.registerCommand(new VotesCommand());
+            manager.registerCommand(new VotesCommand());
         if (OptionsUtil.COMMAND_VOTEPARTY.getBooleanValue())
-            commandManager.registerCommand(new VotePartyCommand());
+            manager.registerCommand(new VotePartyCommand());
         if (OptionsUtil.COMMAND_REWARDS.getBooleanValue())
-            commandManager.registerCommand(new RewardsCommand());
+            manager.registerCommand(new RewardsCommand());
         if (OptionsUtil.COMMAND_VOTETOP.getBooleanValue())
-            commandManager.registerCommand(new VoteTopCommand());
+            manager.registerCommand(new VoteTopCommand());
         if (OptionsUtil.COMMAND_NPC.getBooleanValue())
-            commandManager.registerCommand(new NPCCommand());
-    }
-
-    private void unregisterCommands() {
-        if (OptionsUtil.COMMAND_FAKEVOTE.getBooleanValue())
-            commandManager.unregisterCommand(new FakeVoteCommand());
-        if (OptionsUtil.COMMAND_HOLOGRAM.getBooleanValue())
-            commandManager.unregisterCommand(new HologramCommand());
-        if (OptionsUtil.COMMAND_VOTE.getBooleanValue())
-            commandManager.unregisterCommand(new VoteCommand());
-        if (OptionsUtil.COMMAND_VOTEREWARDS.getBooleanValue())
-            commandManager.unregisterCommand(new VoteRewardsCommand());
-        if (OptionsUtil.COMMAND_VOTES.getBooleanValue())
-            commandManager.unregisterCommand(new VotesCommand());
-        if (OptionsUtil.COMMAND_VOTEPARTY.getBooleanValue())
-            commandManager.unregisterCommand(new VotePartyCommand());
-        if (OptionsUtil.COMMAND_REWARDS.getBooleanValue())
-            commandManager.unregisterCommand(new RewardsCommand());
-        if (OptionsUtil.COMMAND_VOTETOP.getBooleanValue())
-            commandManager.unregisterCommand(new VoteTopCommand());
-        if (OptionsUtil.COMMAND_NPC.getBooleanValue())
-            commandManager.unregisterCommand(new NPCCommand());
-    }
-
-    private void loadCommandLocales(@NotNull PaperCommandManager commandManager) {
-        try {
-            saveResource("lang_en.yaml", true);
-            commandManager.getLocales().setDefaultLocale(Locale.ENGLISH);
-            commandManager.getLocales().loadYamlLanguageFile(new File(getDataFolder(), "lang_en.yaml"), Locale.ENGLISH);
-            commandManager.usePerIssuerLocale(true);
-        } catch (IOException | InvalidConfigurationException e) {
-            this.getLogger().log(Level.SEVERE, "Error while trying to load command locales", e);
-        }
+            manager.registerCommand(new NPCCommand());
     }
 
     private void sqlConnect(ObjectMap<String, ObjectMap.Pair<String, String>> map) throws SQLException, ClassNotFoundException {

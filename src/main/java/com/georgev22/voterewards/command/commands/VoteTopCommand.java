@@ -1,23 +1,18 @@
-package com.georgev22.voterewards.commands;
+package com.georgev22.voterewards.command.commands;
 
-import co.aikar.commands.CommandIssuer;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandPermission;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Description;
+import com.georgev22.voterewards.command.CommandContext;
+import com.georgev22.voterewards.command.CommandIssuer;
+import com.georgev22.voterewards.command.annotation.CommandAlias;
 import com.georgev22.voterewards.utilities.MessagesUtil;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.georgev22.voterewards.utilities.inventories.VoteTopInventory;
 import com.georgev22.voterewards.utilities.player.VoteUtils;
 import org.jetbrains.annotations.NotNull;
 
-@CommandAlias("votetop|vtop|vrtop|vvtop")
-public class VoteTopCommand extends Command {
-
-    @Default
-    @Description("{@@commands.descriptions.votetop}")
-    @CommandPermission("voterewards.votetop")
-    public void execute(@NotNull CommandIssuer commandIssuer, final String[] args) {
+@CommandAlias({"votetop", "vtop", "vrtop", "vvtop"})
+public class VoteTopCommand extends VoteRewardsBaseCommand {
+    @Override
+    protected void handle(@NotNull CommandIssuer commandIssuer, String @NotNull [] args, @NotNull CommandContext context) {
         if (!commandIssuer.isPlayer()) {
             sendMsg(commandIssuer);
         } else {

@@ -1,21 +1,20 @@
-package com.georgev22.voterewards.commands;
+package com.georgev22.voterewards.command.commands;
 
-import co.aikar.commands.CommandIssuer;
-import co.aikar.commands.annotation.*;
 import com.georgev22.library.minecraft.BukkitMinecraftUtils;
+import com.georgev22.voterewards.command.CommandContext;
+import com.georgev22.voterewards.command.CommandIssuer;
+import com.georgev22.voterewards.command.annotation.CommandAlias;
+import com.georgev22.voterewards.command.annotation.Permission;
 import com.georgev22.voterewards.utilities.MessagesUtil;
 import com.georgev22.voterewards.utilities.OptionsUtil;
 import com.georgev22.voterewards.utilities.inventories.VoteInventory;
 import org.jetbrains.annotations.NotNull;
 
-@CommandAlias("vote|vrvote|vvote")
-public class VoteCommand extends Command {
-
-    @Default
-    @Description("{@@commands.descriptions.vote}")
-    @Syntax("")
-    @CommandPermission("voterewards.vote")
-    public void execute(@NotNull final CommandIssuer commandIssuer, final String[] args) {
+@CommandAlias({"vote", "vrvote", "vvote"})
+@Permission("voterewards.vote")
+public class VoteCommand extends VoteRewardsBaseCommand {
+    @Override
+    protected void handle(@NotNull CommandIssuer commandIssuer, String @NotNull [] args, @NotNull CommandContext context) {
         if (!commandIssuer.isPlayer()) {
             BukkitMinecraftUtils.msg(commandIssuer.getIssuer(), MessagesUtil.ONLY_PLAYER_COMMAND.getMessages()[0]);
             return;
@@ -34,6 +33,5 @@ public class VoteCommand extends Command {
             }
             placeholders.clear();
         });
-
     }
 }
