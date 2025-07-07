@@ -58,7 +58,8 @@ public record VoteUtils(User user) {
         user.votes(user.votes() + 1);
         user.lastVote(System.currentTimeMillis());
         user.addServicesLastVote(serviceName);
-        BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), user.servicesLastVote().toString());
+        if (OptionsUtil.DEBUG_VOTES_REGULAR.getBooleanValue())
+            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), user.servicesLastVote().toString());
 
         user.totalVotes(user.totalVotes() + 1);
         user.dailyVotes(user.dailyVotes() + 1);
@@ -490,7 +491,8 @@ public record VoteUtils(User user) {
     }
 
     public static void runCommands(@NotNull OfflinePlayer offlinePlayer, @NotNull List<String> s) {
-        BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "RUNNING COMMANDS FOR PLAYER: " + offlinePlayer.getName());
+        if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
+            BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(), "RUNNING COMMANDS FOR PLAYER: " + offlinePlayer.getName());
         ObjectMap<String, String> objectMap = new HashObjectMap<String, String>().append("%player%", offlinePlayer.getName());
         for (String b : s) {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), BukkitMinecraftUtils.placeholderAPI(offlinePlayer, b, objectMap, true));

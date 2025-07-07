@@ -159,8 +159,7 @@ public class VoteReward {
         }, 0, 1L);
 
         if (!Bukkit.getPluginManager().isPluginEnabled("Votifier") && !Bukkit.getPluginManager().isPluginEnabled("VotifierPlus")) {
-            if (OptionsUtil.DEBUG_OTHER.getBooleanValue())
-                BukkitMinecraftUtils.debug(getName(), getVersion(), "Neither Votifier nor VotifierPlus is enabled.");
+            BukkitMinecraftUtils.debug(getName(), getVersion(), "Neither Votifier nor VotifierPlus is enabled.");
             return;
         }
 
@@ -268,7 +267,7 @@ public class VoteReward {
                 return unused;
             });
         });
-        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI") && placeholdersAPI != null) {
             if (placeholdersAPI.isRegistered()) {
                 if (placeholdersAPI.unregister()) {
                     BukkitMinecraftUtils.debug(getName(), getVersion(), "Unhooked from PlaceholderAPI!");
