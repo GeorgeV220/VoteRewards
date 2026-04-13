@@ -230,7 +230,9 @@ public record VoteUtils(User user) {
             BukkitMinecraftUtils.debug(voteReward.getName(), voteReward.getVersion(),
                     debugUserMessage(user, "saved", true));
         }
-        VotePartyUtils.voteParty(Bukkit.getOfflinePlayer(user.name()), false);
+        if (OptionsUtil.VOTEPARTY.getBooleanValue()) {
+            VotePartyUtils.voteParty(Bukkit.getOfflinePlayer(user.name()), false);
+        }
     }
 
     /**
